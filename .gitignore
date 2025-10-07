@@ -61,4 +61,4 @@ backend/src/main/resources/application.properties
 /frontend
 frontend/build.zip
 
-myqueries.sql
+.console.sql
