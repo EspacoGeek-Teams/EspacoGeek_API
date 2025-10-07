@@ -9,13 +9,11 @@ import org.springframework.stereotype.Controller;
 
 import com.espacogeek.geek.data.MediaDataController;
 import com.espacogeek.geek.data.api.MediaApi;
-import com.espacogeek.geek.data.api.QuoteApi;
 import com.espacogeek.geek.models.MediaModel;
 import com.espacogeek.geek.services.MediaCategoryService;
 import com.espacogeek.geek.services.MediaService;
 import com.espacogeek.geek.services.TypeReferenceService;
 import com.espacogeek.geek.types.MediaPage;
-import com.espacogeek.geek.types.QuoteArtwork;
 import com.espacogeek.geek.utils.Utils;
 import com.espacogeek.geek.exception.GenericException;
 
@@ -35,17 +33,6 @@ public class MediaController {
     private TypeReferenceService typeReferenceService;
     @Autowired
     private MediaCategoryService mediaCategoryService;
-    @Autowired
-    private QuoteApi quoteApi;
-
-    @QueryMapping(name = "quote")
-    public QuoteArtwork getQuoteAndRandomArtwork() {
-        var quote = quoteApi.getRandomQuote();
-        //String artwork = mediaService.randomArtwork().orElseThrow(() -> new GenericException("Artwork not found"));
-
-        //return new QuoteArtwork(quote.getQuote(), quote.getAuthor(), artwork);
-        return new QuoteArtwork(quote.getQuote(), quote.getAuthor(), "artwork");
-    }
 
     /**
      * Finds a MediaModel object by its ID.

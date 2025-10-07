@@ -25,8 +25,8 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-@Component("quoteController")
-@Qualifier("quoteController")
+@Component("quoteApiImpl")
+@Qualifier("quoteApiImpl")
 public class QuoteApiImpl implements QuoteApi {
     @Autowired
     private ApiKeyService apiKeyService;

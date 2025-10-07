@@ -188,6 +188,7 @@ public class MediaServiceImpl implements MediaService {
      * @see MediaService#randomArtwork()
      */
     @Override
+    @Transactional
     public Optional<String> randomArtwork() {
         long total = mediaRepository.count();
         if (total <= 0) return Optional.empty();
@@ -225,9 +226,6 @@ public class MediaServiceImpl implements MediaService {
                         break;
                     case MediaDataController.SERIE_ID:
                         updated = Utils.updateMedia(Arrays.asList(media), serieController).getFirst();
-                        break;
-                    default:
-                        // Unsupported category for artwork update in this flow, skip
                         break;
                 }
 

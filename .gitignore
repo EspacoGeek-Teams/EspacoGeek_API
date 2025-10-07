@@ -60,3 +60,5 @@ backend/src/main/resources/application.properties
 /imageDB
 /frontend
 frontend/build.zip
+
+myqueries.sql

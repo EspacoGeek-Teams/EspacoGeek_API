@@ -86,5 +86,10 @@ public interface MediaService {
     Optional<MediaModel> findByIdEager(Integer id);
 
 
+    /**
+     * Returns a random artwork URL if available.
+     *
+     * @return An Optional containing a random artwork URL, or an empty Optional if no artwork is found.
+     */
     Optional<String> randomArtwork();
 }
