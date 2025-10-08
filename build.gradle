@@ -1,0 +1,94 @@
+plugins {
+    id 'java'
+    id 'war'
+    id 'org.springframework.boot' version '3.3.13'
+    id 'io.spring.dependency-management' version '1.1.6'
+}
+
+group = 'com.espacogeek'
+version = '0.1.0-BETA'
+description = 'EspaçoGeek'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+
+    // Ensure 'providedRuntime' configuration exists (some Spring Boot/Gradle combos don't create it)
+    providedRuntime {}
+}
+
+dependencies {
+    // ===== Produção / Implementação =====
+    implementation 'org.flywaydb:flyway-mysql:10.21.0'
+    implementation 'org.springframework.retry:spring-retry'
+    implementation 'org.springframework:spring-aspects'
+
+    implementation('io.github.husnjak:igdb-api-jvm:4-test') {
+        exclude group: 'com.github.kittinunf.fuel', module: 'fuel-android'
+    }
+
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
+
+    implementation('com.googlecode.json-simple:json-simple:1.1.1') {
+        exclude group: 'junit', module: 'junit'
+    }
+
+    implementation 'at.favre.lib:bcrypt:0.10.2'
+    implementation 'uk.co.conoregan:themoviedbapi:2.1.1'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-graphql'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'com.squareup.okhttp3:okhttp'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-logging'
+
+    // ===== Escopos Especiais =====
+    runtimeOnly 'com.mysql:mysql-connector-j'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
+
+    // ===== Lombok =====
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    // ===== Testes =====
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework:spring-webflux'
+    testImplementation 'org.springframework.graphql:spring-graphql-test'
+}
+
+tasks.withType(Test) {
+    useJUnitPlatform()
+}
+
+tasks.named('bootJar') {
+    enabled = false
+}
+
+tasks.named('bootWar') {
+    enabled = true
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src/main/java']
+        }
+        resources {
+            srcDirs = ['src/main/resources']
+        }
+    }
+}
