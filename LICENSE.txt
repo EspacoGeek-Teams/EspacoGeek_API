@@ -672,3 +672,158 @@ may consider it more useful to permit linking proprietary applications with
 the library.  If this is what you want to do, use the GNU Lesser General
 Public License instead of this License.  But first, please read
 <https://www.gnu.org/licenses/why-not-lgpl.html>.
+
+================================================================================
+                        THIRD-PARTY COMPONENTS
+================================================================================
+
+This software includes or depends upon the following third-party libraries
+and external APIs. Each component is subject to its own license terms.
+
+--------------------------------------------------------------------------------
+SPRING FRAMEWORK ECOSYSTEM
+--------------------------------------------------------------------------------
+
+The following Spring Framework components are licensed under the Apache
+License, Version 2.0:
+
+* Spring Boot (https://spring.io/projects/spring-boot)
+  Copyright (c) 2002-2024 Pivotal Software, Inc.
+  
+* Spring Security (https://spring.io/projects/spring-security)
+  Copyright (c) 2002-2024 Pivotal Software, Inc.
+  
+* Spring Data JPA (https://spring.io/projects/spring-data-jpa)
+  Copyright (c) 2011-2024 Pivotal Software, Inc.
+  
+* Spring GraphQL (https://spring.io/projects/spring-graphql)
+  Copyright (c) 2020-2024 Pivotal Software, Inc.
+  
+* Spring Retry (https://github.com/spring-projects/spring-retry)
+  Copyright (c) 2006-2024 Pivotal Software, Inc.
+  
+* Spring AOP (https://docs.spring.io/spring-framework/reference/core/aop.html)
+  Copyright (c) 2002-2024 Pivotal Software, Inc.
+
+Apache License, Version 2.0
+http://www.apache.org/licenses/LICENSE-2.0
+
+--------------------------------------------------------------------------------
+DATABASE AND PERSISTENCE
+--------------------------------------------------------------------------------
+
+* Flyway (https://flywaydb.org/)
+  Version: 10.21.0
+  Copyright (c) 2010-2024 Redgate Software Ltd
+  License: Apache License 2.0
+  http://www.apache.org/licenses/LICENSE-2.0
+
+* MySQL Connector/J (https://dev.mysql.com/downloads/connector/j/)
+  Copyright (c) 2000, 2024, Oracle and/or its affiliates
+  License: GNU General Public License v2.0 with FOSS Exception
+  https://github.com/mysql/mysql-connector-j/blob/release/8.x/LICENSE
+
+--------------------------------------------------------------------------------
+HTTP CLIENT AND NETWORKING
+--------------------------------------------------------------------------------
+
+* OkHttp (https://square.github.io/okhttp/)
+  Copyright 2019 Square, Inc.
+  License: Apache License 2.0
+  http://www.apache.org/licenses/LICENSE-2.0
+
+--------------------------------------------------------------------------------
+SECURITY AND CRYPTOGRAPHY
+--------------------------------------------------------------------------------
+
+* BCrypt (https://github.com/patrickfav/bcrypt)
+  Version: 0.10.2
+  Copyright (c) 2018 Patrick Favre-Bulle
+  License: Apache License 2.0
+  http://www.apache.org/licenses/LICENSE-2.0
+
+--------------------------------------------------------------------------------
+DATA PROCESSING AND UTILITIES
+--------------------------------------------------------------------------------
+
+* JSON Simple (https://github.com/fangyidong/json-simple)
+  Version: 1.1.1
+  Copyright (c) Yidong Fang
+  License: Apache License 2.0
+  http://www.apache.org/licenses/LICENSE-2.0
+
+* Lombok (https://projectlombok.org/)
+  Copyright (C) 2009-2024 The Project Lombok Authors
+  License: MIT License
+  https://opensource.org/licenses/MIT
+
+--------------------------------------------------------------------------------
+EXTERNAL API CLIENT LIBRARIES
+--------------------------------------------------------------------------------
+
+* IGDB API JVM (https://github.com/husnjak/IGDB-API-JVM)
+  Version: 4-test
+  Copyright (c) 2021 Dino Husnjak
+  License: Apache License 2.0 (assumed, please verify)
+  https://api-docs.igdb.com/
+
+* TheMovieDB API (https://github.com/c-eg/themoviedbapi)
+  Version: 2.1.1
+  Copyright (c) 2023 Conor Egan
+  License: Apache License 2.0 (assumed, please verify)
+  https://www.themoviedb.org/documentation/api
+
+--------------------------------------------------------------------------------
+EXTERNAL APIs AND SERVICES
+--------------------------------------------------------------------------------
+
+This application integrates with the following external APIs. Use of these
+APIs is subject to their respective terms of service:
+
+* IGDB - Internet Game Database API
+  Provider: Twitch Interactive, Inc. (Amazon company)
+  Website: https://www.igdb.com/
+  API Documentation: https://api-docs.igdb.com/
+  Terms of Service: https://www.igdb.com/terms
+
+* TMDB - The Movie Database API
+  Provider: TiVo Corporation
+  Website: https://www.themoviedb.org/
+  API Documentation: https://developers.themoviedb.org/
+  Terms of Use: https://www.themoviedb.org/terms-of-use
+  Attribution Requirement: This product uses the TMDB API but is not 
+  endorsed or certified by TMDB.
+
+* API Ninjas - Quote API
+  Provider: API Ninjas
+  Website: https://api-ninjas.com/
+  API Documentation: https://api-ninjas.com/api/quotes
+  Terms of Service: https://api-ninjas.com/terms
+
+--------------------------------------------------------------------------------
+NOTES
+--------------------------------------------------------------------------------
+
+1. The Apache License 2.0 is compatible with GPL v3 and allows this project
+   to use Apache-licensed components.
+
+2. The MIT License (Lombok) is permissive and GPL-compatible.
+
+3. MySQL Connector/J's GPL v2 with FOSS Exception allows use in GPL v3
+   licensed applications.
+
+4. External APIs may have usage limits, rate limits, and require API keys.
+   Users must comply with each API provider's terms of service.
+
+5. For complete license texts:
+   - Apache License 2.0: http://www.apache.org/licenses/LICENSE-2.0
+   - MIT License: https://opensource.org/licenses/MIT
+   - GPL v2: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+
+6. The licenses listed above are based on the project dependencies at the
+   time of writing. Always verify current license information for each
+   dependency.
+
+================================================================================
+                           END OF LICENSE
+================================================================================
