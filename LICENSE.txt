@@ -680,6 +680,16 @@ Public License instead of this License.  But first, please read
 This software includes or depends upon the following third-party libraries
 and external APIs. Each component is subject to its own license terms.
 
+## Docker
+Docker is licensed under the Apache License, Version 2.0.
+See: https://github.com/moby/moby/blob/master/LICENSE
+
+## Docker Compose
+Docker Compose is licensed under the Apache License, Version 2.0.
+See: https://github.com/docker/compose/blob/master/LICENSE
+
+This project uses Docker and Docker Compose for container orchestration and development convenience. Their licenses apply to the respective binaries and source code, not to the application code in this repository.
+
 --------------------------------------------------------------------------------
 SPRING FRAMEWORK ECOSYSTEM
 --------------------------------------------------------------------------------
@@ -689,19 +699,19 @@ License, Version 2.0:
 
 * Spring Boot (https://spring.io/projects/spring-boot)
   Copyright (c) 2002-2024 Pivotal Software, Inc.
-  
+
 * Spring Security (https://spring.io/projects/spring-security)
   Copyright (c) 2002-2024 Pivotal Software, Inc.
-  
+
 * Spring Data JPA (https://spring.io/projects/spring-data-jpa)
   Copyright (c) 2011-2024 Pivotal Software, Inc.
-  
+
 * Spring GraphQL (https://spring.io/projects/spring-graphql)
   Copyright (c) 2020-2024 Pivotal Software, Inc.
-  
+
 * Spring Retry (https://github.com/spring-projects/spring-retry)
   Copyright (c) 2006-2024 Pivotal Software, Inc.
-  
+
 * Spring AOP (https://docs.spring.io/spring-framework/reference/core/aop.html)
   Copyright (c) 2002-2024 Pivotal Software, Inc.
 
@@ -791,7 +801,7 @@ APIs is subject to their respective terms of service:
   Website: https://www.themoviedb.org/
   API Documentation: https://developers.themoviedb.org/
   Terms of Use: https://www.themoviedb.org/terms-of-use
-  Attribution Requirement: This product uses the TMDB API but is not 
+  Attribution Requirement: This product uses the TMDB API but is not
   endorsed or certified by TMDB.
 
 * API Ninjas - Quote API
