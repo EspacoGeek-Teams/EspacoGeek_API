@@ -12,9 +12,12 @@ import com.espacogeek.geek.exception.GenericException;
 import com.espacogeek.geek.models.UserModel;
 import com.espacogeek.geek.repositories.UserRepository;
 
+/**
+ * Loads user details from database for Spring Security.
+ */
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
-    
+
     @Autowired
     private UserRepository userRepository;
 

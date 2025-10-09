@@ -11,6 +11,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 
+import com.espacogeek.geek.config.JwtConfig;
 import com.espacogeek.geek.exception.GenericException;
 import com.espacogeek.geek.models.UserModel;
 import com.espacogeek.geek.services.UserService;
@@ -24,17 +25,32 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private JwtConfig jwtConfig;
+
     @QueryMapping
     public List<UserModel> findUser(@Argument Integer id, @Argument String username, @Argument String email) {
         return userService.findByIdOrUsernameContainsOrEmail(id, username, email);
     }
 
+    /**
+     * Authenticate with email and password and return a JWT token.
+     */
     @QueryMapping(name = "login")
-    @PreAuthorize("hasRole('user')")
-    public String doLoginUser() {
-        return HttpStatus.ACCEPTED.toString();
-    }
+    public String doLoginUser(@Argument String email, @Argument String password) {
+        UserModel user = userService.findUserByEmail(email)
+            .orElseThrow(() -> new GenericException(HttpStatus.UNAUTHORIZED.toString()));
 
+        boolean verified = BCrypt.verifyer().verify(password.toCharArray(), user.getPassword()).verified;
+        if (!verified) {
+            throw new GenericException(HttpStatus.UNAUTHORIZED.toString());
+        }
+
+        String token = jwtConfig.generateToken(user);
+        user.setJwtToken(token);
+        userService.save(user);
+        return token;
+    }
 
     @MutationMapping(name = "createUser")
     public String createUser(@Argument(name = "credentials") NewUser newUser) {
@@ -47,8 +63,8 @@ public class UserController {
             throw new GenericException(HttpStatus.BAD_REQUEST.toString());
         }
 
-        var passwordCrypt = BCrypt.withDefaults().hash(12, newUser.password().toCharArray());
-        var user = new UserModel(null, newUser.username().trim(), newUser.email().toLowerCase().trim(), passwordCrypt, null);
+        byte[] passwordCrypt = BCrypt.withDefaults().hash(12, newUser.password().toCharArray());
+        UserModel user = new UserModel(null, newUser.username().trim(), newUser.email().toLowerCase().trim(), null, passwordCrypt, null);
 
         userService.save(user);
 
@@ -63,10 +79,10 @@ public class UserController {
             throw new GenericException(HttpStatus.BAD_REQUEST.toString());
         }
 
-        var userId = Utils.getUserID(authentication);
+        Integer userId = Utils.getUserID(authentication);
 
-        var userLogged = userService.findById(Integer.valueOf(userId)).get();
-        var resultPassword = BCrypt.verifyer().verify(actualPassword.toCharArray(), userLogged.getPassword()).verified;
+        UserModel userLogged = userService.findById(Integer.valueOf(userId)).get();
+        boolean resultPassword = BCrypt.verifyer().verify(actualPassword.toCharArray(), userLogged.getPassword()).verified;
 
         if (resultPassword) {
             userLogged.setPassword(BCrypt.withDefaults().hash(12, newPassword.toCharArray()));
@@ -81,10 +97,10 @@ public class UserController {
     @PreAuthorize("hasRole('user')")
     public String deleteUserLogged(Authentication authentication, @Argument String password) {
 
-        var userId = Utils.getUserID(authentication);
+        Integer userId = Utils.getUserID(authentication);
 
-        var userLogged = userService.findById(userId).get();
-        var resultPassword = BCrypt.verifyer().verify(password.toCharArray(), userLogged.getPassword()).verified;
+        UserModel userLogged = userService.findById(userId).get();
+        boolean resultPassword = BCrypt.verifyer().verify(password.toCharArray(), userLogged.getPassword()).verified;
 
         if (resultPassword) {
             userService.deleteById(Integer.valueOf(userId));
@@ -98,10 +114,10 @@ public class UserController {
     @PreAuthorize("hasRole('user')")
     public String editUsernameUserLogged(Authentication authentication, @Argument String password, @Argument String newUsername) {
 
-        var userId = Utils.getUserID(authentication);
+        Integer userId = Utils.getUserID(authentication);
 
-        var userLogged = userService.findById(userId).get();
-        var resultPassword = BCrypt.verifyer().verify(password.toCharArray(), userLogged.getPassword()).verified;
+        UserModel userLogged = userService.findById(userId).get();
+        boolean resultPassword = BCrypt.verifyer().verify(password.toCharArray(), userLogged.getPassword()).verified;
 
         if (resultPassword) {
             userLogged.setUsername(newUsername);
@@ -116,10 +132,10 @@ public class UserController {
     @PreAuthorize("hasRole('user')")
     public String editEmailUserLogged(Authentication authentication, @Argument String password, @Argument String newEmail) {
 
-        var userId = Utils.getUserID(authentication);
+        Integer userId = Utils.getUserID(authentication);
 
-        var userLogged = userService.findById(userId).get();
-        var resultPassword = BCrypt.verifyer().verify(password.toCharArray(), userLogged.getPassword()).verified;
+        UserModel userLogged = userService.findById(userId).get();
+        boolean resultPassword = BCrypt.verifyer().verify(password.toCharArray(), userLogged.getPassword()).verified;
 
         if (resultPassword) {
             userLogged.setEmail(newEmail);
