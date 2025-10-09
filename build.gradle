@@ -3,6 +3,7 @@ plugins {
     id 'war'
     id 'org.springframework.boot' version '3.3.13'
     id 'io.spring.dependency-management' version '1.1.6'
+    id 'org.graalvm.buildtools.native' version '0.11.1'
 }
 
 group = 'com.espacogeek'
@@ -12,6 +13,40 @@ description = 'EspaçoGeek'
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+graalvmNative {
+    binaries {
+        main {
+            imageName = "espaco-geek"
+            buildArgs.add('-H:Name=espaco-geek')
+            buildArgs.addAll([
+                '--no-fallback',
+                '-O3',
+                //'--initialize-at-run-time=... (para classes pesadas)',
+                '--report-unsupported-elements-at-runtime'
+            ])
+        }
+    }
+}
+
+// Disable the GraalVM plugin task that generates resources config to avoid
+// resolving non-resolvable configurations during configuration cache.
+// This is safer than calling a non-existent `resources {}` DSL on the extension.
+tasks.matching { it.name == 'generateResourcesConfigFile' }.configureEach {
+    enabled = false
+}
+
+sourceSets {
+    main {
+        resources {
+            srcDir 'graal-config'
+            srcDirs = ['src/main/resources']
+        }
+        java {
+            srcDirs = ['src/main/java']
+        }
     }
 }
 
@@ -80,15 +115,4 @@ tasks.named('bootJar') {
 
 tasks.named('bootWar') {
     enabled = true
-}
-
-sourceSets {
-    main {
-        java {
-            srcDirs = ['src/main/java']
-        }
-        resources {
-            srcDirs = ['src/main/resources']
-        }
-    }
 }
