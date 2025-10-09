@@ -1,0 +1,16 @@
+# Multi-stage JVM image (fat executable artifact normalized to app.jar)
+FROM eclipse-temurin:21-jdk AS build
+WORKDIR /workspace
+SHELL ["/bin/bash", "-c"]
+COPY . .
+# bootJar is disabled in build.gradle, so use `build` to produce WAR (or executable JAR if enabled later)
+RUN ./gradlew clean build -x test --no-daemon
+RUN set -e; shopt -s nullglob; files=(build/libs/*.[jw]ar); if [ ${#files[@]} -eq 0 ]; then echo "No jar/war produced"; ls -l build/libs; exit 1; fi; preferred=""; for f in "${files[@]}"; do case "$f" in *-plain.*) ;; *) preferred="$f"; break ;; esac; done; if [ -z "$preferred" ]; then preferred="${files[0]}"; fi; echo "Using artifact: $preferred"; cp "$preferred" build/libs/app.jar
+
+FROM eclipse-temurin:21-jre AS run
+WORKDIR /app
+COPY --from=build /workspace/build/libs/app.jar /app/app.jar
+
+EXPOSE 8080 5005
+ENV JAVA_OPTS=""
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]

@@ -68,3 +68,6 @@ frontend/build.zip
 
 # Ignore Gradle build output directory
 build
+
+docker\.env
+\.env

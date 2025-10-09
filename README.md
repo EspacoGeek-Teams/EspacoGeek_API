@@ -125,5 +125,81 @@ Rotate database credentials and avoid committing secrets. Use environment variab
 ### 10. License
 See `LICENSE.txt`.
 
+### 11. Docker Usage
+Supports three modes: JVM, JVM Debug, Native (GraalVM). Uses `docker-compose` to orchestrate optional MySQL.
+
+Directory: `docker/`
+- `Dockerfile.jvm` : Multi-stage build producing a JVM runtime image.
+- `Dockerfile.native` : Multi-stage native-image build (Linux binary).
+- `docker-compose.yml` : Services: app-jvm, app-jvm-debug, app-native, db.
+
+Prerequisites:
+- Docker Engine + Compose Plugin (Docker Desktop or distro packages)
+- (Native image build) Sufficient RAM (≥4‑6GB) & CPU time.
+
+Build & Run (all services):
+```
+cd docker
+docker compose up --build
+```
+This will start:
+- `db` (MySQL)
+- `app-jvm` on port 8080
+- `app-jvm-debug` on port 8081 (debug port 5006)
+- `app-native` on port 8082
+
+Run only a specific service (example native):
+```
+cd docker
+docker compose build app-native
+docker compose up app-native db
+```
+
+JVM Debug attach example (IDE):
+- Host: localhost
+- Port: 5006
+- Mode: Attach (Socket)
+
+Environment overrides:
+```
+SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/espacogeek
+SPRING_DATASOURCE_USERNAME=geek
+SPRING_DATASOURCE_PASSWORD=strongpass
+```
+Adjust in `docker-compose.yml` or via `--env` flags.
+
+Rebuild after code changes (JVM):
+```
+docker compose build app-jvm && docker compose up -d app-jvm
+```
+Faster iterative JVM dev (mount source) – optional example (not enabled by default):
+Add in service:
+```
+volumes:
+  - ../:/workspace
+```
+Then run a dev command override.
+
+Cleaning images/containers:
+```
+docker compose down
+# Remove dangling images
+docker image prune -f
+```
+
+Native image notes:
+- Native build happens in container; local GraalVM install not required.
+- Result binary stays inside the image (distroless run stage).
+- For lower image size you could add strip flags (`-H:StripDebugInfo`).
+
+Production suggestions:
+- Use a separate network/database.
+- Externalize secrets via Docker secrets or env file (do not commit `.env` with real credentials).
+
+### 12. Run Without Docker (Recap)
+- JVM: `./gradlew bootRun`
+- Native (host): `./gradlew nativeCompile && ./build/native/nativeCompile/espaco-geek`
+- Configure DB via environment variables as shown earlier.
+
 ---
-Short path: JVM dev = `./gradlew bootRun` | Native = `./gradlew nativeCompile` then run binary.
+Short path: JVM dev = `./gradlew bootRun` | Docker all = `cd docker && docker compose up --build` | Native docker = `docker compose build app-native`.

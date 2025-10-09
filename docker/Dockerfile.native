@@ -1,0 +1,22 @@
+# Native image build using GraalVM native builder image
+# This expects the project to be already configured with org.graalvm.buildtools.native
+
+FROM ghcr.io/graalvm/native-image-community:21 AS native-build
+WORKDIR /workspace
+SHELL ["/bin/bash", "-c"]
+# Install missing tooling (findutils provides xargs). Try common package managers gracefully.
+RUN (command -v xargs >/dev/null 2>&1 || \
+    ( (command -v microdnf && microdnf install -y findutils git) || \
+      (command -v apt-get && apt-get update && apt-get install -y findutils git) || \
+      (command -v apk && apk add --no-cache findutils git) )) || true
+COPY . .
+# Build native image (skip tests to speed up, adjust if you want tests)
+RUN ./gradlew clean nativeCompile -x test --no-daemon
+
+FROM gcr.io/distroless/base-debian12:nonroot
+WORKDIR /app
+# Copy the native binary produced by Gradle
+COPY --from=native-build /workspace/build/native/nativeCompile/espaco-geek /app/espaco-geek
+EXPOSE 8080
+USER nonroot
+ENTRYPOINT ["/app/espaco-geek"]

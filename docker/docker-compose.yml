@@ -1,0 +1,88 @@
+services:
+  app-jvm:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.jvm
+    image: espacogeek-jvm:latest
+    container_name: espacogeek-jvm
+    environment:
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      JAVA_OPTS: "-Xms256m -Xmx512m"
+    ports:
+      - "8080:8080"
+      - "5005:5005"
+    depends_on:
+      - db
+
+  app-jvm-debug:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.jvm
+    image: espacogeek-jvm-debug:latest
+    container_name: espacogeek-jvm-debug
+    environment:
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      JAVA_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -Xms256m -Xmx512m"
+    ports:
+      - "8081:8080"
+      - "5006:5005"
+    depends_on:
+      - db
+
+  app-native:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.native
+    image: espacogeek-native:latest
+    container_name: espacogeek-native
+    environment:
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+    ports:
+      - "8082:8080"
+    depends_on:
+      - db
+
+  # Hot-reload development container (mounts source & uses devtools)
+  app-dev:
+    image: eclipse-temurin:21-jdk
+    container_name: espacogeek-dev
+    working_dir: /workspace
+    volumes:
+      - ..:/workspace:cached
+      - gradle_cache:/workspace/.gradle
+    environment:
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      SPRING_DEVTOOLS_RESTART_ENABLED: "true"
+      JAVA_TOOL_OPTIONS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5007"
+    command: >-
+      sh -c "chmod +x gradlew && ./gradlew --no-daemon -t classes & ./gradlew --no-daemon bootRun"
+    ports:
+      - "8083:8080"
+      - "5007:5007"
+    depends_on:
+      - db
+
+  db:
+    image: mysql:8.4
+    container_name: espacogeek-db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: espacogeek
+      MYSQL_USER: ${SPRING_DATASOURCE_USERNAME}
+      MYSQL_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+    ports:
+      - "3307:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+volumes:
+  db_data:
+  gradle_cache:
