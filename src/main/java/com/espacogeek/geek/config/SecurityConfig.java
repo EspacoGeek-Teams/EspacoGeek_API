@@ -11,6 +11,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.espacogeek.geek.services.impl.UserDetailsServiceImpl;
 
@@ -18,6 +19,9 @@ import static org.springframework.security.config.Customizer.withDefaults;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+/**
+ * Spring Security setup with JWT filter and method security.
+ */
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -25,6 +29,9 @@ public class SecurityConfig {
 
     @Autowired
     private UserDetailsServiceImpl userDetailsService;
+
+    @Autowired
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
@@ -44,12 +51,14 @@ public class SecurityConfig {
 
         return http.csrf(csrf -> csrf.disable())
                     .authorizeHttpRequests(auth -> {
-                        auth.anyRequest().permitAll();
+                        auth.requestMatchers("/api").permitAll();
+                        auth.anyRequest().authenticated();
                     })
                     .sessionManagement(
                             session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                     .httpBasic(withDefaults())
                     .authenticationManager(authenticationManager)
+                    .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                     .build();
     }
 }

@@ -39,6 +39,10 @@ public class UserModel implements Serializable {
     @Email(message = "Invalid email.")
     private String email;
 
+    @Size(max = 255, message = "Invalid size")
+    @Column(name = "jwt_token", nullable = true)
+    private String jwtToken;
+
     @Size(min = 8, max = 70, message = "Invalid size")
     @Column(name = "password", nullable = false)
     private byte[] password;

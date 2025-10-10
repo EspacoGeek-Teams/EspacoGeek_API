@@ -41,6 +41,14 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
+     * @see UserService#findUserByEmail(String)
+     */
+    @Override
+    public Optional<UserModel> findUserByEmail(String email) {
+        return userRepository.findUserByEmail(email);
+    }
+
+    /**
      * @see UserService#save(UserModel)
      */
     @Override

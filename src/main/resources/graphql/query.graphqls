@@ -4,6 +4,6 @@ type Query {
     game(id: ID, name: String, page: Int, size: Int): MediaPage
     vn(id: ID, name: String, page: Int, size: Int): MediaPage
     media(id: ID): Media
-    login: String
+    login(email: String, password: String): String
     quote: QuoteArtwork
 }
