@@ -768,7 +768,7 @@ JAVA DEPENDENCIES
   https://opensource.org/licenses/MIT
 
 --------------------------------------------------------------------------------
-EXTERNAL APIs AND SERVICES
+EXTERNAL APIs AND SERVICES 
 --------------------------------------------------------------------------------
 
 This application integrates with the following external APIs. Use of these
