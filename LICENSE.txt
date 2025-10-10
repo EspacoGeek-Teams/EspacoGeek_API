@@ -691,11 +691,8 @@ See: https://github.com/docker/compose/blob/master/LICENSE
 This project uses Docker and Docker Compose for container orchestration and development convenience. Their licenses apply to the respective binaries and source code, not to the application code in this repository.
 
 --------------------------------------------------------------------------------
-SPRING FRAMEWORK ECOSYSTEM
+JAVA DEPENDENCIES
 --------------------------------------------------------------------------------
-
-The following Spring Framework components are licensed under the Apache
-License, Version 2.0:
 
 * Spring Boot (https://spring.io/projects/spring-boot)
   Copyright (c) 2002-2024 Pivotal Software, Inc.
@@ -715,12 +712,8 @@ License, Version 2.0:
 * Spring AOP (https://docs.spring.io/spring-framework/reference/core/aop.html)
   Copyright (c) 2002-2024 Pivotal Software, Inc.
 
-Apache License, Version 2.0
-http://www.apache.org/licenses/LICENSE-2.0
-
---------------------------------------------------------------------------------
-DATABASE AND PERSISTENCE
---------------------------------------------------------------------------------
+* Apache License, Version 2.0
+  http://www.apache.org/licenses/LICENSE-2.0
 
 * Flyway (https://flywaydb.org/)
   Version: 10.21.0
@@ -733,28 +726,16 @@ DATABASE AND PERSISTENCE
   License: GNU General Public License v2.0 with FOSS Exception
   https://github.com/mysql/mysql-connector-j/blob/release/8.x/LICENSE
 
---------------------------------------------------------------------------------
-HTTP CLIENT AND NETWORKING
---------------------------------------------------------------------------------
-
 * OkHttp (https://square.github.io/okhttp/)
   Copyright 2019 Square, Inc.
   License: Apache License 2.0
   http://www.apache.org/licenses/LICENSE-2.0
-
---------------------------------------------------------------------------------
-SECURITY AND CRYPTOGRAPHY
---------------------------------------------------------------------------------
 
 * BCrypt (https://github.com/patrickfav/bcrypt)
   Version: 0.10.2
   Copyright (c) 2018 Patrick Favre-Bulle
   License: Apache License 2.0
   http://www.apache.org/licenses/LICENSE-2.0
-
---------------------------------------------------------------------------------
-DATA PROCESSING AND UTILITIES
---------------------------------------------------------------------------------
 
 * JSON Simple (https://github.com/fangyidong/json-simple)
   Version: 1.1.1
@@ -767,10 +748,6 @@ DATA PROCESSING AND UTILITIES
   License: MIT License
   https://opensource.org/licenses/MIT
 
---------------------------------------------------------------------------------
-EXTERNAL API CLIENT LIBRARIES
---------------------------------------------------------------------------------
-
 * IGDB API JVM (https://github.com/husnjak/IGDB-API-JVM)
   Version: 4-test
   Copyright (c) 2021 Dino Husnjak
@@ -782,6 +759,13 @@ EXTERNAL API CLIENT LIBRARIES
   Copyright (c) 2023 Conor Egan
   License: Apache License 2.0 (assumed, please verify)
   https://www.themoviedb.org/documentation/api
+
+* spring-dotenv (https://github.com/paulschwarz/spring-dotenv)
+  Group: me.paulschwarz
+  Version: 4.0.0
+  Copyright (c) 2018 Paul Schwarz
+  License: MIT License
+  https://opensource.org/licenses/MIT
 
 --------------------------------------------------------------------------------
 EXTERNAL APIs AND SERVICES
