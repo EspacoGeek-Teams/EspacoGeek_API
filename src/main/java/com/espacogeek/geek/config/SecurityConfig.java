@@ -51,7 +51,7 @@ public class SecurityConfig {
 
         return http.csrf(csrf -> csrf.disable())
                     .authorizeHttpRequests(auth -> {
-                        auth.requestMatchers("/graphql").permitAll(); // login/createUser are exposed via GraphQL schema
+                        auth.requestMatchers("/api").permitAll();
                         auth.anyRequest().authenticated();
                     })
                     .sessionManagement(

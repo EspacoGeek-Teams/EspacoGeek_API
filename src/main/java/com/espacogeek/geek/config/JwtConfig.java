@@ -23,10 +23,10 @@ import javax.crypto.SecretKey;
 @Component
 public class JwtConfig {
 
-    @Value("${security.jwt.secret:ZmFrZS1zZWNyZXQtZmFrZS1zZWNyZXQtZmFrZS1zZWNyZXQtMTIzNDU2}") // base64 for default
+    @Value("${security.jwt.secret:ZmFrZS1zZWNyZXQtZmFrZS1zZWNyZXQtZmFrZS1zZWNyZXQtMTIzNDU2}")
     private String secret;
 
-    @Value("${security.jwt.expiration-ms:3600000}")
+    @Value("${security.jwt.expiration-ms:604800000}")
     private long expirationMs;
 
     @Value("${security.jwt.issuer:espaco-geek}")
