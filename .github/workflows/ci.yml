@@ -123,6 +123,13 @@ jobs:
           echo "tags_csv=${TAGS}" >> "$GITHUB_OUTPUT"
           echo "should_push=${SHOULD_PUSH}" >> "$GITHUB_OUTPUT"
 
+      # Normaliza o owner para minúsculas (GHCR requer nomes em minúsculas)
+      - name: Normalize owner (lowercase for GHCR)
+        id: owner
+        shell: bash
+        run: |
+          echo "owner_lower=${GITHUB_REPOSITORY_OWNER,,}" >> "$GITHUB_OUTPUT"
+
       # Compila o WAR (sem testes, pois já rodaram)
       - name: Build WAR artifact (skip tests)
         run: ./gradlew --no-daemon clean build -x test
@@ -175,22 +182,28 @@ jobs:
         id: tags
         shell: bash
         run: |
+          OWNER_LC="${{ steps.owner.outputs.owner_lower }}"
+          BASE_JVM="ghcr.io/${OWNER_LC}/espacogeek-backend-jvm"
+          BASE_NATIVE="ghcr.io/${OWNER_LC}/espacogeek-backend-native"
+          BASE_DB="ghcr.io/${OWNER_LC}/espacogeek-db"
+
           IFS=',' read -ra T <<< "${{ steps.vars.outputs.tags_csv }}"
+
           printf "jvm_tags<<EOF\n" >> "$GITHUB_OUTPUT"
           for tag in "${T[@]}"; do
-            echo "${{ env.JVM_IMAGE_GHCR }}:$tag" >> "$GITHUB_OUTPUT"
+            echo "${BASE_JVM}:$tag" >> "$GITHUB_OUTPUT"
           done
           printf "EOF\n" >> "$GITHUB_OUTPUT"
 
           printf "native_tags<<EOF\n" >> "$GITHUB_OUTPUT"
           for tag in "${T[@]}"; do
-            echo "${{ env.NATIVE_IMAGE_GHCR }}:$tag" >> "$GITHUB_OUTPUT"
+            echo "${BASE_NATIVE}:$tag" >> "$GITHUB_OUTPUT"
           done
           printf "EOF\n" >> "$GITHUB_OUTPUT"
 
           printf "db_tags<<EOF\n" >> "$GITHUB_OUTPUT"
           for tag in "${T[@]}"; do
-            echo "${{ env.DB_IMAGE_GHCR }}:$tag" >> "$GITHUB_OUTPUT"
+            echo "${BASE_DB}:$tag" >> "$GITHUB_OUTPUT"
           done
           printf "EOF\n" >> "$GITHUB_OUTPUT"
 
