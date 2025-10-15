@@ -8,7 +8,7 @@ plugins {
 }
 
 group = 'com.espacogeek'
-version = '0.1.0-BETA'
+version = '0.1.0'
 description = 'EspaçoGeek'
 
 java {
