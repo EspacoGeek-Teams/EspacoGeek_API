@@ -239,17 +239,17 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      # Cria um Dockerfile simples para o banco (baseado em PostgreSQL oficial)
-      - name: Create DB Dockerfile (PostgreSQL base)
+      # Cria um Dockerfile simples para o banco (baseado em MySQL oficial)
+      - name: Create DB Dockerfile (MySQL base)
         run: |
           mkdir -p docker
           cat > docker/Dockerfile.db << 'EOF'
-          FROM postgres:16
-          # Ajustes opcionais de configuração poderiam ser adicionados aqui (volumes, conf, etc.)
+          FROM mysql:8.0
+          # Ajustes opcionais de configuração poderiam ser adicionados aqui (volumes, conf, envs, etc.)
           EOF
 
       # Constrói imagem do banco de dados a partir do Dockerfile.db
-      - name: Build DB Docker image (PostgreSQL)
+      - name: Build DB Docker image (MySQL)
         uses: docker/build-push-action@v6
         with:
           context: .
