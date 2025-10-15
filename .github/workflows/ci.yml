@@ -1,14 +1,17 @@
 name: CI
 
 on:
+  # Roda em PRs para master e em pushes (merge) para master
   pull_request:
     branches: [ "master" ]
   push:
     branches: [ "master" ]
   workflow_dispatch:
 
+# Permissões mínimas + permissão para publicar pacotes no GHCR
 permissions:
   contents: read
+  packages: write
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -19,24 +22,32 @@ jobs:
     name: Tests
     runs-on: ubuntu-latest
     steps:
+      # Baixa o código
       - name: Check out code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # melhor para versionamento (tags/commits)
 
+      # Configura Java 21 (Temurin) para testes
       - name: Set up Java 21 (Temurin)
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '21'
 
+      # Configura cache do Gradle automaticamente
       - name: Setup Gradle (with caching)
         uses: gradle/actions/setup-gradle@v3
 
+      # Garante permissão de execução para o wrapper
       - name: Make Gradle wrapper executable
         run: chmod +x gradlew
 
+      # Executa a suíte de testes
       - name: Run unit tests
         run: ./gradlew --no-daemon clean test
 
+      # Publica relatórios de testes sempre, mesmo em caso de falha
       - name: Upload test reports (always)
         if: always()
         uses: actions/upload-artifact@v4
@@ -45,3 +56,205 @@ jobs:
           path: |
             build/test-results/test
             build/reports/tests/test
+
+  build_and_publish:
+    name: Build, Native, Docker and Push
+    runs-on: ubuntu-latest
+    needs: tests # Só executa se os testes passarem
+    if: ${{ needs.tests.result == 'success' }}
+    env:
+      # Nome base das imagens (pode ajustar conforme necessidade)
+      APP_NAME: espacogeek-backend
+      JVM_IMAGE_GHCR: ghcr.io/${{ github.repository_owner }}/espacogeek-backend-jvm
+      NATIVE_IMAGE_GHCR: ghcr.io/${{ github.repository_owner }}/espacogeek-backend-native
+      DB_IMAGE_GHCR: ghcr.io/${{ github.repository_owner }}/espacogeek-db
+    steps:
+      # Baixa o código (com histórico completo para gerar versões)
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Configura Java 21 (Temurin) para build do WAR
+      - name: Set up Java 21 (Temurin)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      # Configura cache do Gradle para builds
+      - name: Setup Gradle (with caching)
+        uses: gradle/actions/setup-gradle@v3
+
+      # Garante permissão de execução para o wrapper (em runners Linux)
+      - name: Make Gradle wrapper executable
+        run: chmod +x gradlew
+
+      # Lê a versão do projeto definida no build.gradle (project.version)
+      - name: Read Gradle project version
+        id: gradle_version
+        shell: bash
+        run: |
+          echo "version=$(./gradlew -q properties | sed -n 's/^version: \(.*\)$/\1/p')" >> "$GITHUB_OUTPUT"
+
+      # Gera tags de versão para as imagens Docker e artefatos
+      # - Em PR: pr-<numero>-<sha-curta>, v<versao>-pr-<numero>
+      # - Em push para master: latest, sha-<sha-curta>, <yyyyMMdd>, v<versao>
+      - name: Compute version tags
+        id: vars
+        shell: bash
+        run: |
+          set -euo pipefail
+          SHORT_SHA="$(git rev-parse --short HEAD)"
+          DATE_TAG="$(date +%Y%m%d)"
+          VERSION="${{ steps.gradle_version.outputs.version }}"
+          if [[ "${GITHUB_EVENT_NAME}" == "pull_request" ]]; then
+            PR_NUMBER="${{ github.event.pull_request.number }}"
+            TAGS="pr-${PR_NUMBER}-${SHORT_SHA},v${VERSION}-pr-${PR_NUMBER}"
+            SHOULD_PUSH="false" # não faz push em PRs por padrão
+          else
+            # push para master
+            # Inclui tag 'last-release' (Docker não permite espaço em tags)
+            TAGS="latest,last-release,sha-${SHORT_SHA},${DATE_TAG},v${VERSION}"
+            SHOULD_PUSH="true"
+          fi
+          echo "short_sha=${SHORT_SHA}" >> "$GITHUB_OUTPUT"
+          echo "date_tag=${DATE_TAG}" >> "$GITHUB_OUTPUT"
+          echo "tags_csv=${TAGS}" >> "$GITHUB_OUTPUT"
+          echo "should_push=${SHOULD_PUSH}" >> "$GITHUB_OUTPUT"
+
+      # Compila o WAR (sem testes, pois já rodaram)
+      - name: Build WAR artifact (skip tests)
+        run: ./gradlew --no-daemon clean build -x test
+
+      # Faz upload do WAR para auditoria/artefatos do pipeline
+      - name: Upload WAR artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: war-artifact
+          path: |
+            build/libs/*.war
+
+      # Configura GraalVM com native-image para compilar binário nativo via Gradle
+      - name: Set up GraalVM for Native Image
+        uses: graalvm/setup-graalvm@v1
+        with:
+          java-version: '21'
+          distribution: 'graalvm'
+          components: 'native-image'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      # Compila Native Image (sem testes, pois já rodaram)
+      - name: Build Native Image (Gradle nativeCompile)
+        run: ./gradlew --no-daemon nativeCompile -x test
+
+      # Publica o binário nativo como artefato do pipeline
+      - name: Upload Native binary artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: native-binary
+          path: |
+            build/native/nativeCompile/*
+
+      # Prepara Docker Buildx e cache de camadas
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Login no GHCR (usa GITHUB_TOKEN)
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Normaliza as tags calculadas em formato multilinha para o docker/buildx
+      - name: Prepare tag list (multiline)
+        id: tags
+        shell: bash
+        run: |
+          IFS=',' read -ra T <<< "${{ steps.vars.outputs.tags_csv }}"
+          printf "jvm_tags<<EOF\n" >> "$GITHUB_OUTPUT"
+          for tag in "${T[@]}"; do
+            echo "${{ env.JVM_IMAGE_GHCR }}:$tag" >> "$GITHUB_OUTPUT"
+          done
+          printf "EOF\n" >> "$GITHUB_OUTPUT"
+
+          printf "native_tags<<EOF\n" >> "$GITHUB_OUTPUT"
+          for tag in "${T[@]}"; do
+            echo "${{ env.NATIVE_IMAGE_GHCR }}:$tag" >> "$GITHUB_OUTPUT"
+          done
+          printf "EOF\n" >> "$GITHUB_OUTPUT"
+
+          printf "db_tags<<EOF\n" >> "$GITHUB_OUTPUT"
+          for tag in "${T[@]}"; do
+            echo "${{ env.DB_IMAGE_GHCR }}:$tag" >> "$GITHUB_OUTPUT"
+          done
+          printf "EOF\n" >> "$GITHUB_OUTPUT"
+
+      # Constrói imagem Docker da aplicação rodando na JVM usando Dockerfile existente
+      - name: Build JVM Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/Dockerfile.jvm
+          platforms: linux/amd64
+          push: ${{ steps.vars.outputs.should_push == 'true' && github.event_name == 'push' }}
+          tags: ${{ steps.tags.outputs.jvm_tags }}
+          labels: |
+            org.opencontainers.image.version=${{ steps.gradle_version.outputs.version }}
+            org.opencontainers.image.revision=${{ steps.vars.outputs.short_sha }}
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # Constrói imagem Docker da aplicação como Native Image (usa Dockerfile existente)
+      - name: Build Native Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/Dockerfile.native
+          platforms: linux/amd64
+          push: ${{ steps.vars.outputs.should_push == 'true' && github.event_name == 'push' }}
+          tags: ${{ steps.tags.outputs.native_tags }}
+          labels: |
+            org.opencontainers.image.version=${{ steps.gradle_version.outputs.version }}
+            org.opencontainers.image.revision=${{ steps.vars.outputs.short_sha }}
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # Cria um Dockerfile simples para o banco (baseado em PostgreSQL oficial)
+      - name: Create DB Dockerfile (PostgreSQL base)
+        run: |
+          mkdir -p docker
+          cat > docker/Dockerfile.db << 'EOF'
+          FROM postgres:16
+          # Ajustes opcionais de configuração poderiam ser adicionados aqui (volumes, conf, etc.)
+          EOF
+
+      # Constrói imagem do banco de dados a partir do Dockerfile.db
+      - name: Build DB Docker image (PostgreSQL)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/Dockerfile.db
+          platforms: linux/amd64
+          push: ${{ steps.vars.outputs.should_push == 'true' && github.event_name == 'push' }}
+          tags: ${{ steps.tags.outputs.db_tags }}
+          labels: |
+            org.opencontainers.image.version=${{ steps.gradle_version.outputs.version }}
+            org.opencontainers.image.revision=${{ steps.vars.outputs.short_sha }}
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # Resumo final com as tags geradas
+      - name: Summary
+        if: always()
+        run: |
+          echo "Project version: ${{ steps.gradle_version.outputs.version }}"
+          echo "Tags geradas: ${{ steps.vars.outputs.tags_csv }}"
+          echo "Push habilitado: ${{ steps.vars.outputs.should_push }}"
