@@ -12,6 +12,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,7 +23,9 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "daily_quote_artwork")
+@Table(name = "daily_quote_artwork", uniqueConstraints = {
+    @UniqueConstraint(name = "UK_date", columnNames = {"date"})
+})
 public class DailyQuoteArtworkModel implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
