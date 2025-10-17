@@ -6,4 +6,5 @@ type Query {
     media(id: ID): Media
     login(email: String, password: String): String
     quote: QuoteArtwork
+    dailyQuoteArtwork: QuoteArtwork
 }
