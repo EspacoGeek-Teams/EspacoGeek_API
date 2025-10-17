@@ -66,7 +66,6 @@ public class DailyQuoteArtworkServiceImpl implements DailyQuoteArtworkService {
         dailyQuoteArtwork.setAuthor(quote.getAuthor());
         dailyQuoteArtwork.setUrlArtwork(artwork);
         dailyQuoteArtwork.setDate(today);
-        dailyQuoteArtwork.setCreatedAt(LocalDateTime.now());
 
         return save(dailyQuoteArtwork);
     }
