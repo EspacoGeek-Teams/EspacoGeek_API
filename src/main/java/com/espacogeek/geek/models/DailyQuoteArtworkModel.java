@@ -1,8 +1,7 @@
 package com.espacogeek.geek.models;
 
 import java.io.Serializable;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.util.Date;
 
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -12,6 +11,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -41,10 +42,12 @@ public class DailyQuoteArtworkModel implements Serializable {
     @Column(name = "url_artwork", length = 500)
     private String urlArtwork;
 
+    @Temporal(TemporalType.DATE)
     @Column(name = "date", nullable = false)
-    private LocalDate date;
+    private Date date;
 
+    @Temporal(TemporalType.TIMESTAMP)
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    private Date createdAt;
 }

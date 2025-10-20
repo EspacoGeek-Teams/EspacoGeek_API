@@ -15,8 +15,7 @@ import com.espacogeek.geek.models.DailyQuoteArtworkModel;
 import com.espacogeek.geek.services.DailyQuoteArtworkService;
 import com.espacogeek.geek.types.QuoteArtwork;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.util.Date;
 
 @GraphQlTest(DailyQuoteArtworkController.class)
 @ActiveProfiles("test")
@@ -36,8 +35,8 @@ class DailyQuoteArtworkQueryTest {
         dailyModel.setQuote("The only way to do great work is to love what you do.");
         dailyModel.setAuthor("Steve Jobs");
         dailyModel.setUrlArtwork("https://example.com/artwork.jpg");
-        dailyModel.setDate(LocalDate.now());
-        dailyModel.setCreatedAt(LocalDateTime.now());
+        dailyModel.setDate(new Date());
+        dailyModel.setCreatedAt(new Date());
 
         when(dailyQuoteArtworkService.getTodayQuoteArtwork()).thenReturn(dailyModel);
 
@@ -69,8 +68,8 @@ class DailyQuoteArtworkQueryTest {
         dailyModel.setQuote("Test quote for today");
         dailyModel.setAuthor("Test Author");
         dailyModel.setUrlArtwork("https://example.com/test-artwork.jpg");
-        dailyModel.setDate(LocalDate.now());
-        dailyModel.setCreatedAt(LocalDateTime.now());
+        dailyModel.setDate(new Date());
+        dailyModel.setCreatedAt(new Date());
 
         when(dailyQuoteArtworkService.getTodayQuoteArtwork()).thenReturn(dailyModel);
 

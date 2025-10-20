@@ -5,6 +5,5 @@ type Query {
     vn(id: ID, name: String, page: Int, size: Int): MediaPage
     media(id: ID): Media
     login(email: String, password: String): String
-    quote: QuoteArtwork
     dailyQuoteArtwork: QuoteArtwork
 }

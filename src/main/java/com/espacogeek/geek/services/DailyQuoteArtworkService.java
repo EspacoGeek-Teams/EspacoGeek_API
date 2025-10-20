@@ -1,6 +1,6 @@
 package com.espacogeek.geek.services;
 
-import java.time.LocalDate;
+import java.util.Date;
 import java.util.Optional;
 
 import com.espacogeek.geek.models.DailyQuoteArtworkModel;
@@ -12,7 +12,7 @@ public interface DailyQuoteArtworkService {
      * @param date The date to search for
      * @return Optional containing the DailyQuoteArtworkModel if found
      */
-    Optional<DailyQuoteArtworkModel> findByDate(LocalDate date);
+    Optional<DailyQuoteArtworkModel> findByDate(Date date);
 
     /**
      * Saves a new daily quote and artwork.
