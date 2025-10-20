@@ -1,7 +1,6 @@
 package com.espacogeek.geek.services.impl;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,7 +48,7 @@ public class DailyQuoteArtworkServiceImpl implements DailyQuoteArtworkService {
     @Override
     public DailyQuoteArtworkModel getTodayQuoteArtwork() {
         LocalDate today = LocalDate.now();
-        
+
         // Try to find existing quote for today
         Optional<DailyQuoteArtworkModel> existing = findByDate(today);
         if (existing.isPresent()) {

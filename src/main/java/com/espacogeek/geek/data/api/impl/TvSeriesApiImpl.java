@@ -46,9 +46,12 @@ import jakarta.annotation.PostConstruct;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Component("tvSeriesApi")
 public class TvSeriesApiImpl implements MediaApi {
+    private static final Logger log = LoggerFactory.getLogger(TvSeriesApiImpl.class);
     private TmdbTvSeries api;
 
     @Autowired
@@ -145,6 +148,7 @@ public class TvSeriesApiImpl implements MediaApi {
         try {
             rawSerieDetails = api.getDetails(id, "en-US", TvSeriesAppendToResponse.EXTERNAL_IDS, TvSeriesAppendToResponse.ALTERNATIVE_TITLES, TvSeriesAppendToResponse.IMAGES, TvSeriesAppendToResponse.VIDEOS);
         } catch (TmdbException e) {
+            log.error("Error fetching TV series details", e);
             throw new com.espacogeek.geek.exception.RequestException();
         }
 
