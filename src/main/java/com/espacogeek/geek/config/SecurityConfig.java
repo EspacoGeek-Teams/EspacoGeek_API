@@ -49,9 +49,12 @@ public class SecurityConfig {
         authenticationManagerBuilder.userDetailsService(userDetailsService).passwordEncoder(bCryptPasswordEncoder());
         var authenticationManager = authenticationManagerBuilder.build();
 
-        return http.csrf(csrf -> csrf.disable())
+        return http
+                    .cors(withDefaults())
+                    .csrf(csrf -> csrf.disable())
                     .authorizeHttpRequests(auth -> {
                         auth.requestMatchers("/api", "/graphiql/**").permitAll();
+                        auth.requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll();
                         auth.anyRequest().authenticated();
                     })
                     .sessionManagement(

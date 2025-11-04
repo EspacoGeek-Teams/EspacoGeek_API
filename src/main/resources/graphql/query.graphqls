@@ -8,41 +8,43 @@ type Query {
     Example: findUser(username: "john")
     """
     findUser(id: ID, username: String, email: String): [User]
-    
+
     """
     Search for TV series by ID or name.
     Example: tvserie(name: "Breaking Bad")
     """
     tvserie(id: ID, name: String): MediaPage
-    
+
     """
     Search for games by ID or name with pagination.
     Example: game(name: "The Last of Us", page: 0, size: 10)
     """
     game(id: ID, name: String, page: Int, size: Int): MediaPage
-    
+
     """
     Search for visual novels by ID or name with pagination.
     Example: vn(name: "Steins;Gate", page: 0, size: 10)
     """
     vn(id: ID, name: String, page: Int, size: Int): MediaPage
-    
+
     """
     Get detailed media information by ID.
     Example: media(id: "123")
     """
     media(id: ID): Media
-    
+
     """
     Authenticate and get JWT token.
     Example: login(email: "user@example.com", password: "password123")
     Returns: JWT token string
     """
     login(email: String, password: String): String
-    
+
     """
     Get a random daily quote with artwork.
     Example: dailyQuoteArtwork
     """
+    logout: String
+    isLogged: String
     dailyQuoteArtwork: QuoteArtwork
 }
