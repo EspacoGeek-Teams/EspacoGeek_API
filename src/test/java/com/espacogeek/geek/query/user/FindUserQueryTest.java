@@ -20,6 +20,7 @@ import org.springframework.test.context.ActiveProfiles;
 import com.espacogeek.geek.config.JwtConfig;
 import com.espacogeek.geek.controllers.UserController;
 import com.espacogeek.geek.models.UserModel;
+import com.espacogeek.geek.services.JwtTokenService;
 import com.espacogeek.geek.services.UserService;
 
 @GraphQlTest(UserController.class)
@@ -34,6 +35,9 @@ class FindUserQueryTest {
 
     @MockBean
     private JwtConfig jwtConfig;
+
+    @MockBean
+    private JwtTokenService jwtTokenService;
 
     @Test
     void findUserById_ShouldReturnUser() {

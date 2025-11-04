@@ -68,7 +68,7 @@ public class UserController {
         }
 
         byte[] passwordCrypt = BCrypt.withDefaults().hash(12, newUser.password().toCharArray());
-        UserModel user = new UserModel(null, newUser.username().trim(), newUser.email().toLowerCase().trim(), null, passwordCrypt, null);
+        UserModel user = new UserModel(null, newUser.username().trim(), newUser.email().toLowerCase().trim(), null, passwordCrypt, null, null);
 
         userService.save(user);
 

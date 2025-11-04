@@ -19,6 +19,7 @@ import org.springframework.test.context.ActiveProfiles;
 import com.espacogeek.geek.config.JwtConfig;
 import com.espacogeek.geek.controllers.UserController;
 import com.espacogeek.geek.models.UserModel;
+import com.espacogeek.geek.services.JwtTokenService;
 import com.espacogeek.geek.services.UserService;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
@@ -35,6 +36,9 @@ class EditUsernameMutationTest {
 
     @MockBean
     private JwtConfig jwtConfig;
+
+    @MockBean
+    private JwtTokenService jwtTokenService;
 
     @Test
     @WithMockUser(authorities = {"ROLE_user", "ID_1"})
