@@ -9,6 +9,5 @@ CREATE TABLE IF NOT EXISTS `jwt_tokens` (
   PRIMARY KEY (`id_token`),
   UNIQUE KEY `UK_token` (`token`),
   KEY `idx_user_token` (`id_user`, `token`),
-  KEY `idx_token` (`token`),
   CONSTRAINT `FK_jwt_tokens_user` FOREIGN KEY (`id_user`) REFERENCES `users` (`id_user`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

@@ -121,9 +121,8 @@ public class JwtTokenServiceImpl implements JwtTokenService {
                     .atZone(ZoneId.systemDefault())
                     .toLocalDateTime();
         } catch (io.jsonwebtoken.JwtException e) {
-            // If we can't parse the token, set a default expiration (7 days from now)
-            // This should only happen if token format is invalid
-            return LocalDateTime.now().plusDays(7);
+            // If we can't parse the token, throw an exception to prevent saving invalid tokens
+            throw new IllegalArgumentException("Invalid JWT token: cannot extract expiration", e);
         }
     }
 }
