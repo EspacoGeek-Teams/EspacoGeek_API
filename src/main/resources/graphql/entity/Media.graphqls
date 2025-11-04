@@ -1,27 +1,55 @@
+"""
+Media content (TV series, games, visual novels, etc.)
+"""
 type Media {
+    "Unique media identifier"
     id: ID
+    "Media title/name"
     name: String
+    "Total number of episodes/chapters"
     totalEpisodes: Int
+    "Average episode length in minutes"
     episodeLength: Int
+    "Description/synopsis of the media"
     about: String
+    "Cover image URL"
     cover: String
+    "Banner image URL"
     banner: String
+    "Media category (TV series, game, visual novel, etc.)"
     mediaCategory: MediaCategory
+    "List of genres"
     genre: [Genre]
+    "External references (IMDB, IGDB, VNDB, etc.)"
     externalReference: [ExternalReference]
+    "Alternative titles in different languages"
     alternativeTitles: [AlternativeTitles]
+    "Seasons (for TV series)"
     season: [Season]
 }
 
+"""
+Input type for searching media
+"""
 input MediaInput {
+    "Media ID"
     id: ID
+    "Media name"
     name: String
 }
 
+"""
+Paginated media results
+"""
 type MediaPage {
+    "List of media items in the current page"
     content: [Media]
+    "Total number of pages"
     totalPages: Int
+    "Total number of elements across all pages"
     totalElements: Int
+    "Current page number (0-indexed)"
     number: Int
+    "Page size (number of items per page)"
     size: Int
 }
