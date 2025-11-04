@@ -53,7 +53,7 @@ public class SecurityConfig {
                     .cors(withDefaults())
                     .csrf(csrf -> csrf.disable())
                     .authorizeHttpRequests(auth -> {
-                        auth.requestMatchers("/api", "/graphiql/**").permitAll();
+                        auth.requestMatchers("/api", "/graphiql/**", "/favicon.ico").permitAll();
                         auth.requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll();
                         auth.anyRequest().authenticated();
                     })
