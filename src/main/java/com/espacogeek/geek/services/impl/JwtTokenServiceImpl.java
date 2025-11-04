@@ -120,8 +120,9 @@ public class JwtTokenServiceImpl implements JwtTokenService {
             return Instant.ofEpochMilli(expiration.getTime())
                     .atZone(ZoneId.systemDefault())
                     .toLocalDateTime();
-        } catch (Exception e) {
-            // If we can't parse the token, set a default expiration
+        } catch (io.jsonwebtoken.JwtException e) {
+            // If we can't parse the token, set a default expiration (7 days from now)
+            // This should only happen if token format is invalid
             return LocalDateTime.now().plusDays(7);
         }
     }
