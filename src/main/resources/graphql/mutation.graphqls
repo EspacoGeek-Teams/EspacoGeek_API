@@ -1,5 +1,5 @@
 """
-Mutation operations for the EspaçoGeek API.
+Mutation operations for the EspacoGeek API.
 All mutations require authentication via JWT token (except createUser).
 Include the token in the Authorization header: "Bearer <token>"
 """

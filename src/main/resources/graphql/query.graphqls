@@ -1,5 +1,5 @@
 """
-Query operations for the EspaçoGeek API.
+Query operations for the EspacoGeek API.
 Access the GraphiQL interface at /graphiql to explore and test these queries.
 """
 type Query {

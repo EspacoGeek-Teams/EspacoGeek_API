@@ -68,7 +68,7 @@ query {
   dailyQuoteArtwork {
     quote
     author
-    imageUrl
+    urlArtwork
   }
 }
 ```
