@@ -33,6 +33,36 @@ public class UserController {
         return userService.findByIdOrUsernameContainsOrEmail(id, username, email);
     }
 
+    @QueryMapping(name = "logout")
+    @PreAuthorize("hasRole('user')")
+    public String doLogoutUser(Authentication authentication) {
+        Integer userId = Utils.getUserID(authentication);
+
+        UserModel user = userService.findById(userId).get();
+        user.setJwtToken(null);
+        userService.save(user);
+
+        return HttpStatus.OK.toString();
+    }
+
+    @QueryMapping(name = "isLogged")
+    @PreAuthorize("hasRole('user')")
+    public String isUserLogged(Authentication authentication) {
+        Integer userId = Utils.getUserID(authentication);
+
+        UserModel user = userService.findById(userId).get();
+        String token = user.getJwtToken();
+        if (token != null) {
+            try {
+                if (jwtConfig.isValid(token)) {
+                    return HttpStatus.OK.toString();
+                }
+            } catch (Exception ignored) { }
+        }
+
+        throw new GenericException(HttpStatus.UNAUTHORIZED.toString());
+    }
+
     /**
      * Authenticate with email and password and return a JWT token.
      */
