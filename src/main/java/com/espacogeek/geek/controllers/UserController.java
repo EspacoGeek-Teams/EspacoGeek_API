@@ -14,6 +14,7 @@ import org.springframework.stereotype.Controller;
 import com.espacogeek.geek.config.JwtConfig;
 import com.espacogeek.geek.exception.GenericException;
 import com.espacogeek.geek.models.UserModel;
+import com.espacogeek.geek.services.JwtTokenService;
 import com.espacogeek.geek.services.UserService;
 import com.espacogeek.geek.types.NewUser;
 import com.espacogeek.geek.utils.Utils;
@@ -28,6 +29,9 @@ public class UserController {
     @Autowired
     private JwtConfig jwtConfig;
 
+    @Autowired
+    private JwtTokenService jwtTokenService;
+
     @QueryMapping
     public List<UserModel> findUser(@Argument Integer id, @Argument String username, @Argument String email) {
         return userService.findByIdOrUsernameContainsOrEmail(id, username, email);
@@ -37,7 +41,7 @@ public class UserController {
      * Authenticate with email and password and return a JWT token.
      */
     @QueryMapping(name = "login")
-    public String doLoginUser(@Argument String email, @Argument String password) {
+    public String doLoginUser(@Argument String email, @Argument String password, @Argument String deviceInfo) {
         UserModel user = userService.findUserByEmail(email)
             .orElseThrow(() -> new GenericException(HttpStatus.UNAUTHORIZED.toString()));
 
@@ -47,8 +51,8 @@ public class UserController {
         }
 
         String token = jwtConfig.generateToken(user);
-        user.setJwtToken(token);
-        userService.save(user);
+        // Save token in the jwt_tokens table for multi-device support
+        jwtTokenService.saveToken(token, user, deviceInfo);
         return token;
     }
 

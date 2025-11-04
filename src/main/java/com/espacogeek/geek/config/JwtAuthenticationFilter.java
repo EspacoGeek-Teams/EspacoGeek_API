@@ -15,6 +15,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.espacogeek.geek.services.JwtTokenService;
+
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -28,9 +30,11 @@ import jakarta.servlet.http.HttpServletResponse;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtConfig jwtConfig;
+    private final JwtTokenService jwtTokenService;
 
-    public JwtAuthenticationFilter(JwtConfig jwtConfig) {
+    public JwtAuthenticationFilter(JwtConfig jwtConfig, JwtTokenService jwtTokenService) {
         this.jwtConfig = jwtConfig;
+        this.jwtTokenService = jwtTokenService;
     }
 
     @Override
@@ -39,15 +43,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String header = request.getHeader(HttpHeaders.AUTHORIZATION);
         if (header != null && header.startsWith("Bearer ")) {
             String token = header.substring(7);
-            Claims claims = jwtConfig.validate(token);
-            if (claims != null) {
-                String subject = claims.getSubject();
-                List<String> roles = getRoles(claims);
-                Collection<? extends GrantedAuthority> authorities = roles.stream()
-                        .map(SimpleGrantedAuthority::new)
-                        .collect(Collectors.toList());
-                Authentication auth = new UsernamePasswordAuthenticationToken(subject, null, authorities);
-                SecurityContextHolder.getContext().setAuthentication(auth);
+            // Validate token exists in database and is not expired
+            if (jwtTokenService.isTokenValid(token)) {
+                Claims claims = jwtConfig.validate(token);
+                if (claims != null) {
+                    String subject = claims.getSubject();
+                    List<String> roles = getRoles(claims);
+                    Collection<? extends GrantedAuthority> authorities = roles.stream()
+                            .map(SimpleGrantedAuthority::new)
+                            .collect(Collectors.toList());
+                    Authentication auth = new UsernamePasswordAuthenticationToken(subject, null, authorities);
+                    SecurityContextHolder.getContext().setAuthentication(auth);
+                }
             }
         }
         filterChain.doFilter(request, response);
