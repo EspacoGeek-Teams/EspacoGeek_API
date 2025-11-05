@@ -1,17 +1,23 @@
 # EspacoGeek
 
-## Run & Build Guide (JVM and Native)
+## Usage
+- See the GraphQL guide: [GraphQL Guide](graphql_guide.md);
+- See the license: [Licenses](LICENSE.txt)
 
-### 1. Project Overview
+## Setup
+
+### Run & Build Guide (JVM and Native)
+
+#### 1. Project Overview
 Java 21 / Spring Boot 3 application with optional native image build using GraalVM.
 
-### 2. JVM (Standard) Run
+#### 2. JVM (Standard) Run
 1. Install Java 21 (GraalVM or any JDK 21).
 2. Clone repository.
 3. Build: `./gradlew clean build`
 4. Run dev (hot reload): `./gradlew bootRun`
 
-### 3. Native Image (Windows)
+#### 3. Native Image (Windows)
 Prerequisites:
 - GraalVM JDK 21 installed (same drive as the project to avoid the "'other' has different root" error).
 - Visual Studio 2022 (Community or Build Tools) with workload: Desktop development with C++.
@@ -38,7 +44,7 @@ Resulting binary (Windows): `build\native\nativeCompile\espaco-geek.exe`
 
 If you moved GraalVM or project: ensure both are on same drive letter (e.g. E:).
 
-### 4. Native Image (Ubuntu 24.04 / WSL2)
+#### 4. Native Image (Ubuntu 24.04 / WSL2)
 Install system dependencies:
 ```
 sudo apt update
@@ -68,7 +74,7 @@ Run: `./build/native/nativeCompile/espaco-geek`
 
 WSL Performance Tip: For faster native builds, move project inside Linux filesystem (`~/EspacoGeek`) instead of `/mnt/<drive>`.
 
-### 5. Database (MySQL) Example
+#### 5. Database (MySQL) Example
 Create DB:
 ```
 CREATE DATABASE espacogeek CHARACTER SET utf8mb4;
@@ -94,7 +100,7 @@ SPRING_DATASOURCE_PASSWORD=strongpass \
 ./build/native/nativeCompile/espaco-geek
 ```
 
-### 6. Useful Gradle Tasks
+#### 6. Useful Gradle Tasks
 ```
 ./gradlew clean
 ./gradlew build
@@ -103,7 +109,7 @@ SPRING_DATASOURCE_PASSWORD=strongpass \
 ./gradlew nativeCompile
 ```
 
-### 7. Troubleshooting
+#### 7. Troubleshooting
 | Issue | Cause | Fix |
 |-------|-------|-----|
 | `'other' has different root` | Project & GraalVM on different Windows drives | Place both on same drive |
@@ -113,19 +119,13 @@ SPRING_DATASOURCE_PASSWORD=strongpass \
 | Slow WSL build | Project on /mnt | Move to `~/` inside WSL |
 | Experimental option warnings | `-H:Name` etc. | Remove those flags or add `-H:+UnlockExperimentalVMOptions` |
 
-### 8. Clean Native Artifacts
+#### 8. Clean Native Artifacts
 ```
 ./gradlew clean
 rm -rf build/native
 ```
 
-### 9. Security Notes
-Rotate database credentials and avoid committing secrets. Use environment variables or a secrets manager.
-
-### 10. License
-See `LICENSE.txt`.
-
-### 11. Docker Usage
+#### 9. Docker Usage
 Supports three modes: JVM, JVM Debug, Native (GraalVM). Uses `docker-compose` to orchestrate optional MySQL.
 
 Directory: `docker/`
@@ -196,7 +196,7 @@ Production suggestions:
 - Use a separate network/database.
 - Externalize secrets via Docker secrets or env file (do not commit `.env` with real credentials).
 
-### 12. Run Without Docker (Recap)
+#### 10. Run Without Docker (Recap)
 - JVM: `./gradlew bootRun`
 - Native (host): `./gradlew nativeCompile && ./build/native/nativeCompile/espaco-geek`
 - Configure DB via environment variables as shown earlier.
