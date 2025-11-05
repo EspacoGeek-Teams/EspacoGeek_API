@@ -54,7 +54,7 @@ public class SerieControllerImpl extends GenericMediaDataControllerImpl {
      * <p>
      * Every day at 9:00AM this function is executed.
      */
-    @Scheduled(cron = "* * 9 * * *")
+    //@Scheduled(cron = "* * 9 * * *")
     // @Scheduled(initialDelay = 1)
     @SuppressWarnings("unused")
     private void updateTvSeries() {
