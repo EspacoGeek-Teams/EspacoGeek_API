@@ -6,14 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseCookie;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.espacogeek.geek.config.JwtConfig;
 import com.espacogeek.geek.exception.GenericException;
@@ -23,8 +19,6 @@ import com.espacogeek.geek.types.NewUser;
 import com.espacogeek.geek.utils.Utils;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,24 +49,7 @@ public class UserController {
         user.setJwtToken(null);
         userService.save(user);
 
-        // Issue Clear-Cookie header directly
-        ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        if (attrs == null) {
-            log.warn("RequestContextHolder attrs is null in logout"); // ! debug print
-        } else {
-            HttpServletRequest request = attrs.getRequest();
-            HttpServletResponse response = attrs.getResponse();
-            if (response == null) {
-                log.warn("HttpServletResponse is null in logout"); // ! debug print
-            } else {
-                ResponseCookie clearCookie = jwtConfig.clearAuthCookie(request);
-                response.addHeader(HttpHeaders.SET_COOKIE, clearCookie.toString());
-                log.info("Added Clear-Cookie header name={} httpOnly={} secure={} path={} maxAge={} domain={}", // ! debug print
-                        clearCookie.getName(), clearCookie.isHttpOnly(), clearCookie.isSecure(),
-                        clearCookie.getPath(), clearCookie.getMaxAge(), clearCookie.getDomain());
-            }
-        }
-
+        // Cookie clearing is handled by GraphQlCookieInterceptor
         return HttpStatus.OK.toString();
     }
 
@@ -122,24 +99,7 @@ public class UserController {
         userService.save(user);
         log.info("UserController.login generated token (length={}) for userId={}", token.length(), user.getId()); // ! debug print
 
-        // Issue Set-Cookie header directly
-        ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        if (attrs == null) {
-            log.warn("RequestContextHolder attrs is null in login"); // ! debug print
-        } else {
-            HttpServletRequest request = attrs.getRequest();
-            HttpServletResponse response = attrs.getResponse();
-            if (response == null) {
-                log.warn("HttpServletResponse is null in login"); // ! debug print
-            } else {
-                ResponseCookie cookie = jwtConfig.buildAuthCookie(token, request);
-                response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-                log.info("Added Set-Cookie header name={} httpOnly={} secure={} path={} maxAge={} domain={}", // ! debug print
-                        cookie.getName(), cookie.isHttpOnly(), cookie.isSecure(),
-                        cookie.getPath(), cookie.getMaxAge(), cookie.getDomain());
-            }
-        }
-
+        // Cookie is set by GraphQlCookieInterceptor
         // Still return token for clients that use Authorization: Bearer
         return token;
     }
