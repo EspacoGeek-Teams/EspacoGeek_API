@@ -18,11 +18,12 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
- * Filter that authenticates requests using JWT in Authorization header.
+ * Filter that authenticates requests using JWT in Authorization header or HttpOnly cookie.
  */
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -36,9 +37,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain)
             throws ServletException, IOException {
-        String header = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if (header != null && header.startsWith("Bearer ")) {
-            String token = header.substring(7);
+        String token = resolveToken(request);
+        if (token != null) {
             Claims claims = jwtConfig.validate(token);
             if (claims != null) {
                 String subject = claims.getSubject();
@@ -51,6 +51,25 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         }
         filterChain.doFilter(request, response);
+    }
+
+    private String resolveToken(HttpServletRequest request) {
+        String header = request.getHeader(HttpHeaders.AUTHORIZATION);
+        if (header != null && header.startsWith("Bearer ")) {
+            return header.substring(7);
+        }
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie c : cookies) {
+                if (jwtConfig.cookieName().equals(c.getName())) {
+                    String val = c.getValue();
+                    if (val != null && !val.isBlank()) {
+                        return val;
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     private List<String> getRoles(Claims claims) {

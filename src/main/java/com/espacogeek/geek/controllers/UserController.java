@@ -79,6 +79,7 @@ public class UserController {
         String token = jwtConfig.generateToken(user);
         user.setJwtToken(token);
         userService.save(user);
+
         return token;
     }
 
