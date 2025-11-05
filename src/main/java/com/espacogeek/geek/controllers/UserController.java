@@ -31,7 +31,7 @@ public class UserController {
     @Autowired
     private JwtConfig jwtConfig;
 
-    private static final Logger log = LoggerFactory.getLogger(UserController.class); // ! debug print
+    private static final Logger log = LoggerFactory.getLogger(UserController.class);
 
     @QueryMapping
     public List<UserModel> findUser(@Argument Integer id, @Argument String username, @Argument String email) {
@@ -41,8 +41,6 @@ public class UserController {
     @QueryMapping(name = "logout")
     @PreAuthorize("hasRole('user')")
     public String doLogoutUser(Authentication authentication) {
-        // ! debug print
-        log.info("UserController.logout invoked for userId={}", Utils.getUserID(authentication));
         Integer userId = Utils.getUserID(authentication);
 
         UserModel user = userService.findById(userId).get();
@@ -56,8 +54,6 @@ public class UserController {
     @QueryMapping(name = "isLogged")
     @PreAuthorize("hasRole('user')")
     public String isUserLogged(Authentication authentication) {
-        // ! debug print
-        log.info("UserController.isLogged invoked for userId={}", Utils.getUserID(authentication));
         Integer userId = Utils.getUserID(authentication);
 
         UserModel user = userService.findById(userId).get();
@@ -65,15 +61,14 @@ public class UserController {
         if (token != null) {
             try {
                 boolean valid = jwtConfig.isValid(token);
-                log.info("isLogged token present, valid={}", valid); // ! debug print
                 if (valid) {
                     return HttpStatus.OK.toString();
                 }
             } catch (Exception e) {
-                log.warn("isLogged validation threw exception: {}", e.toString()); // ! debug print
+                log.warn("isLogged validation threw exception: {}", e.toString());
             }
         } else {
-            log.info("isLogged: user has no stored token"); // ! debug print
+            log.info("isLogged: user has no stored token");
         }
 
         throw new GenericException(HttpStatus.UNAUTHORIZED.toString());
@@ -84,20 +79,16 @@ public class UserController {
      */
     @QueryMapping(name = "login")
     public String doLoginUser(@Argument String email, @Argument String password) {
-        // ! debug print
-        log.info("UserController.login invoked for email={}", email);
         UserModel user = userService.findUserByEmail(email).orElseThrow(() -> new GenericException(HttpStatus.UNAUTHORIZED.toString()));
 
         boolean verified = BCrypt.verifyer().verify(password.toCharArray(), user.getPassword()).verified;
         if (!verified) {
-            log.info("UserController.login password verification failed for email={}", email); // ! debug print
             throw new GenericException(HttpStatus.UNAUTHORIZED.toString());
         }
 
         String token = jwtConfig.generateToken(user);
         user.setJwtToken(token);
         userService.save(user);
-        log.info("UserController.login generated token (length={}) for userId={}", token.length(), user.getId()); // ! debug print
 
         // Cookie is set by GraphQlCookieInterceptor
         // Still return token for clients that use Authorization: Bearer
