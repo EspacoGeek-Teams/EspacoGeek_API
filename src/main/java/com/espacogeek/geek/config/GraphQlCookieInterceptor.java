@@ -39,7 +39,7 @@ public class GraphQlCookieInterceptor implements WebGraphQlInterceptor {
                 String origin = request.getHeaders().getFirst(HttpHeaders.ORIGIN);
 
                 Map<String, Object> data = response.getData();
-                if ("login".equals(operationName)) {
+                if ("login".equals(operationName.toLowerCase())) {
                     if (data != null) {
                         Object val = data.get("login");
                         if (val instanceof String token && !token.isBlank()) {
@@ -47,7 +47,7 @@ public class GraphQlCookieInterceptor implements WebGraphQlInterceptor {
                             response.getResponseHeaders().add(HttpHeaders.SET_COOKIE, cookie.toString());
                         }
                     }
-                } else if ("logout".equals(operationName)) {
+                } else if ("logout".equals(operationName.toLowerCase())) {
                     ResponseCookie clear = jwtConfig.clearAuthCookie(origin, serverUri);
                     response.getResponseHeaders().add(HttpHeaders.SET_COOKIE, clear.toString());
                 }
