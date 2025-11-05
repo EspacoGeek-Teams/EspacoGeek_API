@@ -203,14 +203,30 @@ public class JwtConfig {
             // No Origin header (e.g., same-origin navigations); treat as same-site
             return false;
         }
-        String serverOrigin = getServerOrigin(request);
-        return !origin.equalsIgnoreCase(serverOrigin);
+        // Compare only scheme + host (ignore port) per RFC6265bis same-site rules
+        try {
+            URI originUri = URI.create(origin);
+            String originSite = originUri.getScheme() + "://" + originUri.getHost();
+            String serverSite = request.getScheme() + "://" + request.getServerName();
+            return !originSite.equalsIgnoreCase(serverSite);
+        } catch (IllegalArgumentException ex) {
+            // Fallback to strict comparison
+            String serverOrigin = getServerOrigin(request);
+            return !origin.equalsIgnoreCase(serverOrigin);
+        }
     }
 
     private boolean isCrossSite(String originHeader, URI serverUri) {
         if (originHeader == null || originHeader.isBlank()) return false;
-        String serverOrigin = getServerOrigin(serverUri);
-        return !originHeader.equalsIgnoreCase(serverOrigin);
+        try {
+            URI originUri = URI.create(originHeader);
+            String originSite = originUri.getScheme() + "://" + originUri.getHost();
+            String serverSite = serverUri.getScheme() + "://" + serverUri.getHost();
+            return !originSite.equalsIgnoreCase(serverSite);
+        } catch (IllegalArgumentException ex) {
+            String serverOrigin = getServerOrigin(serverUri);
+            return !originHeader.equalsIgnoreCase(serverOrigin);
+        }
     }
 
     private String getServerOrigin(HttpServletRequest request) {

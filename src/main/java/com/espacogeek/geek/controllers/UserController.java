@@ -6,10 +6,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.espacogeek.geek.config.JwtConfig;
 import com.espacogeek.geek.exception.GenericException;
@@ -19,6 +23,11 @@ import com.espacogeek.geek.types.NewUser;
 import com.espacogeek.geek.utils.Utils;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Controller
 public class UserController {
@@ -28,6 +37,8 @@ public class UserController {
     @Autowired
     private JwtConfig jwtConfig;
 
+    private static final Logger log = LoggerFactory.getLogger(UserController.class); // ! debug print
+
     @QueryMapping
     public List<UserModel> findUser(@Argument Integer id, @Argument String username, @Argument String email) {
         return userService.findByIdOrUsernameContainsOrEmail(id, username, email);
@@ -36,11 +47,31 @@ public class UserController {
     @QueryMapping(name = "logout")
     @PreAuthorize("hasRole('user')")
     public String doLogoutUser(Authentication authentication) {
+        // ! debug print
+        log.info("UserController.logout invoked for userId={}", Utils.getUserID(authentication));
         Integer userId = Utils.getUserID(authentication);
 
         UserModel user = userService.findById(userId).get();
         user.setJwtToken(null);
         userService.save(user);
+
+        // Issue Clear-Cookie header directly
+        ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        if (attrs == null) {
+            log.warn("RequestContextHolder attrs is null in logout"); // ! debug print
+        } else {
+            HttpServletRequest request = attrs.getRequest();
+            HttpServletResponse response = attrs.getResponse();
+            if (response == null) {
+                log.warn("HttpServletResponse is null in logout"); // ! debug print
+            } else {
+                ResponseCookie clearCookie = jwtConfig.clearAuthCookie(request);
+                response.addHeader(HttpHeaders.SET_COOKIE, clearCookie.toString());
+                log.info("Added Clear-Cookie header name={} httpOnly={} secure={} path={} maxAge={} domain={}", // ! debug print
+                        clearCookie.getName(), clearCookie.isHttpOnly(), clearCookie.isSecure(),
+                        clearCookie.getPath(), clearCookie.getMaxAge(), clearCookie.getDomain());
+            }
+        }
 
         return HttpStatus.OK.toString();
     }
@@ -48,16 +79,24 @@ public class UserController {
     @QueryMapping(name = "isLogged")
     @PreAuthorize("hasRole('user')")
     public String isUserLogged(Authentication authentication) {
+        // ! debug print
+        log.info("UserController.isLogged invoked for userId={}", Utils.getUserID(authentication));
         Integer userId = Utils.getUserID(authentication);
 
         UserModel user = userService.findById(userId).get();
         String token = user.getJwtToken();
         if (token != null) {
             try {
-                if (jwtConfig.isValid(token)) {
+                boolean valid = jwtConfig.isValid(token);
+                log.info("isLogged token present, valid={}", valid); // ! debug print
+                if (valid) {
                     return HttpStatus.OK.toString();
                 }
-            } catch (Exception ignored) { }
+            } catch (Exception e) {
+                log.warn("isLogged validation threw exception: {}", e.toString()); // ! debug print
+            }
+        } else {
+            log.info("isLogged: user has no stored token"); // ! debug print
         }
 
         throw new GenericException(HttpStatus.UNAUTHORIZED.toString());
@@ -68,18 +107,40 @@ public class UserController {
      */
     @QueryMapping(name = "login")
     public String doLoginUser(@Argument String email, @Argument String password) {
-        UserModel user = userService.findUserByEmail(email)
-            .orElseThrow(() -> new GenericException(HttpStatus.UNAUTHORIZED.toString()));
+        // ! debug print
+        log.info("UserController.login invoked for email={}", email);
+        UserModel user = userService.findUserByEmail(email).orElseThrow(() -> new GenericException(HttpStatus.UNAUTHORIZED.toString()));
 
         boolean verified = BCrypt.verifyer().verify(password.toCharArray(), user.getPassword()).verified;
         if (!verified) {
+            log.info("UserController.login password verification failed for email={}", email); // ! debug print
             throw new GenericException(HttpStatus.UNAUTHORIZED.toString());
         }
 
         String token = jwtConfig.generateToken(user);
         user.setJwtToken(token);
         userService.save(user);
+        log.info("UserController.login generated token (length={}) for userId={}", token.length(), user.getId()); // ! debug print
 
+        // Issue Set-Cookie header directly
+        ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        if (attrs == null) {
+            log.warn("RequestContextHolder attrs is null in login"); // ! debug print
+        } else {
+            HttpServletRequest request = attrs.getRequest();
+            HttpServletResponse response = attrs.getResponse();
+            if (response == null) {
+                log.warn("HttpServletResponse is null in login"); // ! debug print
+            } else {
+                ResponseCookie cookie = jwtConfig.buildAuthCookie(token, request);
+                response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+                log.info("Added Set-Cookie header name={} httpOnly={} secure={} path={} maxAge={} domain={}", // ! debug print
+                        cookie.getName(), cookie.isHttpOnly(), cookie.isSecure(),
+                        cookie.getPath(), cookie.getMaxAge(), cookie.getDomain());
+            }
+        }
+
+        // Still return token for clients that use Authorization: Bearer
         return token;
     }
 

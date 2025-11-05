@@ -50,18 +50,17 @@ public class SecurityConfig {
         var authenticationManager = authenticationManagerBuilder.build();
 
         return http
-                    .cors(withDefaults())
-                    .csrf(csrf -> csrf.disable())
-                    .authorizeHttpRequests(auth -> {
-                        auth.requestMatchers("/api", "/graphiql/**", "/favicon.ico").permitAll();
-                        auth.requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll();
-                        auth.anyRequest().authenticated();
-                    })
-                    .sessionManagement(
-                            session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                    .httpBasic(withDefaults())
-                    .authenticationManager(authenticationManager)
-                    .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                    .build();
+                .cors(withDefaults())
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> {
+                    auth.requestMatchers("/api", "/graphiql/**", "/favicon.ico").permitAll();
+                    auth.requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll();
+                    auth.anyRequest().authenticated();
+                })
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .httpBasic(withDefaults())
+                .authenticationManager(authenticationManager)
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .build();
     }
 }
