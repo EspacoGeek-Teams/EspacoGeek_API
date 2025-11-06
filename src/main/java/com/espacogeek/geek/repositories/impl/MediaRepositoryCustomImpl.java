@@ -6,7 +6,6 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.temporal.Temporal;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -22,7 +21,6 @@ import org.springframework.stereotype.Repository;
 
 import com.espacogeek.geek.models.MediaModel;
 import com.espacogeek.geek.repositories.MediaRepositoryCustom;
-import com.espacogeek.geek.utils.Utils;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityManager;
@@ -32,7 +30,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Table;
-import jakarta.persistence.TypedQuery;
 
 @Repository
 public class MediaRepositoryCustomImpl implements MediaRepositoryCustom {

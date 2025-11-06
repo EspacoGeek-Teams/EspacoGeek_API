@@ -23,7 +23,6 @@ import com.espacogeek.geek.models.ExternalReferenceModel;
 import com.espacogeek.geek.models.MediaModel;
 import com.espacogeek.geek.models.TypeReferenceModel;
 import com.espacogeek.geek.repositories.MediaRepository;
-import com.espacogeek.geek.repositories.MediaRepositoryCustom;
 import com.espacogeek.geek.services.MediaCategoryService;
 import com.espacogeek.geek.services.MediaService;
 import com.espacogeek.geek.services.TypeReferenceService;

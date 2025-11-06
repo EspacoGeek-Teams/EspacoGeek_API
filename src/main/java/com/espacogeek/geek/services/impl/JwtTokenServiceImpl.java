@@ -9,6 +9,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -54,14 +55,14 @@ public class JwtTokenServiceImpl implements JwtTokenService {
     public JwtTokenModel saveToken(String token, UserModel user, String deviceInfo) {
         // Extract expiration from token
         LocalDateTime expiresAt = extractExpiration(token);
-        
+
         JwtTokenModel jwtToken = new JwtTokenModel();
         jwtToken.setToken(token);
         jwtToken.setUser(user);
         jwtToken.setCreatedAt(LocalDateTime.now());
         jwtToken.setExpiresAt(expiresAt);
         jwtToken.setDeviceInfo(deviceInfo);
-        
+
         return jwtTokenRepository.save(jwtToken);
     }
 
@@ -71,7 +72,7 @@ public class JwtTokenServiceImpl implements JwtTokenService {
         if (tokenModel.isEmpty()) {
             return false;
         }
-        
+
         // Check if token is expired
         return tokenModel.get().getExpiresAt().isAfter(LocalDateTime.now());
     }
@@ -100,6 +101,7 @@ public class JwtTokenServiceImpl implements JwtTokenService {
 
     @Override
     @Transactional
+    @Scheduled(cron = "* * 23 * * *")
     public int cleanupExpiredTokens() {
         return jwtTokenRepository.deleteExpiredTokens(LocalDateTime.now());
     }
@@ -115,7 +117,7 @@ public class JwtTokenServiceImpl implements JwtTokenService {
                     .build()
                     .parseSignedClaims(token)
                     .getPayload();
-            
+
             Date expiration = claims.getExpiration();
             return Instant.ofEpochMilli(expiration.getTime())
                     .atZone(ZoneId.systemDefault())
