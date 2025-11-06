@@ -17,6 +17,7 @@ import com.espacogeek.geek.models.UserModel;
 import com.espacogeek.geek.services.JwtTokenService;
 import com.espacogeek.geek.services.UserService;
 import com.espacogeek.geek.types.NewUser;
+import com.espacogeek.geek.utils.TokenUtils;
 import com.espacogeek.geek.utils.Utils;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
@@ -35,6 +36,9 @@ public class UserController {
     @Autowired
     private JwtTokenService jwtTokenService;
 
+    @Autowired
+    private TokenUtils tokenUtils;
+
     private static final Logger log = LoggerFactory.getLogger(UserController.class);
 
     @QueryMapping
@@ -45,34 +49,35 @@ public class UserController {
     @QueryMapping(name = "logout")
     @PreAuthorize("hasRole('user')")
     public String doLogoutUser(Authentication authentication) {
-        Integer userId = Utils.getUserID(authentication);
+        String token = tokenUtils.resolveToken();
 
-        UserModel user = userService.findById(userId).get();
-        user.setJwtToken(null);
-        userService.save(user);
+        if (token != null && !token.isBlank()) {
+            // Remove only the current token (current device/session)
+            jwtTokenService.deleteToken(token);
 
-        // Cookie clearing is handled by GraphQlCookieInterceptor
-        return HttpStatus.OK.toString();
+            // Cookie clearing is handled by GraphQlCookieInterceptor
+            return HttpStatus.OK.toString();
+        }
+
+        throw new GenericException(HttpStatus.UNAUTHORIZED.toString());
     }
 
     @QueryMapping(name = "isLogged")
     @PreAuthorize("hasRole('user')")
     public String isUserLogged(Authentication authentication) {
-        Integer userId = Utils.getUserID(authentication);
+        String token = tokenUtils.resolveToken();
 
-        UserModel user = userService.findById(userId).get();
-        String token = user.getJwtToken();
-        if (token != null) {
+        if (token != null && !token.isBlank()) {
             try {
-                boolean valid = jwtConfig.isValid(token);
-                if (valid) {
+                boolean structureValid = jwtConfig.isValid(token);
+                boolean storedValid = jwtTokenService.isTokenValid(token);
+                if (structureValid && storedValid) {
                     return HttpStatus.OK.toString();
                 }
             } catch (Exception e) {
                 log.warn("isLogged validation threw exception: {}", e.toString());
+                throw new GenericException(HttpStatus.INTERNAL_SERVER_ERROR.toString());
             }
-        } else {
-            log.info("isLogged: user has no stored token");
         }
 
         throw new GenericException(HttpStatus.UNAUTHORIZED.toString());

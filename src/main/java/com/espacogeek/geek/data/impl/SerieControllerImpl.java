@@ -1,6 +1,5 @@
 package com.espacogeek.geek.data.impl;
 
-import java.text.MessageFormat;
 import java.time.LocalDateTime;
 
 import java.util.concurrent.ExecutorService;
@@ -10,11 +9,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.json.simple.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Primary;
-import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -41,12 +39,14 @@ public class SerieControllerImpl extends GenericMediaDataControllerImpl {
     private ExternalReferenceService externalReferenceService;
     @Autowired
     private TypeReferenceService typeReferenceService;
+
     private TypeReferenceModel typeReference;
+
+    private static final Logger log = LoggerFactory.getLogger(SerieControllerImpl.class);
 
     @PostConstruct
     private void init() {
-        this.typeReference = typeReferenceService.findById(TMDB_ID)
-                .orElseThrow(() -> new GenericException("Type Reference not found"));
+        this.typeReference = typeReferenceService.findById(TMDB_ID).orElseThrow(() -> new GenericException("Type Reference not found"));
     }
 
     /**
@@ -54,12 +54,10 @@ public class SerieControllerImpl extends GenericMediaDataControllerImpl {
      * <p>
      * Every day at 9:00AM this function is executed.
      */
-    //@Scheduled(cron = "* * 9 * * *")
+    @Scheduled(cron = "* * 9 * * *")
     // @Scheduled(initialDelay = 1)
-    @SuppressWarnings("unused")
     private void updateTvSeries() {
-        MediaCategoryModel mediaCategory = mediaCategoryService.findById(SERIE_ID)
-                .orElseThrow(() -> new GenericException("Category not found"));
+        MediaCategoryModel mediaCategory = mediaCategoryService.findById(SERIE_ID).orElseThrow(() -> new GenericException("Category not found"));
         ExecutorService executorService = Executors.newFixedThreadPool(400);
 
         try {
@@ -77,14 +75,12 @@ public class SerieControllerImpl extends GenericMediaDataControllerImpl {
                         var json = (JSONObject) jsonArrayDailyExport.get(index);
 
                         externalReference.setReference(json.get("id").toString());
-                        var externalReferenceExisted = externalReferenceService
-                                .findByReferenceAndType(externalReference.getReference(), typeReference);
+                        var externalReferenceExisted = externalReferenceService.findByReferenceAndType(externalReference.getReference(), typeReference);
 
                         if (!externalReferenceExisted.isPresent()) {
                             boolean isAnime = false;
                             try {
-                                isAnime = tvSeriesApi.getKeyword(Integer.valueOf(json.get("id").toString())).stream()
-                                        .anyMatch((keyword) -> !keyword.getName().equalsIgnoreCase("anime"));
+                                isAnime = tvSeriesApi.getKeyword(Integer.valueOf(json.get("id").toString())).stream().anyMatch((keyword) -> !keyword.getName().equalsIgnoreCase("anime"));
                             } catch (Exception e) {
                                 isAnime = true;
                             }
@@ -110,19 +106,17 @@ public class SerieControllerImpl extends GenericMediaDataControllerImpl {
                         }
                     } catch (Exception e) {
                         var json = (JSONObject) jsonArrayDailyExport.get(index);
-                        System.out.println(json.get("id").toString() + " - " + json.get("original_name").toString());
+                        log.error("Error processing TV series {} - {}", json.get("id").toString(), json.get("original_name").toString(), e);
+
                     }
                 });
             }
             executorService.shutdown();
             executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
 
-            System.out.println("SUCCESS TO UPDATE TV SERIES, AT " + LocalDateTime.now());
+            log.info("SUCCESS TO UPDATE TV SERIES, AT {}", LocalDateTime.now());
         } catch (Exception e) {
-            System.out.println(MessageFormat.format("*# ------- FAILED TO UPDATE TV SERIES, AT {0} ------- *#",
-                    LocalDateTime.now()));
-            e.printStackTrace();
-            System.out.println("*# ----------------------------------------- *#");
+            log.error("FAILED TO UPDATE TV SERIES, AT {}", LocalDateTime.now(), e);
         }
     }
 
@@ -130,5 +124,4 @@ public class SerieControllerImpl extends GenericMediaDataControllerImpl {
     public MediaModel updateAllInformation(MediaModel media, MediaModel result) {
         return super.updateAllInformation(media, result, this.typeReference, this.tvSeriesApi);
     }
-
 }
