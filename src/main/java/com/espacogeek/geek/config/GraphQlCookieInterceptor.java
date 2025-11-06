@@ -26,6 +26,7 @@ public class GraphQlCookieInterceptor implements WebGraphQlInterceptor {
         this.jwtConfig = jwtConfig;
     }
 
+    @SuppressWarnings("null")
     @Override
     public @NonNull Mono<WebGraphQlResponse> intercept(@NonNull WebGraphQlRequest request, @NonNull Chain chain) {
         return chain.next(request).map(response -> {
