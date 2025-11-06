@@ -1,11 +1,23 @@
+"""
+User account information
+"""
 type User {
+    "Unique user identifier"
     id: ID
+    "Username (display name)"
     username: String
+    "User email address"
     email: String
 }
 
+"""
+Input type for creating a new user account
+"""
 input NewUser {
+  "Desired username (required)"
   username: String!
+  "Email address (required)"
   email: String!
+  "Password (required)"
   password: String!
 }

@@ -15,49 +15,60 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.espacogeek.geek.services.JwtTokenService;
-
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
- * Filter that authenticates requests using JWT in Authorization header.
+ * Filter that authenticates requests using JWT in Authorization header or HttpOnly cookie.
  */
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtConfig jwtConfig;
-    private final JwtTokenService jwtTokenService;
 
-    public JwtAuthenticationFilter(JwtConfig jwtConfig, JwtTokenService jwtTokenService) {
+    public JwtAuthenticationFilter(JwtConfig jwtConfig) {
         this.jwtConfig = jwtConfig;
-        this.jwtTokenService = jwtTokenService;
     }
 
     @Override
-    protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain)
-            throws ServletException, IOException {
-        String header = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if (header != null && header.startsWith("Bearer ")) {
-            String token = header.substring(7);
-            // Validate token exists in database and is not expired
-            if (jwtTokenService.isTokenValid(token)) {
-                Claims claims = jwtConfig.validate(token);
-                if (claims != null) {
-                    String subject = claims.getSubject();
-                    List<String> roles = getRoles(claims);
-                    Collection<? extends GrantedAuthority> authorities = roles.stream()
-                            .map(SimpleGrantedAuthority::new)
-                            .collect(Collectors.toList());
-                    Authentication auth = new UsernamePasswordAuthenticationToken(subject, null, authorities);
-                    SecurityContextHolder.getContext().setAuthentication(auth);
-                }
+    protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
+        String token = resolveToken(request);
+        if (token != null) {
+            Claims claims = jwtConfig.validate(token);
+            if (claims != null) {
+                String subject = claims.getSubject();
+                List<String> roles = getRoles(claims);
+                Collection<? extends GrantedAuthority> authorities = roles.stream()
+                        .map(SimpleGrantedAuthority::new)
+                        .collect(Collectors.toList());
+                Authentication auth = new UsernamePasswordAuthenticationToken(subject, null, authorities);
+                SecurityContextHolder.getContext().setAuthentication(auth);
             }
         }
         filterChain.doFilter(request, response);
+    }
+
+    private String resolveToken(HttpServletRequest request) {
+        String header = request.getHeader(HttpHeaders.AUTHORIZATION);
+        if (header != null && header.startsWith("Bearer ")) {
+            return header.substring(7);
+        }
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie c : cookies) {
+                if (jwtConfig.cookieName().equals(c.getName())) {
+                    String val = c.getValue();
+                    if (val != null && !val.isBlank()) {
+                        return val;
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     private List<String> getRoles(Claims claims) {

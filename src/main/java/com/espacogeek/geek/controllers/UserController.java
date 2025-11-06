@@ -21,6 +21,9 @@ import com.espacogeek.geek.utils.Utils;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Controller
 public class UserController {
     @Autowired
@@ -32,9 +35,47 @@ public class UserController {
     @Autowired
     private JwtTokenService jwtTokenService;
 
+    private static final Logger log = LoggerFactory.getLogger(UserController.class);
+
     @QueryMapping
     public List<UserModel> findUser(@Argument Integer id, @Argument String username, @Argument String email) {
         return userService.findByIdOrUsernameContainsOrEmail(id, username, email);
+    }
+
+    @QueryMapping(name = "logout")
+    @PreAuthorize("hasRole('user')")
+    public String doLogoutUser(Authentication authentication) {
+        Integer userId = Utils.getUserID(authentication);
+
+        UserModel user = userService.findById(userId).get();
+        user.setJwtToken(null);
+        userService.save(user);
+
+        // Cookie clearing is handled by GraphQlCookieInterceptor
+        return HttpStatus.OK.toString();
+    }
+
+    @QueryMapping(name = "isLogged")
+    @PreAuthorize("hasRole('user')")
+    public String isUserLogged(Authentication authentication) {
+        Integer userId = Utils.getUserID(authentication);
+
+        UserModel user = userService.findById(userId).get();
+        String token = user.getJwtToken();
+        if (token != null) {
+            try {
+                boolean valid = jwtConfig.isValid(token);
+                if (valid) {
+                    return HttpStatus.OK.toString();
+                }
+            } catch (Exception e) {
+                log.warn("isLogged validation threw exception: {}", e.toString());
+            }
+        } else {
+            log.info("isLogged: user has no stored token");
+        }
+
+        throw new GenericException(HttpStatus.UNAUTHORIZED.toString());
     }
 
     /**
@@ -42,8 +83,7 @@ public class UserController {
      */
     @QueryMapping(name = "login")
     public String doLoginUser(@Argument String email, @Argument String password, @Argument String deviceInfo) {
-        UserModel user = userService.findUserByEmail(email)
-            .orElseThrow(() -> new GenericException(HttpStatus.UNAUTHORIZED.toString()));
+        UserModel user = userService.findUserByEmail(email).orElseThrow(() -> new GenericException(HttpStatus.UNAUTHORIZED.toString()));
 
         boolean verified = BCrypt.verifyer().verify(password.toCharArray(), user.getPassword()).verified;
         if (!verified) {
@@ -51,7 +91,6 @@ public class UserController {
         }
 
         String token = jwtConfig.generateToken(user);
-        // Save token in the jwt_tokens table for multi-device support
         jwtTokenService.saveToken(token, user, deviceInfo);
         return token;
     }

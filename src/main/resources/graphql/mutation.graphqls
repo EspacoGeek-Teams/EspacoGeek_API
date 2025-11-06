@@ -1,7 +1,41 @@
+"""
+Mutation operations for the EspacoGeek API.
+All mutations require authentication via JWT token (except createUser).
+Include the token in the Authorization header: "Bearer <token>"
+"""
 type Mutation {
+    """
+    Change user password. Requires authentication.
+    Example: editPassword(actualPassword: "oldpass", newPassword: "newpass")
+    Returns: Success message
+    """
     editPassword(actualPassword: String, newPassword: String): String
+    
+    """
+    Delete user account. Requires authentication.
+    Example: deleteUser(password: "mypassword")
+    Returns: Success message
+    """
     deleteUser(password: String): String
+    
+    """
+    Create a new user account. Does not require authentication.
+    Example: createUser(credentials: {username: "john", email: "john@example.com", password: "pass123"})
+    Returns: Success message
+    """
     createUser(credentials: NewUser): String
+    
+    """
+    Change username. Requires authentication.
+    Example: editUsername(password: "mypassword", newUsername: "newname")
+    Returns: Success message
+    """
     editUsername(password: String, newUsername: String): String
+    
+    """
+    Change email address. Requires authentication.
+    Example: editEmail(password: "mypassword", newEmail: "newemail@example.com")
+    Returns: Success message
+    """
     editEmail(password: String, newEmail: String): String
 }
