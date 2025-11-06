@@ -17,6 +17,7 @@ import com.espacogeek.geek.controllers.UserController;
 import com.espacogeek.geek.models.UserModel;
 import com.espacogeek.geek.services.JwtTokenService;
 import com.espacogeek.geek.services.UserService;
+import com.espacogeek.geek.utils.TokenUtils;
 
 @GraphQlTest(UserController.class)
 @ActiveProfiles("test")
@@ -33,6 +34,10 @@ class CreateUserMutationTest {
 
     @MockBean
     private JwtTokenService jwtTokenService;
+
+    // Mock necessário para satisfazer a dependência do UserController
+    @MockBean
+    private TokenUtils tokenUtils;
 
     @Test
     void createUser_ValidCredentials_ShouldReturnCreatedStatus() {

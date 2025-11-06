@@ -41,8 +41,7 @@ type Query {
     login(email: String, password: String, deviceInfo: String): String
 
     """
-    Get a random daily quote with artwork.
-    Example: dailyQuoteArtwork
+    Logout current user.
     """
     logout: String
 
@@ -57,4 +56,10 @@ type Query {
     Example: dailyQuoteArtwork
     """
     dailyQuoteArtwork: QuoteArtwork
+
+    """
+    Get a random quote with artwork.
+    Example: quote
+    """
+    quote: QuoteArtwork
 }

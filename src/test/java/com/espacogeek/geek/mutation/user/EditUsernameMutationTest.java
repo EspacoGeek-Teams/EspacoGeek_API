@@ -21,6 +21,7 @@ import com.espacogeek.geek.controllers.UserController;
 import com.espacogeek.geek.models.UserModel;
 import com.espacogeek.geek.services.JwtTokenService;
 import com.espacogeek.geek.services.UserService;
+import com.espacogeek.geek.utils.TokenUtils;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
 
@@ -39,6 +40,10 @@ class EditUsernameMutationTest {
 
     @MockBean
     private JwtTokenService jwtTokenService;
+
+    // Necessário para satisfazer a dependência do UserController
+    @MockBean
+    private TokenUtils tokenUtils;
 
     @Test
     @WithMockUser(authorities = {"ROLE_user", "ID_1"})
