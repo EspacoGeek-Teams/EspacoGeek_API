@@ -11,11 +11,11 @@ import java.util.Arrays;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.graphql.GraphQlTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.graphql.test.tester.GraphQlTester;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import com.espacogeek.geek.controllers.MediaController;
 import com.espacogeek.geek.data.MediaDataController;
@@ -33,22 +33,22 @@ class TvSerieQueryTest {
     @Autowired
     private GraphQlTester graphQlTester;
 
-    @MockBean
+    @MockitoBean
     private MediaService mediaService;
 
-    @MockBean(name = "serieController")
+    @MockitoBean(name = "serieController")
     private MediaDataController serieController;
 
-    @MockBean(name = "genericMediaDataController")
+    @MockitoBean(name = "genericMediaDataController")
     private MediaDataController genericMediaDataController;
 
-    @MockBean
+    @MockitoBean
     private MediaApi gamesAndVNsAPI;
 
-    @MockBean
+    @MockitoBean
     private TypeReferenceService typeReferenceService;
 
-    @MockBean
+    @MockitoBean
     private MediaCategoryService mediaCategoryService;
 
     @Test

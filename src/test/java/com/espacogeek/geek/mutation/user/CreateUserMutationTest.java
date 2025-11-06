@@ -8,7 +8,7 @@ import static org.mockito.Mockito.when;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.graphql.GraphQlTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.graphql.test.tester.GraphQlTester;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -17,22 +17,29 @@ import com.espacogeek.geek.controllers.UserController;
 import com.espacogeek.geek.models.UserModel;
 import com.espacogeek.geek.services.JwtTokenService;
 import com.espacogeek.geek.services.UserService;
+import com.espacogeek.geek.utils.TokenUtils;
 
 @GraphQlTest(UserController.class)
 @ActiveProfiles("test")
+@SuppressWarnings("null")
 class CreateUserMutationTest {
 
     @Autowired
     private GraphQlTester graphQlTester;
 
-    @MockBean
+    @MockitoBean
     private UserService userService;
 
-    @MockBean
+    @MockitoBean
     private JwtConfig jwtConfig;
 
-    @MockBean
+    @MockitoBean
     private JwtTokenService jwtTokenService;
+
+    // Mock necessário para satisfazer a dependência do UserController
+    @MockitoBean
+    private TokenUtils tokenUtils;
+
 
     @Test
     void createUser_ValidCredentials_ShouldReturnCreatedStatus() {
