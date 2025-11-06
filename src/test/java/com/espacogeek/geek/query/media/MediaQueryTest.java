@@ -9,7 +9,7 @@ import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.graphql.GraphQlTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.graphql.test.tester.GraphQlTester;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -29,22 +29,22 @@ class MediaQueryTest {
     @Autowired
     private GraphQlTester graphQlTester;
 
-    @MockBean
+    @MockitoBean
     private MediaService mediaService;
 
-    @MockBean(name = "serieController")
+    @MockitoBean(name = "serieController")
     private MediaDataController serieController;
 
-    @MockBean(name = "genericMediaDataController")
+    @MockitoBean(name = "genericMediaDataController")
     private MediaDataController genericMediaDataController;
 
-    @MockBean
+    @MockitoBean
     private MediaApi gamesAndVNsAPI;
 
-    @MockBean
+    @MockitoBean
     private TypeReferenceService typeReferenceService;
 
-    @MockBean
+    @MockitoBean
     private MediaCategoryService mediaCategoryService;
 
     @Test

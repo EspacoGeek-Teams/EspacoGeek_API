@@ -10,7 +10,7 @@ import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.graphql.GraphQlTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.graphql.test.tester.GraphQlTester;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -25,22 +25,23 @@ import at.favre.lib.crypto.bcrypt.BCrypt;
 
 @GraphQlTest(UserController.class)
 @ActiveProfiles("test")
+@SuppressWarnings("null")
 class LoginQueryTest {
 
     @Autowired
     private GraphQlTester graphQlTester;
 
-    @MockBean
+    @MockitoBean
     private UserService userService;
 
-    @MockBean
+    @MockitoBean
     private JwtConfig jwtConfig;
 
-    @MockBean
+    @MockitoBean
     private JwtTokenService jwtTokenService;
 
     // Necessário para satisfazer a dependência do UserController
-    @MockBean
+    @MockitoBean
     private TokenUtils tokenUtils;
 
     @Test
