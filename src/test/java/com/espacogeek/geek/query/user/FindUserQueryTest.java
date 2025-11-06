@@ -8,7 +8,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +19,7 @@ import org.springframework.test.context.ActiveProfiles;
 import com.espacogeek.geek.config.JwtConfig;
 import com.espacogeek.geek.controllers.UserController;
 import com.espacogeek.geek.models.UserModel;
+import com.espacogeek.geek.services.JwtTokenService;
 import com.espacogeek.geek.services.UserService;
 
 @GraphQlTest(UserController.class)
@@ -34,6 +34,9 @@ class FindUserQueryTest {
 
     @MockBean
     private JwtConfig jwtConfig;
+
+    @MockBean
+    private JwtTokenService jwtTokenService;
 
     @Test
     void findUserById_ShouldReturnUser() {

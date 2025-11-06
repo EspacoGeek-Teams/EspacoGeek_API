@@ -17,6 +17,7 @@ import org.springframework.test.context.ActiveProfiles;
 import com.espacogeek.geek.config.JwtConfig;
 import com.espacogeek.geek.controllers.UserController;
 import com.espacogeek.geek.models.UserModel;
+import com.espacogeek.geek.services.JwtTokenService;
 import com.espacogeek.geek.services.UserService;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
@@ -34,6 +35,9 @@ class LoginQueryTest {
     @MockBean
     private JwtConfig jwtConfig;
 
+    @MockBean
+    private JwtTokenService jwtTokenService;
+
     @Test
     void login_ValidCredentials_ShouldReturnToken() {
         // Given
@@ -50,7 +54,7 @@ class LoginQueryTest {
 
         when(userService.findUserByEmail(email)).thenReturn(Optional.of(user));
         when(jwtConfig.generateToken(any(UserModel.class))).thenReturn(expectedToken);
-        when(userService.save(any(UserModel.class))).thenReturn(user);
+        when(jwtTokenService.saveToken(anyString(), any(UserModel.class), anyString())).thenReturn(null);
 
         // When & Then
         graphQlTester.document("""

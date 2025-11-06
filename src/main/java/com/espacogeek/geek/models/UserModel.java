@@ -5,6 +5,7 @@ import java.util.List;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -41,6 +42,7 @@ public class UserModel implements Serializable {
 
     @Size(max = 255, message = "Invalid size")
     @Column(name = "jwt_token", nullable = true)
+    @Deprecated // Use JwtTokenModel relationship instead for multi-device support
     private String jwtToken;
 
     @Size(min = 8, max = 70, message = "Invalid size")
@@ -49,4 +51,7 @@ public class UserModel implements Serializable {
 
     @OneToMany(mappedBy = "user", orphanRemoval = true)
     private List<UserLibraryModel> userLibrary;
+
+    @OneToMany(mappedBy = "user", orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<JwtTokenModel> jwtTokens;
 }

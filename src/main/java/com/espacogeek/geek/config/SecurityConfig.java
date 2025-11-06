@@ -49,16 +49,18 @@ public class SecurityConfig {
         authenticationManagerBuilder.userDetailsService(userDetailsService).passwordEncoder(bCryptPasswordEncoder());
         var authenticationManager = authenticationManagerBuilder.build();
 
-        return http.csrf(csrf -> csrf.disable())
-                    .authorizeHttpRequests(auth -> {
-                        auth.requestMatchers("/api").permitAll();
-                        auth.anyRequest().authenticated();
-                    })
-                    .sessionManagement(
-                            session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                    .httpBasic(withDefaults())
-                    .authenticationManager(authenticationManager)
-                    .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                    .build();
+        return http
+                .cors(withDefaults())
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> {
+                    auth.requestMatchers("/api", "/graphiql/**", "/favicon.ico").permitAll();
+                    auth.requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll();
+                    auth.anyRequest().authenticated();
+                })
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .httpBasic(withDefaults())
+                .authenticationManager(authenticationManager)
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .build();
     }
 }

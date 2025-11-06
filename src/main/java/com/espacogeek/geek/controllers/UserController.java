@@ -14,11 +14,16 @@ import org.springframework.stereotype.Controller;
 import com.espacogeek.geek.config.JwtConfig;
 import com.espacogeek.geek.exception.GenericException;
 import com.espacogeek.geek.models.UserModel;
+import com.espacogeek.geek.services.JwtTokenService;
 import com.espacogeek.geek.services.UserService;
 import com.espacogeek.geek.types.NewUser;
+import com.espacogeek.geek.utils.TokenUtils;
 import com.espacogeek.geek.utils.Utils;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Controller
 public class UserController {
@@ -28,18 +33,62 @@ public class UserController {
     @Autowired
     private JwtConfig jwtConfig;
 
+    @Autowired
+    private JwtTokenService jwtTokenService;
+
+    @Autowired
+    private TokenUtils tokenUtils;
+
+    private static final Logger log = LoggerFactory.getLogger(UserController.class);
+
     @QueryMapping
     public List<UserModel> findUser(@Argument Integer id, @Argument String username, @Argument String email) {
         return userService.findByIdOrUsernameContainsOrEmail(id, username, email);
+    }
+
+    @QueryMapping(name = "logout")
+    @PreAuthorize("hasRole('user')")
+    public String doLogoutUser(Authentication authentication) {
+        String token = tokenUtils.resolveToken();
+
+        if (token != null && !token.isBlank()) {
+            // Remove only the current token (current device/session)
+            jwtTokenService.deleteToken(token);
+
+            // Cookie clearing is handled by GraphQlCookieInterceptor
+            return HttpStatus.OK.toString();
+        }
+
+        throw new GenericException(HttpStatus.UNAUTHORIZED.toString());
+    }
+
+    @QueryMapping(name = "isLogged")
+    @PreAuthorize("hasRole('user')")
+    public String isUserLogged(Authentication authentication) {
+        String token = tokenUtils.resolveToken();
+
+        if (token != null && !token.isBlank()) {
+            try {
+                boolean structureValid = jwtConfig.isValid(token);
+                boolean storedValid = jwtTokenService.isTokenValid(token);
+                if (structureValid && storedValid) {
+                    return HttpStatus.OK.toString();
+                }
+            } catch (Exception e) {
+                log.warn("isLogged validation threw exception: {}", e.toString());
+                throw new GenericException(HttpStatus.INTERNAL_SERVER_ERROR.toString());
+            }
+        }
+
+        throw new GenericException(HttpStatus.UNAUTHORIZED.toString());
     }
 
     /**
      * Authenticate with email and password and return a JWT token.
      */
     @QueryMapping(name = "login")
-    public String doLoginUser(@Argument String email, @Argument String password) {
-        UserModel user = userService.findUserByEmail(email)
-            .orElseThrow(() -> new GenericException(HttpStatus.UNAUTHORIZED.toString()));
+    public String doLoginUser(@Argument String email, @Argument String password, @Argument String deviceInfo) {
+        UserModel user = userService.findUserByEmail(email).orElseThrow(() -> new GenericException(HttpStatus.UNAUTHORIZED.toString()));
 
         boolean verified = BCrypt.verifyer().verify(password.toCharArray(), user.getPassword()).verified;
         if (!verified) {
@@ -47,8 +96,7 @@ public class UserController {
         }
 
         String token = jwtConfig.generateToken(user);
-        user.setJwtToken(token);
-        userService.save(user);
+        jwtTokenService.saveToken(token, user, deviceInfo);
         return token;
     }
 
@@ -64,7 +112,10 @@ public class UserController {
         }
 
         byte[] passwordCrypt = BCrypt.withDefaults().hash(12, newUser.password().toCharArray());
-        UserModel user = new UserModel(null, newUser.username().trim(), newUser.email().toLowerCase().trim(), null, passwordCrypt, null);
+        UserModel user = new UserModel();
+        user.setUsername(newUser.username().trim());
+        user.setEmail(newUser.email().toLowerCase().trim());
+        user.setPassword(passwordCrypt);
 
         userService.save(user);
 
