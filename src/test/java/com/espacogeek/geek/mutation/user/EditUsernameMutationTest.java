@@ -19,6 +19,8 @@ import org.springframework.test.context.ActiveProfiles;
 import com.espacogeek.geek.config.JwtConfig;
 import com.espacogeek.geek.controllers.UserController;
 import com.espacogeek.geek.models.UserModel;
+import com.espacogeek.geek.services.EmailService;
+import com.espacogeek.geek.services.EmailVerificationService;
 import com.espacogeek.geek.services.JwtTokenService;
 import com.espacogeek.geek.services.UserService;
 import com.espacogeek.geek.utils.TokenUtils;
@@ -41,6 +43,12 @@ class EditUsernameMutationTest {
 
     @MockitoBean
     private JwtTokenService jwtTokenService;
+
+    @MockitoBean
+    private EmailService emailService;
+
+    @MockitoBean
+    private EmailVerificationService emailVerificationService;
 
     // Necessário para satisfazer a dependência do UserController
     @MockitoBean

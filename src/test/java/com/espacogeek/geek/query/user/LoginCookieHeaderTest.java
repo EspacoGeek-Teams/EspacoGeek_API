@@ -19,6 +19,8 @@ import com.espacogeek.geek.models.UserModel;
 import com.espacogeek.geek.services.JwtTokenService;
 import com.espacogeek.geek.services.UserService;
 import com.espacogeek.geek.utils.TokenUtils;
+import com.espacogeek.geek.services.EmailService;
+import com.espacogeek.geek.services.EmailVerificationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.junit.jupiter.api.Test;
@@ -75,6 +77,11 @@ class LoginCookieHeaderTest {
     // Necessário para satisfazer a dependência do UserController
     @MockitoBean
     private TokenUtils tokenUtils;
+    @MockitoBean
+    private EmailService emailService;
+
+    @MockitoBean
+    private EmailVerificationService emailVerificationService;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
