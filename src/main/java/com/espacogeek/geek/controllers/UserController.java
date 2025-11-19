@@ -13,7 +13,10 @@ import org.springframework.stereotype.Controller;
 
 import com.espacogeek.geek.config.JwtConfig;
 import com.espacogeek.geek.exception.GenericException;
+import com.espacogeek.geek.models.EmailVerificationTokenModel;
 import com.espacogeek.geek.models.UserModel;
+import com.espacogeek.geek.services.EmailService;
+import com.espacogeek.geek.services.EmailVerificationService;
 import com.espacogeek.geek.services.JwtTokenService;
 import com.espacogeek.geek.services.UserService;
 import com.espacogeek.geek.types.NewUser;
@@ -38,6 +41,12 @@ public class UserController {
 
     @Autowired
     private TokenUtils tokenUtils;
+
+    @Autowired
+    private EmailService emailService;
+
+    @Autowired
+    private EmailVerificationService emailVerificationService;
 
     private static final Logger log = LoggerFactory.getLogger(UserController.class);
 
@@ -119,6 +128,10 @@ public class UserController {
 
         userService.save(user);
 
+        // Send verification email
+        EmailVerificationTokenModel token = emailVerificationService.createToken(user, "ACCOUNT_VERIFICATION", null, 24);
+        emailService.sendAccountVerificationEmail(user, token.getToken());
+
         return HttpStatus.CREATED.toString();
     }
 
@@ -138,6 +151,10 @@ public class UserController {
         if (resultPassword) {
             userLogged.setPassword(BCrypt.withDefaults().hash(12, newPassword.toCharArray()));
             userService.save(userLogged);
+            
+            // Send confirmation email
+            emailService.sendPasswordChangeConfirmationEmail(userLogged);
+            
             return HttpStatus.OK.toString();
         }
 
@@ -189,11 +206,64 @@ public class UserController {
         boolean resultPassword = BCrypt.verifyer().verify(password.toCharArray(), userLogged.getPassword()).verified;
 
         if (resultPassword) {
-            userLogged.setEmail(newEmail);
-            userService.save(userLogged);
+            // Create verification token for new email
+            EmailVerificationTokenModel token = emailVerificationService.createToken(userLogged, "EMAIL_CHANGE", newEmail, 24);
+            emailService.sendEmailChangeVerificationEmail(userLogged, newEmail, token.getToken());
+            
             return HttpStatus.OK.toString();
         }
 
         throw new GenericException(HttpStatus.UNAUTHORIZED.toString());
+    }
+
+    @MutationMapping(name = "requestPasswordReset")
+    public String requestPasswordReset(@Argument String email) {
+        UserModel user = userService.findUserByEmail(email).orElseThrow(() -> new GenericException(HttpStatus.NOT_FOUND.toString()));
+        
+        // Create password reset token
+        EmailVerificationTokenModel token = emailVerificationService.createToken(user, "PASSWORD_RESET", null, 1);
+        emailService.sendPasswordResetEmail(user, token.getToken());
+        
+        return HttpStatus.OK.toString();
+    }
+
+    @MutationMapping(name = "resetPassword")
+    public String resetPassword(@Argument String token, @Argument String newPassword) {
+        if (!Utils.isValidPassword(newPassword)) {
+            throw new GenericException(HttpStatus.BAD_REQUEST.toString());
+        }
+
+        EmailVerificationTokenModel verificationToken = emailVerificationService.validateToken(token, "PASSWORD_RESET")
+            .orElseThrow(() -> new GenericException(HttpStatus.UNAUTHORIZED.toString()));
+
+        UserModel user = verificationToken.getUser();
+        user.setPassword(BCrypt.withDefaults().hash(12, newPassword.toCharArray()));
+        userService.save(user);
+
+        emailVerificationService.markTokenAsUsed(verificationToken);
+        emailService.sendPasswordChangeConfirmationEmail(user);
+
+        return HttpStatus.OK.toString();
+    }
+
+    @MutationMapping(name = "verifyEmailChange")
+    @PreAuthorize("hasRole('user')")
+    public String verifyEmailChange(Authentication authentication, @Argument String token) {
+        Integer userId = Utils.getUserID(authentication);
+
+        EmailVerificationTokenModel verificationToken = emailVerificationService.validateToken(token, "EMAIL_CHANGE")
+            .orElseThrow(() -> new GenericException(HttpStatus.UNAUTHORIZED.toString()));
+
+        if (!verificationToken.getUser().getId().equals(userId)) {
+            throw new GenericException(HttpStatus.FORBIDDEN.toString());
+        }
+
+        UserModel user = verificationToken.getUser();
+        user.setEmail(verificationToken.getNewEmail());
+        userService.save(user);
+
+        emailVerificationService.markTokenAsUsed(verificationToken);
+
+        return HttpStatus.OK.toString();
     }
 }
