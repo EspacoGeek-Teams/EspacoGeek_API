@@ -2,6 +2,9 @@ package com.espacogeek.geek.mutation.user;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -14,7 +17,10 @@ import org.springframework.test.context.ActiveProfiles;
 
 import com.espacogeek.geek.config.JwtConfig;
 import com.espacogeek.geek.controllers.UserController;
+import com.espacogeek.geek.models.EmailVerificationTokenModel;
 import com.espacogeek.geek.models.UserModel;
+import com.espacogeek.geek.services.EmailService;
+import com.espacogeek.geek.services.EmailVerificationService;
 import com.espacogeek.geek.services.JwtTokenService;
 import com.espacogeek.geek.services.UserService;
 import com.espacogeek.geek.utils.TokenUtils;
@@ -36,6 +42,12 @@ class CreateUserMutationTest {
     @MockitoBean
     private JwtTokenService jwtTokenService;
 
+    @MockitoBean
+    private EmailService emailService;
+
+    @MockitoBean
+    private EmailVerificationService emailVerificationService;
+
     // Mock necessário para satisfazer a dependência do UserController
     @MockitoBean
     private TokenUtils tokenUtils;
@@ -53,7 +65,12 @@ class CreateUserMutationTest {
         savedUser.setUsername(username);
         savedUser.setEmail(email);
 
+        EmailVerificationTokenModel token = new EmailVerificationTokenModel();
+        token.setToken("test-token");
+
         when(userService.save(any(UserModel.class))).thenReturn(savedUser);
+        when(emailVerificationService.createToken(any(UserModel.class), eq("ACCOUNT_VERIFICATION"), eq(null), anyInt()))
+            .thenReturn(token);
 
         // When & Then
         graphQlTester.document("""
@@ -73,6 +90,8 @@ class CreateUserMutationTest {
                 });
 
         verify(userService).save(any(UserModel.class));
+        verify(emailVerificationService).createToken(any(UserModel.class), eq("ACCOUNT_VERIFICATION"), eq(null), anyInt());
+        verify(emailService).sendAccountVerificationEmail(any(UserModel.class), anyString());
     }
 
     @Test
