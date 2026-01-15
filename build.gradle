@@ -122,6 +122,10 @@ tasks.withType(Test) {
     useJUnitPlatform()
 }
 
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs.add('-parameters')
+}
+
 // Disable AOT processing for tests (incompatible with Mockito)
 tasks.named('processTestAot') {
     enabled = false
