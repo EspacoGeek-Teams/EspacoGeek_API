@@ -51,7 +51,7 @@ public class UserController {
     private static final Logger log = LoggerFactory.getLogger(UserController.class);
 
     @QueryMapping
-    public List<UserModel> findUser(@Argument Integer id, @Argument String username, @Argument String email) {
+    public List<UserModel> findUser(@Argument(name = "id") Integer id, @Argument(name = "username") String username, @Argument(name = "email") String email) {
         return userService.findByIdOrUsernameContainsOrEmail(id, username, email);
     }
 
@@ -96,7 +96,7 @@ public class UserController {
      * Authenticate with email and password and return a JWT token.
      */
     @QueryMapping(name = "login")
-    public String doLoginUser(@Argument String email, @Argument String password, @Argument String deviceInfo) {
+    public String doLoginUser(@Argument(name = "email") String email, @Argument(name = "password") String password, @Argument(name = "deviceInfo") String deviceInfo) {
         UserModel user = userService.findUserByEmail(email).orElseThrow(() -> new GenericException(HttpStatus.UNAUTHORIZED.toString()));
 
         boolean verified = BCrypt.verifyer().verify(password.toCharArray(), user.getPassword()).verified;
@@ -137,7 +137,7 @@ public class UserController {
 
     @MutationMapping(name = "editPassword")
     @PreAuthorize("hasRole('user')")
-    public String editPasswordUserLogged(Authentication authentication, @Argument String actualPassword, @Argument String newPassword) {
+    public String editPasswordUserLogged(Authentication authentication, @Argument(name = "actualPassword") String actualPassword, @Argument(name = "newPassword") String newPassword) {
 
         if (!Utils.isValidPassword(newPassword)) {
             throw new GenericException(HttpStatus.BAD_REQUEST.toString());
@@ -151,10 +151,10 @@ public class UserController {
         if (resultPassword) {
             userLogged.setPassword(BCrypt.withDefaults().hash(12, newPassword.toCharArray()));
             userService.save(userLogged);
-            
+
             // Send confirmation email
             emailService.sendPasswordChangeConfirmationEmail(userLogged);
-            
+
             return HttpStatus.OK.toString();
         }
 
@@ -163,7 +163,7 @@ public class UserController {
 
     @MutationMapping(name = "deleteUser")
     @PreAuthorize("hasRole('user')")
-    public String deleteUserLogged(Authentication authentication, @Argument String password) {
+    public String deleteUserLogged(Authentication authentication, @Argument(name = "password") String password) {
 
         Integer userId = Utils.getUserID(authentication);
 
@@ -180,7 +180,7 @@ public class UserController {
 
     @MutationMapping(name = "editUsername")
     @PreAuthorize("hasRole('user')")
-    public String editUsernameUserLogged(Authentication authentication, @Argument String password, @Argument String newUsername) {
+    public String editUsernameUserLogged(Authentication authentication, @Argument(name = "password") String password, @Argument(name = "newUsername") String newUsername) {
 
         Integer userId = Utils.getUserID(authentication);
 
@@ -198,7 +198,7 @@ public class UserController {
 
     @MutationMapping(name = "editEmail")
     @PreAuthorize("hasRole('user')")
-    public String editEmailUserLogged(Authentication authentication, @Argument String password, @Argument String newEmail) {
+    public String editEmailUserLogged(Authentication authentication, @Argument(name = "password") String password, @Argument(name = "newEmail") String newEmail) {
 
         Integer userId = Utils.getUserID(authentication);
 
@@ -209,7 +209,7 @@ public class UserController {
             // Create verification token for new email
             EmailVerificationTokenModel token = emailVerificationService.createToken(userLogged, "EMAIL_CHANGE", newEmail, 24);
             emailService.sendEmailChangeVerificationEmail(userLogged, newEmail, token.getToken());
-            
+
             return HttpStatus.OK.toString();
         }
 
@@ -217,18 +217,18 @@ public class UserController {
     }
 
     @MutationMapping(name = "requestPasswordReset")
-    public String requestPasswordReset(@Argument String email) {
+    public String requestPasswordReset(@Argument(name = "email") String email) {
         UserModel user = userService.findUserByEmail(email).orElseThrow(() -> new GenericException(HttpStatus.NOT_FOUND.toString()));
-        
+
         // Create password reset token
         EmailVerificationTokenModel token = emailVerificationService.createToken(user, "PASSWORD_RESET", null, 1);
         emailService.sendPasswordResetEmail(user, token.getToken());
-        
+
         return HttpStatus.OK.toString();
     }
 
     @MutationMapping(name = "resetPassword")
-    public String resetPassword(@Argument String token, @Argument String newPassword) {
+    public String resetPassword(@Argument(name = "token") String token, @Argument(name = "newPassword") String newPassword) {
         if (!Utils.isValidPassword(newPassword)) {
             throw new GenericException(HttpStatus.BAD_REQUEST.toString());
         }
@@ -248,7 +248,7 @@ public class UserController {
 
     @MutationMapping(name = "verifyEmailChange")
     @PreAuthorize("hasRole('user')")
-    public String verifyEmailChange(Authentication authentication, @Argument String token) {
+    public String verifyEmailChange(Authentication authentication, @Argument(name = "token") String token) {
         Integer userId = Utils.getUserID(authentication);
 
         EmailVerificationTokenModel verificationToken = emailVerificationService.validateToken(token, "EMAIL_CHANGE")

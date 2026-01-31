@@ -42,7 +42,7 @@ public class MediaController {
      * @throws GenericException if the MediaModel object is not found.
      */
     @QueryMapping(name = "media")
-    public MediaModel getMediaById(@Argument Integer id) {
+    public MediaModel getMediaById(@Argument(name = "id") Integer id) {
         var media = this.mediaService.findByIdEager(id).orElseThrow(() -> new GenericException("Media not found"));
 
         switch (media.getMediaCategory().getId()) {
@@ -69,7 +69,7 @@ public class MediaController {
      *         name.
      */
     @QueryMapping(name = "tvserie")
-    public MediaPage getSerie(@Argument Integer id, @Argument String name, DataFetchingEnvironment dataFetchingEnvironment) {
+    public MediaPage getSerie(@Argument(name = "id") Integer id, @Argument(name = "name") String name, DataFetchingEnvironment dataFetchingEnvironment) {
         MediaPage response = new MediaPage();
         name = name == null ? null : name.trim();
 
@@ -97,7 +97,7 @@ public class MediaController {
      *         name.
      */
     @QueryMapping(name = "game")
-    public MediaPage getGame(@Argument Integer id, @Argument String name, DataFetchingEnvironment dataFetchingEnvironment) {
+    public MediaPage getGame(@Argument(name = "id") Integer id, @Argument(name = "name") String name, DataFetchingEnvironment dataFetchingEnvironment) {
         MediaPage response = new MediaPage();
         name = name == null ? null : name.trim();
 
@@ -125,7 +125,7 @@ public class MediaController {
      *         ID or name.
      */
     @QueryMapping(name = "vn")
-    public MediaPage getVisualNovel(@Argument Integer id, @Argument String name, DataFetchingEnvironment dataFetchingEnvironment) {
+    public MediaPage getVisualNovel(@Argument(name = "id") Integer id, @Argument(name = "name") String name, DataFetchingEnvironment dataFetchingEnvironment) {
         MediaPage response = new MediaPage();
         name = name == null ? null : name.trim();
 
