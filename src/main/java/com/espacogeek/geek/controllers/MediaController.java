@@ -144,4 +144,30 @@ public class MediaController {
 
         return response;
     }
+
+    /**
+     * Finds Anime (MediaModel) objects by their ID or name.
+     *
+     * @param id   The ID of the Anime (MediaModel) object to find.
+     * @param name The name of the Anime (MediaModel) object to find.
+     * @return A list of Anime (MediaModel) objects that match the provided ID or name.
+     */
+    @QueryMapping(name = "anime")
+    public MediaPage getAnime(@Argument(name = "id") Integer id, @Argument(name = "name") String name, DataFetchingEnvironment dataFetchingEnvironment) {
+        MediaPage response = new MediaPage();
+        name = name == null ? null : name.trim();
+
+        if (name == null & id == null || name == "" & id == null) {
+            return response;
+        }
+
+        var medias = this.mediaService.findAnimeByIdOrName(id, name, Utils.getPageable(dataFetchingEnvironment));
+        response.setTotalPages(medias.getTotalPages());
+        response.setTotalElements(medias.getTotalElements());
+        response.setNumber(medias.getNumber());
+        response.setSize(medias.getSize());
+        response.setContent(medias.getContent());
+
+        return response;
+    }
 }

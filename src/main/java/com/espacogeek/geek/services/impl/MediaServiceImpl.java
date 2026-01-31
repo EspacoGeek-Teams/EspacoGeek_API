@@ -31,6 +31,8 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.transaction.Transactional;
 
+import static com.espacogeek.geek.utils.TextUtils.capitalize;
+
 /**
  * A Implementation class of MediaService @see MediaService
  */
@@ -43,10 +45,12 @@ public class MediaServiceImpl implements MediaService {
     @Autowired
     private MediaCategoryService mediaCategoryService;
 
-    @Autowired @Qualifier("serieController")
+    @Autowired
+    @Qualifier("serieController")
     private MediaDataController serieController;
 
-    @Autowired @Qualifier("genericMediaDataController")
+    @Autowired
+    @Qualifier("genericMediaDataController")
     private MediaDataController genericMediaDataController;
 
     @Autowired
@@ -84,12 +88,12 @@ public class MediaServiceImpl implements MediaService {
             return (Page<MediaModel>) this.mediaRepository.findById(id).orElseGet(null);
         }
 
-        return this.mediaRepository.findMediaByNameOrAlternativeTitleAndMediaCategory(name, name,
-                mediaCategoryService.findById(MediaDataController.SERIE_ID).get().getId(), pageable);
+        return this.mediaRepository.findMediaByNameOrAlternativeTitleAndMediaCategory(name, name, mediaCategoryService.findById(MediaDataController.SERIE_ID).get().getId(), pageable);
     }
 
     /**
-     * @see MediaService#findSerieByIdOrName(Integer, String, Map<String, List<String>>, Pageable)
+     * @see MediaService#findSerieByIdOrName(Integer, String, Map<String,
+     *      List<String>>, Pageable)
      */
     @SuppressWarnings("unchecked")
     @Override
@@ -97,8 +101,9 @@ public class MediaServiceImpl implements MediaService {
         var medias = new ArrayList<MediaModel>();
 
         if (id != null) {
-            medias.add((MediaModel) this.mediaRepository.findById(id).orElseGet(null));
-            return new PageImpl<>(medias, pageable, medias.size());
+            medias.add((MediaModel) this.mediaRepository.findById(id).orElse(null));
+            Pageable safePageable = pageable != null ? pageable : Pageable.unpaged();
+            return new PageImpl<>(medias, safePageable, medias.size());
         }
 
         var results = mediaRepository.findMediaByNameOrAlternativeTitleAndMediaCategory(name, name, mediaCategoryService.findById(MediaDataController.SERIE_ID).get().getId(), requestedFields, pageable);
@@ -116,8 +121,7 @@ public class MediaServiceImpl implements MediaService {
             return (Page<MediaModel>) this.mediaRepository.findById(id).orElseGet(null);
         }
 
-        return this.mediaRepository.findMediaByNameOrAlternativeTitleAndMediaCategory(name, name,
-                mediaCategoryService.findById(MediaDataController.GAME_ID).get().getId(), pageable);
+        return this.mediaRepository.findMediaByNameOrAlternativeTitleAndMediaCategory(name, name, mediaCategoryService.findById(MediaDataController.GAME_ID).get().getId(), pageable);
     }
 
     /**
@@ -135,10 +139,8 @@ public class MediaServiceImpl implements MediaService {
      */
     @SuppressWarnings("unchecked")
     @Override
-    public Optional<MediaModel> findByReferenceAndTypeReference(ExternalReferenceModel reference,
-            TypeReferenceModel typeReference) {
-        return this.mediaRepository.findOneMediaByExternalReferenceAndTypeReference(reference.getReference(),
-                typeReference);
+    public Optional<MediaModel> findByReferenceAndTypeReference(ExternalReferenceModel reference, TypeReferenceModel typeReference) {
+        return this.mediaRepository.findOneMediaByExternalReferenceAndTypeReference(reference.getReference(), typeReference);
     }
 
     /**
@@ -150,7 +152,8 @@ public class MediaServiceImpl implements MediaService {
     public Optional<MediaModel> findByIdEager(Integer id) {
         var fieldList = new ArrayList<Field>();
         MediaModel media = (MediaModel) mediaRepository.findById(id).orElseGet(null);
-        if (media == null) return Optional.empty();
+        if (media == null)
+            return Optional.empty();
 
         for (Field field : media.getClass().getDeclaredFields()) {
             field.setAccessible(true);
@@ -175,14 +178,6 @@ public class MediaServiceImpl implements MediaService {
         return Optional.ofNullable(media);
     }
 
-    private String capitalize(String str) {
-        if (str == null || str.isEmpty()) {
-            return str;
-        }
-        return Character.toUpperCase(str.charAt(0)) + str.substring(1);
-
-    }
-
     /**
      * @see MediaService#randomArtwork()
      */
@@ -190,16 +185,19 @@ public class MediaServiceImpl implements MediaService {
     @Transactional
     public Optional<String> randomArtwork() {
         long total = mediaRepository.count();
-        if (total <= 0) return Optional.empty();
+        if (total <= 0)
+            return Optional.empty();
 
         int maxAttempts = (int) Math.min(total + 10, 200); // safety cap
         for (int attempt = 0; attempt < maxAttempts; attempt++) {
             int randomIndex = ThreadLocalRandom.current().nextInt((int) total);
             var page = mediaRepository.findAll(PageRequest.of(randomIndex, 1));
-            if (page.isEmpty()) continue;
+            if (page.isEmpty())
+                continue;
 
             MediaModel media = (MediaModel) page.getContent().getFirst();
-            if (media == null) continue;
+            if (media == null)
+                continue;
 
             if (media.getBanner() != null && !media.getBanner().isEmpty()) {
                 return Optional.of(media.getBanner());
@@ -208,20 +206,20 @@ public class MediaServiceImpl implements MediaService {
             try {
                 // Try to fetch/update artworks for this media
                 Integer categoryId = media.getMediaCategory() != null ? media.getMediaCategory().getId() : null;
-                if (categoryId == null) continue;
+                if (categoryId == null)
+                    continue;
 
                 MediaModel updated = media;
                 switch (categoryId) {
                     case MediaDataController.GAME_ID:
                     case MediaDataController.VN_ID:
                         updated = Utils
-                            .updateGenericMedia(
-                                Arrays.asList(media),
-                                genericMediaDataController,
-                                typeReferenceService.findById(MediaDataController.IGDB_ID).orElseThrow(),
-                                gamesAndVNsAPI
-                            )
-                            .getFirst();
+                                .updateGenericMedia(
+                                        Arrays.asList(media),
+                                        genericMediaDataController,
+                                        typeReferenceService.findById(MediaDataController.IGDB_ID).orElseThrow(),
+                                        gamesAndVNsAPI)
+                                .getFirst();
                         break;
                     case MediaDataController.SERIE_ID:
                         updated = Utils.updateMedia(Arrays.asList(media), serieController).getFirst();
@@ -240,8 +238,12 @@ public class MediaServiceImpl implements MediaService {
         return Optional.empty();
     }
 
+    /**
+     * @see MediaService#findMovieByIdOrName(Integer, String, Map<String, List<String>>, Pageable)
+     */
     @Override
-    public Page<MediaModel> findMovieByIdOrName(Integer id, String name, Map<String, List<String>> requestedFields, Pageable pageable) {
+    public Page<MediaModel> findMovieByIdOrName(Integer id, String name, Map<String, List<String>> requestedFields,
+            Pageable pageable) {
         var medias = new ArrayList<MediaModel>();
 
         if (id != null) {
@@ -249,8 +251,22 @@ public class MediaServiceImpl implements MediaService {
             return new PageImpl<>(medias, pageable, medias.size());
         }
 
-        var results = mediaRepository.findMediaByNameOrAlternativeTitleAndMediaCategory(name, name, mediaCategoryService.findById(MediaDataController.MOVIE_ID).get().getId(), pageable);
+        var results = mediaRepository.findMediaByNameOrAlternativeTitleAndMediaCategory(name, name,
+                mediaCategoryService.findById(MediaDataController.MOVIE_ID).get().getId(), pageable);
 
         return results;
+    }
+
+    /**
+     * @see MediaService#findAnimeByIdOrName(Integer, String, Pageable)
+     */
+    @Override
+    @SuppressWarnings("unchecked")
+    public Page<MediaModel> findAnimeByIdOrName(Integer id, String name, Pageable pageable) {
+        if (id != null) {
+            return (Page<MediaModel>) this.mediaRepository.findById(id).orElseGet(null);
+        }
+
+        return (Page<MediaModel>) this.mediaRepository.findMediaByNameOrAlternativeTitleAndMediaCategory(name, name, mediaCategoryService.findById(MediaDataController.ANIME_SERIE_ID).get().getId(), pageable);
     }
 }

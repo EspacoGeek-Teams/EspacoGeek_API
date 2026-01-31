@@ -92,4 +92,13 @@ public interface MediaService {
      * @return An Optional containing a random artwork URL, or an empty Optional if no artwork is found.
      */
     Optional<String> randomArtwork();
+
+    /**
+     * Finds Anime (MediaModel) objects by their ID or name.
+     *
+     * @param id   The ID of the Anime (MediaModel) object to find.
+     * @param name The name of the Anime (MediaModel) object to find.
+     * @return A list of Anime (MediaModel) objects that match the provided ID or name.
+     */
+    Page<MediaModel> findAnimeByIdOrName(Integer id, String name, Pageable pageable);
 }

@@ -13,11 +13,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.espacogeek.geek.data.api.MediaApi;
 import com.espacogeek.geek.exception.GenericException;
+import com.espacogeek.geek.exception.RequestException;
 import com.espacogeek.geek.models.ExternalReferenceModel;
 import com.espacogeek.geek.models.MediaCategoryModel;
 import com.espacogeek.geek.models.MediaModel;
@@ -54,10 +56,14 @@ public class SerieControllerImpl extends GenericMediaDataControllerImpl {
      * <p>
      * Every day at 9:00AM this function is executed.
      */
-    @Scheduled(cron = "* * 9 * * *")
-    // @Scheduled(initialDelay = 1)
+    //@Scheduled(cron = "* * 9 * * *")
+    @Scheduled(initialDelay = 1)
     private void updateTvSeries() {
-        MediaCategoryModel mediaCategory = mediaCategoryService.findById(SERIE_ID).orElseThrow(() -> new GenericException("Category not found"));
+        log.info("START TO UPDATE TV SERIES, AT {}", LocalDateTime.now());
+
+        MediaCategoryModel mediaSerieCategory = mediaCategoryService.findById(SERIE_ID).orElseThrow(() -> new GenericException("Category not found"));
+        MediaCategoryModel mediaAnimeCategory = mediaCategoryService.findById(ANIME_SERIE_ID).orElseThrow(() -> new GenericException("Category not found"));
+        MediaCategoryModel mediaUndefinedCategory = mediaCategoryService.findById(UNDEFINED_MEDIA_ID).orElseThrow(() -> new GenericException("Category not found"));
         ExecutorService executorService = Executors.newFixedThreadPool(400);
 
         try {
@@ -67,7 +73,6 @@ public class SerieControllerImpl extends GenericMediaDataControllerImpl {
                 executorService.submit(() -> {
                     try {
                         var media = new MediaModel();
-                        media.setMediaCategory(mediaCategory);
 
                         var externalReference = new ExternalReferenceModel();
                         externalReference.setTypeReference(typeReference);
@@ -79,35 +84,38 @@ public class SerieControllerImpl extends GenericMediaDataControllerImpl {
 
                         if (!externalReferenceExisted.isPresent()) {
                             boolean isAnime = false;
+                            boolean isUndefined = false;
                             try {
-                                isAnime = tvSeriesApi.getKeyword(Integer.valueOf(json.get("id").toString())).stream().anyMatch((keyword) -> !keyword.getName().equalsIgnoreCase("anime"));
+                                isAnime = tvSeriesApi.getKeyword(Integer.valueOf(json.get("id").toString())).stream().anyMatch((keyword) -> keyword.getName().equalsIgnoreCase("anime"));
                             } catch (Exception e) {
-                                isAnime = true;
+                                log.error("Error fetching keywords for TV series ID {}: {}", json.get("id").toString(), e.getMessage());
+                                isUndefined = true;
                             }
 
-                            if (isAnime) {
-                                media.setName(json.get("original_name").toString());
+                            if (isAnime) media.setMediaCategory(mediaAnimeCategory);
+                            else if (isUndefined) media.setMediaCategory(mediaUndefinedCategory);
+                            else media.setMediaCategory(mediaSerieCategory);
 
-                                if (externalReferenceExisted.isPresent()) {
-                                    media.setId(externalReferenceExisted.get().getMedia().getId());
-                                    externalReference.setId(externalReferenceExisted.get().getId());
-                                }
+                            media.setName(json.get("original_name").toString());
 
-                                var mediaSaved = mediaService.save(media);
-
-                                externalReference.setMedia(mediaSaved);
-                                var referenceSaved = externalReferenceService.save(externalReference);
-                                List<ExternalReferenceModel> referenceListSaved = new ArrayList<>();
-                                referenceListSaved.add(referenceSaved);
-                                mediaSaved.setExternalReference(referenceListSaved);
-
-                                media.setAlternativeTitles(updateAlternativeTitles(mediaSaved, null, typeReference, tvSeriesApi));
+                            if (externalReferenceExisted.isPresent()) {
+                                media.setId(externalReferenceExisted.get().getMedia().getId());
+                                externalReference.setId(externalReferenceExisted.get().getId());
                             }
+
+                            var mediaSaved = mediaService.save(media);
+
+                            externalReference.setMedia(mediaSaved);
+                            var referenceSaved = externalReferenceService.save(externalReference);
+                            List<ExternalReferenceModel> referenceListSaved = new ArrayList<>();
+                            referenceListSaved.add(referenceSaved);
+                            mediaSaved.setExternalReference(referenceListSaved);
+
+                            media.setAlternativeTitles(updateAlternativeTitles(mediaSaved, null, typeReference, tvSeriesApi));
                         }
                     } catch (Exception e) {
                         var json = (JSONObject) jsonArrayDailyExport.get(index);
                         log.error("Error processing TV series {} - {}", json.get("id").toString(), json.get("original_name").toString(), e);
-
                     }
                 });
             }
