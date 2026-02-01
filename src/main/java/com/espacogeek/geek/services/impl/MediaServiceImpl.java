@@ -242,8 +242,7 @@ public class MediaServiceImpl implements MediaService {
      * @see MediaService#findMovieByIdOrName(Integer, String, Map<String, List<String>>, Pageable)
      */
     @Override
-    public Page<MediaModel> findMovieByIdOrName(Integer id, String name, Map<String, List<String>> requestedFields,
-            Pageable pageable) {
+    public Page<MediaModel> findMovieByIdOrName(Integer id, String name, Map<String, List<String>> requestedFields, Pageable pageable) {
         var medias = new ArrayList<MediaModel>();
 
         if (id != null) {
@@ -251,8 +250,7 @@ public class MediaServiceImpl implements MediaService {
             return new PageImpl<>(medias, pageable, medias.size());
         }
 
-        var results = mediaRepository.findMediaByNameOrAlternativeTitleAndMediaCategory(name, name,
-                mediaCategoryService.findById(MediaDataController.MOVIE_ID).get().getId(), pageable);
+        var results = mediaRepository.findMediaByNameOrAlternativeTitleAndMediaCategory(name, name, mediaCategoryService.findById(MediaDataController.MOVIE_ID).get().getId(), pageable);
 
         return results;
     }
@@ -268,5 +266,18 @@ public class MediaServiceImpl implements MediaService {
         }
 
         return (Page<MediaModel>) this.mediaRepository.findMediaByNameOrAlternativeTitleAndMediaCategory(name, name, mediaCategoryService.findById(MediaDataController.ANIME_SERIE_ID).get().getId(), pageable);
+    }
+
+    /**
+     * @see MediaService#findMovieByIdOrName(Integer, String, Pageable)
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public Page<MediaModel> findMovieByIdOrName(Integer id, String name, Pageable pageable) {
+        if (id != null) {
+            return (Page<MediaModel>) this.mediaRepository.findById(id).orElseGet(null);
+        }
+
+        return (Page<MediaModel>) this.mediaRepository.findMediaByNameOrAlternativeTitleAndMediaCategory(name, name, mediaCategoryService.findById(MediaDataController.MOVIE_ID).get().getId(), pageable);
     }
 }

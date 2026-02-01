@@ -1,12 +1,11 @@
 package com.espacogeek.geek.data.impl;
 
 import java.time.LocalDateTime;
-
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
@@ -28,11 +27,11 @@ import com.espacogeek.geek.services.TypeReferenceService;
 
 import jakarta.annotation.PostConstruct;
 
-@Component("serieController")
-@Qualifier("serieController")
-public class SerieControllerImpl extends GenericMediaDataControllerImpl {
+@Component("movieController")
+@Qualifier("movieController")
+public class MovieControllerImpl extends GenericMediaDataControllerImpl {
     @Autowired
-    private MediaApi tvSeriesApi;
+    private MediaApi movieAPI;
     @Autowired
     private MediaCategoryService mediaCategoryService;
     @Autowired
@@ -50,22 +49,22 @@ public class SerieControllerImpl extends GenericMediaDataControllerImpl {
     }
 
     /**
-     * This method update and add title of TV Series.
+     * This method update and add title of movie.
      * <p>
-     * Every day at 9:00AM this function is executed.
+     * Every day at 10:00PM this function is executed.
      */
-    @Scheduled(cron = "* * 9 * * *")
+    @Scheduled(cron = "* * 22 * * *")
     // @Scheduled(initialDelay = 1)
-    private void updateTvSeries() {
-        log.info("START TO UPDATE TV SERIES, AT {}", LocalDateTime.now());
+    private void updateMovies() {
+        log.info("START TO UPDATE movie, AT {}", LocalDateTime.now());
 
-        MediaCategoryModel mediaSerieCategory = mediaCategoryService.findById(SERIE_ID).orElseThrow(() -> new GenericException("Category not found"));
-        MediaCategoryModel mediaAnimeCategory = mediaCategoryService.findById(ANIME_SERIE_ID).orElseThrow(() -> new GenericException("Category not found"));
+        MediaCategoryModel mediaMovieCategory = mediaCategoryService.findById(MOVIE_ID).orElseThrow(() -> new GenericException("Category not found"));
+        MediaCategoryModel mediaAnimeCategory = mediaCategoryService.findById(ANIME_MOVIE_ID).orElseThrow(() -> new GenericException("Category not found"));
         MediaCategoryModel mediaUndefinedCategory = mediaCategoryService.findById(UNDEFINED_MEDIA_ID).orElseThrow(() -> new GenericException("Category not found"));
         ExecutorService executorService = Executors.newFixedThreadPool(400);
 
         try {
-            var jsonArrayDailyExport = tvSeriesApi.updateTitles();
+            var jsonArrayDailyExport = movieAPI.updateTitles();
             for (int i = 0; i < jsonArrayDailyExport.size(); i++) {
                 final int index = i;
                 executorService.submit(() -> {
@@ -84,17 +83,20 @@ public class SerieControllerImpl extends GenericMediaDataControllerImpl {
                             boolean isAnime = false;
                             boolean isUndefined = false;
                             try {
-                                isAnime = tvSeriesApi.getKeyword(Integer.valueOf(json.get("id").toString())).stream().anyMatch((keyword) -> keyword.getName().equalsIgnoreCase("anime"));
+                                isAnime = movieAPI.getKeyword(Integer.valueOf(json.get("id").toString())).stream().anyMatch((keyword) -> keyword.getName().equalsIgnoreCase("anime"));
                             } catch (Exception e) {
-                                log.error("Error fetching keywords for TV series ID {}: {}", json.get("id").toString(), e.getMessage());
+                                log.error("Error fetching keywords for movie ID {}: {}", json.get("id").toString(), e.getMessage());
                                 isUndefined = true;
                             }
 
-                            if (isAnime) media.setMediaCategory(mediaAnimeCategory);
-                            else if (isUndefined) media.setMediaCategory(mediaUndefinedCategory);
-                            else media.setMediaCategory(mediaSerieCategory);
+                            if (isAnime)
+                                media.setMediaCategory(mediaAnimeCategory);
+                            else if (isUndefined)
+                                media.setMediaCategory(mediaUndefinedCategory);
+                            else
+                                media.setMediaCategory(mediaMovieCategory);
 
-                            media.setName(json.get("original_name").toString());
+                            media.setName(json.get("original_title").toString());
 
                             if (externalReferenceExisted.isPresent()) {
                                 media.setId(externalReferenceExisted.get().getMedia().getId());
@@ -109,25 +111,25 @@ public class SerieControllerImpl extends GenericMediaDataControllerImpl {
                             referenceListSaved.add(referenceSaved);
                             mediaSaved.setExternalReference(referenceListSaved);
 
-                            media.setAlternativeTitles(updateAlternativeTitles(mediaSaved, null, typeReference, tvSeriesApi));
+                            media.setAlternativeTitles(updateAlternativeTitles(mediaSaved, null, typeReference, movieAPI));
                         }
                     } catch (Exception e) {
                         var json = (JSONObject) jsonArrayDailyExport.get(index);
-                        log.error("Error processing TV series {} - {}", json.get("id").toString(), json.get("original_name").toString(), e);
+                        log.error("Error processing movie {} - {}", json.get("id").toString(), json.get("original_name").toString(), e);
                     }
                 });
             }
             executorService.shutdown();
             executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
 
-            log.info("SUCCESS TO UPDATE TV SERIES, AT {}", LocalDateTime.now());
+            log.info("SUCCESS TO UPDATE movie, AT {}", LocalDateTime.now());
         } catch (Exception e) {
-            log.error("FAILED TO UPDATE TV SERIES, AT {}", LocalDateTime.now(), e);
+            log.error("FAILED TO UPDATE movie, AT {}", LocalDateTime.now(), e);
         }
     }
 
     @Override
     public MediaModel updateAllInformation(MediaModel media, MediaModel result) {
-        return super.updateAllInformation(media, result, this.typeReference, this.tvSeriesApi);
+        return super.updateAllInformation(media, result, this.typeReference, this.movieAPI);
     }
 }

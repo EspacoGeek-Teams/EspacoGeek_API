@@ -98,7 +98,17 @@ public interface MediaService {
      *
      * @param id   The ID of the Anime (MediaModel) object to find.
      * @param name The name of the Anime (MediaModel) object to find.
+     * @param pageable The pagination information.
      * @return A list of Anime (MediaModel) objects that match the provided ID or name.
      */
     Page<MediaModel> findAnimeByIdOrName(Integer id, String name, Pageable pageable);
+
+    /**
+     * Finds Movie (MediaModel) objects by their ID or name.
+     * @param id The ID of the Movie (MediaModel) object to find.
+     * @param name The name of the Movie (MediaModel) object to find.
+     * @param pageable The pagination information.
+     * @return A list of Movie (MediaModel) objects that match the provided ID or name.
+     */
+    Page<MediaModel> findMovieByIdOrName(Integer id, String name, Pageable pageable);
 }

@@ -61,6 +61,33 @@ public class MediaController {
     }
 
     /**
+     * Finds Movie (MediaModel) objects by their ID or name.
+     *
+     * @param id   The ID of the Movie (MediaModel) object to find.
+     * @param name The name of the Movie (MediaModel) object to find.
+     * @return A list of Movie (MediaModel) objects that match the provided ID or
+     *         name.
+     */
+    @QueryMapping(name = "movie")
+    public MediaPage getMovie(@Argument(name = "id") Integer id, @Argument(name = "name") String name, DataFetchingEnvironment dataFetchingEnvironment) {
+        MediaPage response = new MediaPage();
+        name = name == null ? null : name.trim();
+
+        if (name == null & id == null || name == "" & id == null) {
+            return response;
+        }
+
+        var medias = this.mediaService.findMovieByIdOrName(id, name, Utils.getPageable(dataFetchingEnvironment));
+        response.setTotalPages(medias.getTotalPages());
+        response.setTotalElements(medias.getTotalElements());
+        response.setNumber(medias.getNumber());
+        response.setSize(medias.getSize());
+        response.setContent(medias.getContent());
+
+        return response;
+    }
+
+    /**
      * Finds Series (MediaModel) objects by their ID or name.
      *
      * @param id   The ID of the Series (MediaModel) object to find.
