@@ -1,20 +1,16 @@
 package com.espacogeek.geek.utils;
 
-import java.lang.reflect.Field;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
-import org.springframework.stereotype.Component;
 
 import com.espacogeek.geek.data.MediaDataController;
 import com.espacogeek.geek.data.api.MediaApi;
@@ -23,9 +19,7 @@ import com.espacogeek.geek.models.TypeReferenceModel;
 
 import graphql.schema.DataFetchingEnvironment;
 import graphql.schema.SelectedField;
-import jakarta.persistence.criteria.Root;
 
-@Component
 public abstract class Utils {
 
     /**
@@ -39,27 +33,11 @@ public abstract class Utils {
     public static Integer getUserID(Authentication authentication) {
         return Integer.valueOf(
                 authentication.getAuthorities().stream().filter(
-                        (authority) -> authority.getAuthority()
-                                .startsWith("ID_"))
+                        (authority) -> authority.getAuthority().startsWith("ID_"))
                         .toList()
                         .getFirst()
                         .getAuthority()
                         .replace("ID_", ""));
-    }
-
-    /**
-     * Validate the password.
-     *
-     * @return <code>true</code> if the given password flow all rules and
-     *         <code>false</code> if password doesn't flow any rule.
-     */
-    public static boolean isValidPassword(String password) {
-        final String REG_EXPN_PASSWORD = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!*@#$%^&+=])(?=\\S+$).{8,70}$";
-
-        var pattern = Pattern.compile(REG_EXPN_PASSWORD, Pattern.CASE_INSENSITIVE);
-        var matcher = pattern.matcher(password);
-
-        return matcher.matches();
     }
 
     /**
@@ -75,8 +53,7 @@ public abstract class Utils {
         if (media == null)
             return false;
 
-        LocalDate mediaUpdateAt = media.getUpdateAt() == null ? null
-                : LocalDate.ofInstant(media.getUpdateAt().toInstant(), ZoneId.systemDefault());
+        LocalDate mediaUpdateAt = media.getUpdateAt() == null ? null : LocalDate.ofInstant(media.getUpdateAt().toInstant(), ZoneId.systemDefault());
 
         if (mediaUpdateAt == null || ChronoUnit.DAYS.between(mediaUpdateAt, LocalDate.now()) > 1l) {
             return true;
@@ -190,37 +167,6 @@ public abstract class Utils {
     }
 
     /**
-     * Checks if a given field is a joinable field in the media entity.
-     *
-     * @param mediaRoot the root of the media entity
-     * @param field     the field to check
-     * @return true if the field is joinable, false otherwise
-     */
-    public static boolean isJoinableField(Root<MediaModel> mediaRoot, String field) {
-        try {
-            return mediaRoot.getModel().getAttribute(field).isAssociation();
-        } catch (IllegalArgumentException e) {
-            return false;
-        }
-    }
-
-    /**
-     * Checks if a given field exists in a class.
-     *
-     * @param clazz     the class to check
-     * @param fieldName the name of the field to check
-     * @return true if the field exists, false otherwise
-     */
-    public static boolean isValidField(Class<?> clazz, String fieldName) {
-        try {
-            Field field = clazz.getDeclaredField(fieldName);
-            return field != null;
-        } catch (NoSuchFieldException e) {
-            return false;
-        }
-    }
-
-    /**
      * Returns a Pageable object based on the "page" and "size" arguments of the
      * given DataFetchingEnvironment.
      * <p>
@@ -241,8 +187,4 @@ public abstract class Utils {
         Pageable pageable = PageRequest.of(page, size);
         return pageable;
     }
-
-    public static String capitalize(String field) {
-        return field.substring(0, 1).toUpperCase() + field.substring(1);
-    };
 }

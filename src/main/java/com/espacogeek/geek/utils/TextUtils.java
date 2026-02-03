@@ -6,6 +6,5 @@ public class TextUtils {
             return str;
         }
         return Character.toUpperCase(str.charAt(0)) + str.substring(1);
-
     }
 }

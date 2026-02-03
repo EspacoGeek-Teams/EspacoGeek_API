@@ -46,18 +46,11 @@ public class MediaController {
         var media = this.mediaService.findByIdEager(id).orElseThrow(() -> new GenericException("Media not found"));
 
         switch (media.getMediaCategory().getId()) {
-            case MediaDataController.GAME_ID:
-            case MediaDataController.VN_ID:
-                return Utils
-                        .updateGenericMedia(Arrays.asList(media), genericMediaDataController,
-                                typeReferenceService.findById(MediaDataController.IGDB_ID).get(), gamesAndVNsAPI)
-                        .getFirst();
-
             case MediaDataController.SERIE_ID:
                 return Utils.updateMedia(Arrays.asList(media), serieController).getFirst();
+            default:
+                return Utils.updateGenericMedia(Arrays.asList(media), genericMediaDataController, typeReferenceService.findById(MediaDataController.IGDB_ID).get(), gamesAndVNsAPI).getFirst();
         }
-
-        return media;
     }
 
     /**

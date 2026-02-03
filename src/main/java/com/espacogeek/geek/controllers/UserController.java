@@ -21,6 +21,7 @@ import com.espacogeek.geek.services.JwtTokenService;
 import com.espacogeek.geek.services.UserService;
 import com.espacogeek.geek.types.NewUser;
 import com.espacogeek.geek.utils.TokenUtils;
+import com.espacogeek.geek.utils.UserUtils;
 import com.espacogeek.geek.utils.Utils;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
@@ -112,7 +113,7 @@ public class UserController {
     @MutationMapping(name = "createUser")
     public String createUser(@Argument(name = "credentials") NewUser newUser) {
 
-        if (!Utils.isValidPassword(newUser.password())) {
+        if (!UserUtils.isValidPassword(newUser.password())) {
             throw new GenericException(HttpStatus.BAD_REQUEST.toString());
         }
 
@@ -139,7 +140,7 @@ public class UserController {
     @PreAuthorize("hasRole('user')")
     public String editPasswordUserLogged(Authentication authentication, @Argument(name = "actualPassword") String actualPassword, @Argument(name = "newPassword") String newPassword) {
 
-        if (!Utils.isValidPassword(newPassword)) {
+        if (!UserUtils.isValidPassword(newPassword)) {
             throw new GenericException(HttpStatus.BAD_REQUEST.toString());
         }
 
@@ -229,7 +230,7 @@ public class UserController {
 
     @MutationMapping(name = "resetPassword")
     public String resetPassword(@Argument(name = "token") String token, @Argument(name = "newPassword") String newPassword) {
-        if (!Utils.isValidPassword(newPassword)) {
+        if (!UserUtils.isValidPassword(newPassword)) {
             throw new GenericException(HttpStatus.BAD_REQUEST.toString());
         }
 
