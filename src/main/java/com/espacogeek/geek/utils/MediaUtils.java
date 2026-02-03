@@ -4,42 +4,24 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.Authentication;
 
 import com.espacogeek.geek.data.MediaDataController;
 import com.espacogeek.geek.data.api.MediaApi;
 import com.espacogeek.geek.models.MediaModel;
 import com.espacogeek.geek.models.TypeReferenceModel;
+import com.espacogeek.geek.services.TypeReferenceService;
 
 import graphql.schema.DataFetchingEnvironment;
 import graphql.schema.SelectedField;
 
-public abstract class Utils {
-
-    /**
-     * Extracts the user ID from the given authentication object. The user ID is
-     * assumed
-     * to be stored in an authority with the prefix "ID_".
-     *
-     * @param authentication the authentication object
-     * @return the user ID
-     */
-    public static Integer getUserID(Authentication authentication) {
-        return Integer.valueOf(
-                authentication.getAuthorities().stream().filter(
-                        (authority) -> authority.getAuthority().startsWith("ID_"))
-                        .toList()
-                        .getFirst()
-                        .getAuthority()
-                        .replace("ID_", ""));
-    }
-
+public abstract class MediaUtils {
     /**
      * Checks if the media needs an update by determining if the last update was
      * more than one day ago.
@@ -186,5 +168,27 @@ public abstract class Utils {
         int size = dataFetchingEnvironment.getArgumentOrDefault("size", 10);
         Pageable pageable = PageRequest.of(page, size);
         return pageable;
+    }
+
+    /**
+     * Updates a media based on its media category.
+     * @param media
+     * @param serieController
+     * @param genericMediaDataController
+     * @param typeReferenceService
+     * @param gamesAndVNsAPI
+     * @return
+     */
+    public static MediaModel update(MediaModel media,
+            MediaDataController serieController,
+            MediaDataController genericMediaDataController,
+            TypeReferenceService typeReferenceService,
+            MediaApi gamesAndVNsAPI) {
+        switch (media.getMediaCategory().getId()) {
+            case MediaDataController.SERIE_ID:
+                return MediaUtils.updateMedia(Arrays.asList(media), serieController).getFirst();
+            default:
+                return MediaUtils.updateGenericMedia(Arrays.asList(media), genericMediaDataController, typeReferenceService.findById(MediaDataController.IGDB_ID).get(), gamesAndVNsAPI).getFirst();
+        }
     }
 }
