@@ -1,7 +1,5 @@
 package com.espacogeek.geek.controllers;
 
-import java.util.Arrays;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
@@ -14,6 +12,8 @@ import com.espacogeek.geek.services.MediaCategoryService;
 import com.espacogeek.geek.services.MediaService;
 import com.espacogeek.geek.services.TypeReferenceService;
 import com.espacogeek.geek.types.MediaPage;
+import com.espacogeek.geek.types.MediaSimplefied;
+import com.espacogeek.geek.utils.MediaUtils;
 import com.espacogeek.geek.utils.Utils;
 import com.espacogeek.geek.exception.GenericException;
 
@@ -44,13 +44,7 @@ public class MediaController {
     @QueryMapping(name = "media")
     public MediaModel getMediaById(@Argument(name = "id") Integer id) {
         var media = this.mediaService.findByIdEager(id).orElseThrow(() -> new GenericException("Media not found"));
-
-        switch (media.getMediaCategory().getId()) {
-            case MediaDataController.SERIE_ID:
-                return Utils.updateMedia(Arrays.asList(media), serieController).getFirst();
-            default:
-                return Utils.updateGenericMedia(Arrays.asList(media), genericMediaDataController, typeReferenceService.findById(MediaDataController.IGDB_ID).get(), gamesAndVNsAPI).getFirst();
-        }
+        return MediaUtils.update(media, serieController, genericMediaDataController, typeReferenceService, gamesAndVNsAPI);
     }
 
     /**
@@ -70,12 +64,12 @@ public class MediaController {
             return response;
         }
 
-        var medias = this.mediaService.findMovieByIdOrName(id, name, Utils.getPageable(dataFetchingEnvironment));
+        var medias = this.mediaService.findMovieByIdOrName(id, name, MediaUtils.getPageable(dataFetchingEnvironment));
         response.setTotalPages(medias.getTotalPages());
         response.setTotalElements(medias.getTotalElements());
         response.setNumber(medias.getNumber());
         response.setSize(medias.getSize());
-        response.setContent(medias.getContent());
+        response.setContent(MediaSimplefied.fromMediaModelList(medias.getContent()));
 
         return response;
     }
@@ -98,12 +92,12 @@ public class MediaController {
         }
 
         // var medias = this.mediaService.findSerieByIdOrName(id, name, Utils.getRequestedFields(dataFetchingEnvironment), Utils.getPageable(dataFetchingEnvironment));
-        var medias = this.mediaService.findSerieByIdOrName(id, name, Utils.getPageable(dataFetchingEnvironment));
+        var medias = this.mediaService.findSerieByIdOrName(id, name, MediaUtils.getPageable(dataFetchingEnvironment));
         response.setTotalPages(medias.getTotalPages());
         response.setTotalElements(medias.getTotalElements());
         response.setNumber(medias.getNumber());
         response.setSize(medias.getSize());
-        response.setContent(medias.getContent());
+        response.setContent(MediaSimplefied.fromMediaModelList(medias.getContent()));
 
         return response;
     }
@@ -131,7 +125,7 @@ public class MediaController {
         response.setTotalElements(medias.size());
         response.setNumber(1);
         response.setSize(medias.size());
-        response.setContent(medias);
+        response.setContent(MediaSimplefied.fromMediaModelList(medias));
 
         return response;
     }
@@ -155,12 +149,11 @@ public class MediaController {
 
         var medias = genericMediaDataController.searchMedia(name, gamesAndVNsAPI, typeReferenceService.findById(MediaDataController.IGDB_ID).orElseThrow(), mediaCategoryService.findById(MediaDataController.VN_ID).orElseThrow());
 
-        response.setContent(medias);
         response.setTotalPages(1);
         response.setTotalElements(medias.size());
         response.setNumber(1);
         response.setSize(medias.size());
-        response.setContent(medias);
+        response.setContent(MediaSimplefied.fromMediaModelList(medias));
 
         return response;
     }
@@ -186,7 +179,7 @@ public class MediaController {
         response.setTotalElements(medias.getTotalElements());
         response.setNumber(medias.getNumber());
         response.setSize(medias.getSize());
-        response.setContent(medias.getContent());
+        response.setContent(MediaSimplefied.fromMediaModelList(medias.getContent()));
 
         return response;
     }

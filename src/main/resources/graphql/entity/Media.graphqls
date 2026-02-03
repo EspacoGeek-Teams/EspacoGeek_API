@@ -28,6 +28,15 @@ type Media {
     season: [Season]
 }
 
+type MediaSimplefied {
+    "Unique media identifier"
+    id: ID
+    "Media title/name"
+    name: String
+    "Cover image URL"
+    cover: String
+}
+
 """
 Input type for searching media
 """
@@ -43,7 +52,7 @@ Paginated media results
 """
 type MediaPage {
     "List of media items in the current page"
-    content: [Media]
+    content: [MediaSimplefied]
     "Total number of pages"
     totalPages: Int
     "Total number of elements across all pages"
