@@ -24,6 +24,7 @@ import com.espacogeek.geek.services.MediaCategoryService;
 import com.espacogeek.geek.services.MediaService;
 import com.espacogeek.geek.services.TypeReferenceService;
 import com.espacogeek.geek.types.MediaPage;
+import com.espacogeek.geek.types.MediaSimplefied;
 
 @GraphQlTest(MediaController.class)
 @ActiveProfiles("test")
@@ -47,6 +48,7 @@ public class AnimeQueryTest {
     @MockitoBean
     private MediaCategoryService mediaCategoryService;
 
+    @SuppressWarnings("null")
     @Test
     void anime_ByName_ShouldReturnMediaPage() {
         // Given
@@ -60,7 +62,15 @@ public class AnimeQueryTest {
 
         Page<MediaModel> page = new PageImpl<>(Arrays.asList(media1, media2));
 
-        when(mediaService.findAnimeByIdOrName(any(), anyString(), any())).thenReturn(page);
+        MediaPage response = new MediaPage();
+
+        response.setTotalPages(page.getTotalPages());
+        response.setTotalElements(page.getTotalElements());
+        response.setNumber(page.getNumber());
+        response.setSize(page.getSize());
+        response.setContent(MediaSimplefied.fromMediaModelList(page.getContent()));
+
+        when(mediaService.findAnimeByIdOrName(any(), anyString(), any())).thenReturn(response);
 
         // When & Then
         graphQlTester.document("""

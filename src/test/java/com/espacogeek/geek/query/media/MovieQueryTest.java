@@ -25,6 +25,7 @@ import com.espacogeek.geek.services.MediaCategoryService;
 import com.espacogeek.geek.services.MediaService;
 import com.espacogeek.geek.services.TypeReferenceService;
 import com.espacogeek.geek.types.MediaPage;
+import com.espacogeek.geek.types.MediaSimplefied;
 
 @GraphQlTest(MediaController.class)
 @ActiveProfiles("test")
@@ -60,7 +61,15 @@ public class MovieQueryTest {
 
         Page<MediaModel> page = new PageImpl<>(Arrays.asList(media1, media2));
 
-        when(mediaService.findMovieByIdOrName(any(), anyString(), any())).thenReturn(page);
+        MediaPage response = new MediaPage();
+
+        response.setTotalPages(page.getTotalPages());
+        response.setTotalElements(page.getTotalElements());
+        response.setNumber(page.getNumber());
+        response.setSize(page.getSize());
+        response.setContent(MediaSimplefied.fromMediaModelList(page.getContent()));
+
+        when(mediaService.findMovieByIdOrName(any(), anyString(), any())).thenReturn(response);
 
         // When & Then
         graphQlTester.document("""

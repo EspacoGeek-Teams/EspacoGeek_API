@@ -130,4 +130,9 @@ public class SerieControllerImpl extends GenericMediaDataControllerImpl {
     public MediaModel updateAllInformation(MediaModel media, MediaModel result) {
         return super.updateAllInformation(media, result, this.typeReference, this.tvSeriesApi);
     }
+
+    @Override
+    public MediaModel updateArtworks(MediaModel media, MediaModel result) {
+        return super.updateArtworks(media, result, this.typeReference, this.tvSeriesApi);
+    }
 }

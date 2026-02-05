@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
@@ -17,9 +18,12 @@ import com.espacogeek.geek.data.api.MediaApi;
 import com.espacogeek.geek.models.MediaModel;
 import com.espacogeek.geek.models.TypeReferenceModel;
 import com.espacogeek.geek.services.TypeReferenceService;
+import com.espacogeek.geek.types.MediaPage;
+import com.espacogeek.geek.types.MediaSimplefied;
 
 import graphql.schema.DataFetchingEnvironment;
 import graphql.schema.SelectedField;
+import net.bytebuddy.asm.Advice.Return;
 
 public abstract class MediaUtils {
     /**
@@ -168,27 +172,5 @@ public abstract class MediaUtils {
         int size = dataFetchingEnvironment.getArgumentOrDefault("size", 10);
         Pageable pageable = PageRequest.of(page, size);
         return pageable;
-    }
-
-    /**
-     * Updates a media based on its media category.
-     * @param media
-     * @param serieController
-     * @param genericMediaDataController
-     * @param typeReferenceService
-     * @param gamesAndVNsAPI
-     * @return
-     */
-    public static MediaModel update(MediaModel media,
-            MediaDataController serieController,
-            MediaDataController genericMediaDataController,
-            TypeReferenceService typeReferenceService,
-            MediaApi gamesAndVNsAPI) {
-        switch (media.getMediaCategory().getId()) {
-            case MediaDataController.SERIE_ID:
-                return MediaUtils.updateMedia(Arrays.asList(media), serieController).getFirst();
-            default:
-                return MediaUtils.updateGenericMedia(Arrays.asList(media), genericMediaDataController, typeReferenceService.findById(MediaDataController.IGDB_ID).get(), gamesAndVNsAPI).getFirst();
-        }
     }
 }

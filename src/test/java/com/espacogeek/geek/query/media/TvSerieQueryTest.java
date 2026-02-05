@@ -2,7 +2,6 @@ package com.espacogeek.geek.query.media;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
@@ -24,6 +23,7 @@ import com.espacogeek.geek.services.MediaCategoryService;
 import com.espacogeek.geek.services.MediaService;
 import com.espacogeek.geek.services.TypeReferenceService;
 import com.espacogeek.geek.types.MediaPage;
+import com.espacogeek.geek.types.MediaSimplefied;
 
 @GraphQlTest(MediaController.class)
 @ActiveProfiles("test")
@@ -47,6 +47,7 @@ class TvSerieQueryTest {
     @MockitoBean
     private MediaCategoryService mediaCategoryService;
 
+    @SuppressWarnings("null")
     @Test
     void tvserie_ByName_ShouldReturnMediaPage() {
         // Given
@@ -60,7 +61,15 @@ class TvSerieQueryTest {
 
         Page<MediaModel> page = new PageImpl<>(Arrays.asList(media1, media2));
 
-        when(mediaService.findSerieByIdOrName(any(), anyString(), any())).thenReturn(page);
+        MediaPage response = new MediaPage();
+
+        response.setTotalPages(page.getTotalPages());
+        response.setTotalElements(page.getTotalElements());
+        response.setNumber(page.getNumber());
+        response.setSize(page.getSize());
+        response.setContent(MediaSimplefied.fromMediaModelList(page.getContent()));
+
+        when(mediaService.findSerieByIdOrName(any(), anyString(), any())).thenReturn(response);
 
         // When & Then
         graphQlTester.document("""
