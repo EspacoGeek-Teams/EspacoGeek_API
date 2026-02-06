@@ -23,12 +23,6 @@ import graphql.schema.DataFetchingEnvironment;
 public class MediaController {
     @Autowired
     private MediaService mediaService;
-    @Autowired
-    private MediaDataController genericMediaDataController;
-    @Autowired
-    private TypeReferenceService typeReferenceService;
-    @Autowired
-    private MediaCategoryService mediaCategoryService;
 
     /**
      * Finds a MediaModel object by its ID.
