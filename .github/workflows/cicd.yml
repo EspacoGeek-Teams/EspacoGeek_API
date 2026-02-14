@@ -207,8 +207,11 @@ jobs:
           username: ${{ secrets.HOSTINGER_USER }}
           key: ${{ secrets.HOSTINGER }}
           port: ${{ secrets.HOSTINGER_PORT }}
+          envs: GHCR_OWNER_LC,APP_NAME
           script: |
             set -e
+            echo "Starting deployment with image: ghcr.io/${GHCR_OWNER_LC}/${APP_NAME}:latest"
+
             cat > .env.espacogeek << 'ENVEOF'
             SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }}
             SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }}
@@ -227,15 +230,29 @@ jobs:
             ENVEOF
 
             echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ secrets.GHCR_USER }}" --password-stdin
-            docker pull ghcr.io/${{ env.GHCR_OWNER_LC }}/${{ env.APP_NAME }}:latest
+
+            echo "Pulling image from GHCR..."
+            docker pull ghcr.io/${GHCR_OWNER_LC}/${APP_NAME}:latest || { echo "Failed to pull image"; exit 1; }
+
+            echo "Stopping and removing old container..."
             docker stop espacogeek || true
             docker rm espacogeek || true
-            docker run -d --name espacogeek \
+
+            echo "Starting new container..."
+            if ! docker run -d --name espacogeek \
               -p 8080:8080 \
               --restart unless-stopped \
               --env-file .env.espacogeek \
-              ghcr.io/${{ env.GHCR_OWNER_LC }}/${{ env.APP_NAME }}:latest
+              ghcr.io/${GHCR_OWNER_LC}/${APP_NAME}:latest; then
+              echo "Failed to start container"
+              docker ps -a
+              docker logs espacogeek || true
+              rm -f .env.espacogeek
+              exit 1
+            fi
 
+            echo "Container started successfully"
+            docker ps -a
             rm -f .env.espacogeek
 
       # Final summary with generated tags
