@@ -318,26 +318,50 @@ jobs:
             }
 
             validate_container_health() {
-              local max_attempts=30
+              local max_attempts=40
               local attempt=1
-              log_info "Validating container health (max ${max_attempts} attempts)..."
+              local initial_wait=5
+              log_info "Validating container health (max ${max_attempts} attempts, initial wait ${initial_wait}s)..."
+
+              # Wait for app to start
+              log_info "Giving application time to start (${initial_wait}s)..."
+              sleep $initial_wait
+
               while [ $attempt -le $max_attempts ]; do
                 if container_running "$CONTAINER_NAME"; then
                   local status=$(docker inspect "$CONTAINER_NAME" --format='{{.State.Status}}')
                   if [ "$status" = "running" ]; then
-                    if docker exec "$CONTAINER_NAME" wget -q -O- http://localhost:8080/actuator/health &>/dev/null 2>&1 || docker exec "$CONTAINER_NAME" curl -s http://localhost:8080/actuator/health &>/dev/null 2>&1; then
-                      log_success "Container is healthy"
+                    # Try to hit health endpoint
+                    local health_response=$(docker exec "$CONTAINER_NAME" curl -s -w "\n%{http_code}" http://localhost:8080/actuator/health 2>&1)
+                    local http_code=$(echo "$health_response" | tail -n 1)
+                    local body=$(echo "$health_response" | head -n -1)
+
+                    if [ "$http_code" = "200" ]; then
+                      log_success "Container is healthy (HTTP $http_code)"
+                      log_info "Health response: $body"
                       return 0
+                    else
+                      log_info "Health endpoint returned HTTP $http_code (attempt ${attempt}/${max_attempts})"
                     fi
+                  elif [ "$status" = "exited" ]; then
+                    log_error "Container exited (attempt ${attempt}/${max_attempts})"
+                    log_error "Recent logs:"
+                    docker logs --tail 30 "$CONTAINER_NAME" 2>&1 | sed 's/^/  /'
+                    return 1
                   else
-                    log_warn "Container status is: $status"
+                    log_warn "Container status is: $status (attempt ${attempt}/${max_attempts})"
                   fi
+                else
+                  log_warn "Container not found (attempt ${attempt}/${max_attempts})"
                 fi
-                log_info "Waiting... (attempt ${attempt}/${max_attempts})"
+
                 sleep 2
                 attempt=$((attempt + 1))
               done
-              log_error "Container failed health check"
+
+              log_error "Container failed health check after ${max_attempts} attempts"
+              log_error "Final container logs:"
+              docker logs --tail 50 "$CONTAINER_NAME" 2>&1 | sed 's/^/  /'
               return 1
             }
 

@@ -10,11 +10,20 @@ services:
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
       JAVA_OPTS: "-Xms256m -Xmx512m"
+      SPRING_MVC_CORS_ALLOWED_ORIGINS: ${SPRING_MVC_CORS_ALLOWED_ORIGINS:http://localhost:3000}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:http://localhost:3000}
+      SECURITY_JWT_EXPIRATION_MS: ${SECURITY_JWT_EXPIRATION_MS:604800000}
     ports:
       - "8080:8080"
       - "5005:5005"
     depends_on:
       - db
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
 
   app-jvm-debug:
     build:
@@ -27,11 +36,19 @@ services:
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
       JAVA_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -Xms256m -Xmx512m"
+      SPRING_MVC_CORS_ALLOWED_ORIGINS: ${SPRING_MVC_CORS_ALLOWED_ORIGINS:http://localhost:3000}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:http://localhost:3000}
     ports:
       - "8081:8080"
       - "5006:5005"
     depends_on:
       - db
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
 
   app-native:
     build:
@@ -43,10 +60,18 @@ services:
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      SPRING_MVC_CORS_ALLOWED_ORIGINS: ${SPRING_MVC_CORS_ALLOWED_ORIGINS:http://localhost:3000}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:http://localhost:3000}
     ports:
       - "8082:8080"
     depends_on:
       - db
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
 
   # Hot-reload development container (mounts source & uses devtools)
   app-dev:
