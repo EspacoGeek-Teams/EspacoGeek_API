@@ -226,6 +226,7 @@ jobs:
             FRONTEND_URL=${{ secrets.FRONTEND_URL }}
             ENVEOF
 
+            echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ secrets.GHCR_USER }}" --password-stdin
             docker pull ghcr.io/${{ env.GHCR_OWNER_LC }}/${{ env.APP_NAME }}:latest
             docker stop espacogeek || true
             docker rm espacogeek || true
