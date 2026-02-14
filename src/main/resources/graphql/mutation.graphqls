@@ -1,13 +1,13 @@
 """
 Mutation operations for the EspacoGeek API.
-All mutations require authentication via JWT token (except createUser).
+All mutations require authentication via JWT token (except createUser, requestPasswordReset, and resetPassword).
 Include the token in the Authorization header: "Bearer <token>"
 """
 type Mutation {
     """
     Change user password. Requires authentication.
     Example: editPassword(actualPassword: "oldpass", newPassword: "newpass")
-    Returns: Success message
+    Returns: Success message. Sends confirmation email after password change.
     """
     editPassword(actualPassword: String, newPassword: String): String
     
@@ -21,7 +21,7 @@ type Mutation {
     """
     Create a new user account. Does not require authentication.
     Example: createUser(credentials: {username: "john", email: "john@example.com", password: "pass123"})
-    Returns: Success message
+    Returns: Success message. Sends verification email to confirm account.
     """
     createUser(credentials: NewUser): String
     
@@ -33,9 +33,30 @@ type Mutation {
     editUsername(password: String, newUsername: String): String
     
     """
-    Change email address. Requires authentication.
+    Request email change. Requires authentication.
     Example: editEmail(password: "mypassword", newEmail: "newemail@example.com")
-    Returns: Success message
+    Returns: Success message. Sends verification email to new address.
     """
     editEmail(password: String, newEmail: String): String
+    
+    """
+    Request password reset. Does not require authentication.
+    Example: requestPasswordReset(email: "user@example.com")
+    Returns: Success message. Sends password reset email with token.
+    """
+    requestPasswordReset(email: String!): String
+    
+    """
+    Reset password using token from email. Does not require authentication.
+    Example: resetPassword(token: "abc123", newPassword: "newpass123")
+    Returns: Success message. Sends confirmation email after password reset.
+    """
+    resetPassword(token: String!, newPassword: String!): String
+    
+    """
+    Verify email change using token from email. Requires authentication.
+    Example: verifyEmailChange(token: "abc123")
+    Returns: Success message
+    """
+    verifyEmailChange(token: String!): String
 }

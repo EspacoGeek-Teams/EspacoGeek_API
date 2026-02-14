@@ -2,6 +2,7 @@ package com.espacogeek.geek.query.media;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
@@ -18,6 +19,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import com.espacogeek.geek.controllers.MediaController;
 import com.espacogeek.geek.data.MediaDataController;
+import com.espacogeek.geek.data.api.MediaApi;
 import com.espacogeek.geek.models.MediaModel;
 import com.espacogeek.geek.services.MediaCategoryService;
 import com.espacogeek.geek.services.MediaService;
@@ -27,16 +29,15 @@ import com.espacogeek.geek.types.MediaSimplefied;
 
 @GraphQlTest(MediaController.class)
 @ActiveProfiles("test")
-class TvSerieQueryTest {
-
+public class MovieQueryTest {
     @Autowired
     private GraphQlTester graphQlTester;
 
     @MockitoBean
     private MediaService mediaService;
 
-    @MockitoBean(name = "serieController")
-    private MediaDataController serieController;
+    @MockitoBean(name = "movieController")
+    private MediaDataController movieController;
 
     @MockitoBean(name = "genericMediaDataController")
     private MediaDataController genericMediaDataController;
@@ -47,17 +48,16 @@ class TvSerieQueryTest {
     @MockitoBean
     private MediaCategoryService mediaCategoryService;
 
-    @SuppressWarnings("null")
     @Test
-    void tvserie_ByName_ShouldReturnMediaPage() {
+    void movie_ByName_ShouldReturnMediaPage() {
         // Given
         MediaModel media1 = new MediaModel();
         media1.setId(1);
-        media1.setName("Breaking Bad");
+        media1.setName("Inception");
 
         MediaModel media2 = new MediaModel();
         media2.setId(2);
-        media2.setName("Better Call Saul");
+        media2.setName("Interstellar");
 
         Page<MediaModel> page = new PageImpl<>(Arrays.asList(media1, media2));
 
@@ -69,12 +69,12 @@ class TvSerieQueryTest {
         response.setSize(page.getSize());
         response.setContent(MediaSimplefied.fromMediaModelList(page.getContent()));
 
-        when(mediaService.findSerieByIdOrName(any(), anyString(), any())).thenReturn(response);
+        when(mediaService.findMovieByIdOrName(any(), anyString(), any())).thenReturn(response);
 
         // When & Then
         graphQlTester.document("""
                 query {
-                    tvserie(name: "Breaking") {
+                    movie(name: "Inception") {
                         totalPages
                         totalElements
                         number
@@ -87,7 +87,7 @@ class TvSerieQueryTest {
                 }
                 """)
                 .execute()
-                .path("tvserie")
+                .path("movie")
                 .entity(MediaPage.class)
                 .satisfies(result -> {
                     assertThat(result.getContent()).hasSize(2);
@@ -96,11 +96,11 @@ class TvSerieQueryTest {
     }
 
     @Test
-    void tvserie_NoParameters_ShouldReturnEmptyPage() {
+    void movie_NoParameters_ShouldReturnEmptyPage() {
         // When & Then
         graphQlTester.document("""
                 query {
-                    tvserie {
+                    movie {
                         totalPages
                         totalElements
                         content {
@@ -111,7 +111,7 @@ class TvSerieQueryTest {
                 }
                 """)
                 .execute()
-                .path("tvserie")
+                .path("movie")
                 .entity(MediaPage.class)
                 .satisfies(result -> {
                     assertThat(result.getContent()).isNull();

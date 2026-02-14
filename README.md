@@ -209,3 +209,17 @@ Production suggestions:
 
 ---
 Short path: JVM dev = `./gradlew bootRun` | Docker all = `cd docker && docker compose up --build` | Native docker = `docker compose build app-native`.
+
+### Email Server Settings
+
+Add the following environment variables to your `.env` file:
+
+```properties
+# Email Configuration
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USERNAME=your-email@gmail.com
+MAIL_PASSWORD=your-app-password
+APP_NAME=EspacoGeek
+FRONTEND_URL=http://localhost:3000
+```

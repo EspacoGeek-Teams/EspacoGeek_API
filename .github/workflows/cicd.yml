@@ -1,4 +1,4 @@
-name: CI
+name: CI/CD
 
 on:
   # Roda em PRs para master e em pushes (merge) para master
@@ -58,16 +58,32 @@ jobs:
             build/reports/tests/test
 
   build_and_publish:
-    name: Build, Native, Docker and Push
+    name: Build, Docker and Push
     runs-on: ubuntu-latest
     needs: tests # Só executa se os testes passarem
     if: ${{ needs.tests.result == 'success' }}
     env:
       # Nome base das imagens (pode ajustar conforme necessidade)
       APP_NAME: espacogeek-backend
-      JVM_IMAGE_GHCR: ghcr.io/${{ github.repository_owner }}/espacogeek-backend-jvm
-      NATIVE_IMAGE_GHCR: ghcr.io/${{ github.repository_owner }}/espacogeek-backend-native
       DB_IMAGE_GHCR: ghcr.io/${{ github.repository_owner }}/espacogeek-db
+
+      # Variáveis do .env (use Secrets no GitHub Actions)
+      SPRING_DATASOURCE_URL: ${{ secrets.SPRING_DATASOURCE_URL }}
+      SPRING_DATASOURCE_USERNAME: ${{ secrets.SPRING_DATASOURCE_USERNAME }}
+      SPRING_DATASOURCE_PASSWORD: ${{ secrets.SPRING_DATASOURCE_PASSWORD }}
+      SPRING_MVC_CORS_ALLOWED_ORIGINS: ${{ secrets.SPRING_MVC_CORS_ALLOWED_ORIGINS }}
+      SECURITY_JWT_ISSUER: ${{ secrets.SECURITY_JWT_ISSUER }}
+      SECURITY_JWT_EXPIRATION_MS: ${{ secrets.SECURITY_JWT_EXPIRATION_MS }}
+      SECURITY_JWT_SECRET: ${{ secrets.SECURITY_JWT_SECRET }}
+      SAMESITE_WHEN_SAME_SITE: ${{ secrets.SAMESITE_WHEN_SAME_SITE }}
+      ALLOWED_ORIGINS: ${{ secrets.ALLOWED_ORIGINS }}
+      MAIL_HOST: ${{ secrets.MAIL_HOST }}
+      MAIL_PORT: ${{ secrets.MAIL_PORT }}
+      MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+      MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+      APP_NAME_ENV: ${{ secrets.APP_NAME }}
+      FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
+
     steps:
       # Baixa o código (com histórico completo para gerar versões)
       - name: Check out code
@@ -123,46 +139,6 @@ jobs:
           echo "tags_csv=${TAGS}" >> "$GITHUB_OUTPUT"
           echo "should_push=${SHOULD_PUSH}" >> "$GITHUB_OUTPUT"
 
-      # Normaliza o owner para minúsculas (GHCR requer nomes em minúsculas)
-      - name: Normalize owner (lowercase for GHCR)
-        id: owner
-        shell: bash
-        run: |
-          echo "owner_lower=${GITHUB_REPOSITORY_OWNER,,}" >> "$GITHUB_OUTPUT"
-
-      # Compila o WAR (sem testes, pois já rodaram)
-      - name: Build WAR artifact (skip tests)
-        run: ./gradlew --no-daemon clean build -x test
-
-      # Faz upload do WAR para auditoria/artefatos do pipeline
-      - name: Upload WAR artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: war-artifact
-          path: |
-            build/libs/*.war
-
-      # Configura GraalVM com native-image para compilar binário nativo via Gradle
-      - name: Set up GraalVM for Native Image
-        uses: graalvm/setup-graalvm@v1
-        with:
-          java-version: '21'
-          distribution: 'graalvm'
-          components: 'native-image'
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-
-      # Compila Native Image (sem testes, pois já rodaram)
-      - name: Build Native Image (Gradle nativeCompile)
-        run: ./gradlew --no-daemon nativeCompile -x test
-
-      # Publica o binário nativo como artefato do pipeline
-      - name: Upload Native binary artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: native-binary
-          path: |
-            build/native/nativeCompile/*
-
       # Prepara Docker Buildx e cache de camadas
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -182,28 +158,24 @@ jobs:
         id: tags
         shell: bash
         run: |
-          OWNER_LC="${{ steps.owner.outputs.owner_lower }}"
-          BASE_JVM="ghcr.io/${OWNER_LC}/espacogeek-backend-jvm"
-          BASE_NATIVE="ghcr.io/${OWNER_LC}/espacogeek-backend-native"
-          BASE_DB="ghcr.io/${OWNER_LC}/espacogeek-db"
-
           IFS=',' read -ra T <<< "${{ steps.vars.outputs.tags_csv }}"
-
           printf "jvm_tags<<EOF\n" >> "$GITHUB_OUTPUT"
           for tag in "${T[@]}"; do
-            echo "${BASE_JVM}:$tag" >> "$GITHUB_OUTPUT"
+            # Usa APP_NAME como nome da imagem JVM
+            echo "ghcr.io/${{ github.repository_owner }}/${{ env.APP_NAME }}:$tag" >> "$GITHUB_OUTPUT"
           done
           printf "EOF\n" >> "$GITHUB_OUTPUT"
 
           printf "native_tags<<EOF\n" >> "$GITHUB_OUTPUT"
           for tag in "${T[@]}"; do
-            echo "${BASE_NATIVE}:$tag" >> "$GITHUB_OUTPUT"
+            # Usa sufixo '-native' para diferenciar imagem native (ajuste se necessário)
+            echo "ghcr.io/${{ github.repository_owner }}/${{ env.APP_NAME }}-native:$tag" >> "$GITHUB_OUTPUT"
           done
           printf "EOF\n" >> "$GITHUB_OUTPUT"
 
           printf "db_tags<<EOF\n" >> "$GITHUB_OUTPUT"
           for tag in "${T[@]}"; do
-            echo "${BASE_DB}:$tag" >> "$GITHUB_OUTPUT"
+            echo "${{ env.DB_IMAGE_GHCR }}:$tag" >> "$GITHUB_OUTPUT"
           done
           printf "EOF\n" >> "$GITHUB_OUTPUT"
 
@@ -263,6 +235,33 @@ jobs:
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      # Deploy to Hostinger via SSH (expects secrets: HOSTINGER (private key), HOSTINGER_HOST, HOSTINGER_USER, optional HOSTINGER_PORT)
+      - name: Deploy to Hostinger via SSH
+        uses: appleboy/ssh-action@v0.1.9
+        if: ${{ needs.tests.result == 'success' && steps.vars.outputs.should_push == 'true' && github.event_name == 'push' }}
+        with:
+          host: ${{ secrets.HOSTINGER_HOST }}
+          username: ${{ secrets.HOSTINGER_USER }}
+          key: ${{ secrets.HOSTINGER }}
+          port: ${{ secrets.HOSTINGER_PORT }}
+          script: |
+            set -e
+            docker pull
+            MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}
+            MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}
+            APP_NAME=${{ secrets.APP_NAME }}
+            FRONTEND_URL=${{ secrets.FRONTEND_URL }}
+            EOF
+
+            docker run -d --name espacogeek \
+              -p 8080:8080 \
+              --restart unless-stopped \
+              --env-file .env.espacogeek \
+              ghcr.io/${{ github.repository_owner }}/espacogeek-backend:latest
+
+            # (Opcional) remove arquivo após subir o container (mantém apenas no container)
+            rm -f .env.espacogeek
 
       # Resumo final com as tags geradas
       - name: Summary

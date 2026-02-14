@@ -1,19 +1,11 @@
 package com.espacogeek.geek.data.api.impl;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.zip.GZIPInputStream;
 
 import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
@@ -30,6 +22,8 @@ import com.espacogeek.geek.services.ApiKeyService;
 import com.espacogeek.geek.services.GenreService;
 import com.espacogeek.geek.services.MediaCategoryService;
 import com.espacogeek.geek.services.TypeReferenceService;
+import com.espacogeek.geek.utils.DataJumpUtils;
+import com.espacogeek.geek.utils.DataJumpUtils.DataJumpTypeTMDB;
 
 import info.movito.themoviedbapi.TmdbApi;
 import info.movito.themoviedbapi.TmdbTvSeries;
@@ -43,9 +37,6 @@ import info.movito.themoviedbapi.model.tv.series.TvSeriesDb;
 import info.movito.themoviedbapi.tools.TmdbException;
 import info.movito.themoviedbapi.tools.appendtoresponse.TvSeriesAppendToResponse;
 import jakarta.annotation.PostConstruct;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,69 +64,12 @@ public class TvSeriesApiImpl implements MediaApi {
 
     /**
      * @see MediaApi#updateTitles()
-     *
-     * This function get the daily datajump available by tmdb
-     *
-     * @return a JSON Array with all serie titles
-     * @throws IOException
-     * @throws ParseException
+     * @see DataJumpUtils#getDataJumpTMDBArray(DataJumpTypeTMDB)
      */
-    @SuppressWarnings({ "unchecked", "null" })
     @Override
     @Retryable(maxAttempts = 2, backoff = @Backoff(delay = 2000), retryFor = com.espacogeek.geek.exception.RequestException.class)
     public JSONArray updateTitles() {
-        var now = LocalDateTime.now();
-
-        // formatting the date to do request as tmdb pattern
-        var month = String.valueOf(now.getMonth().getValue()).length() == 1
-                ? "0".concat(String.valueOf(now.getMonth().getValue()))
-                : now.getMonth().getValue();
-        var day = String.valueOf(now.getDayOfMonth()).length() == 1 ? "0".concat(String.valueOf(now.getDayOfMonth()))
-                : now.getDayOfMonth();
-        var year = String.valueOf(now.getYear()).replace(".", "");
-
-        var client = new OkHttpClient().newBuilder().build();
-        Request request = null;
-        try {
-            request = new Request.Builder()
-                    .url(MessageFormat.format("http://files.tmdb.org/p/exports/tv_series_ids_{0}_{1}_{2}.json.gz",
-                            month,
-                            day, year))
-                    .method("GET", null)
-                    .addHeader("Content-Type", "application/json")
-                    .build();
-        } catch (Exception e) {
-            throw new com.espacogeek.geek.exception.RequestException();
-        }
-
-        Response response = null;
-        try {
-            response = client.newCall(request).execute();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        GZIPInputStream inputStream = null;
-        String[] json = null;
-        try {
-            inputStream = new GZIPInputStream(new ByteArrayInputStream(response.body().bytes()));
-            json = new String(inputStream.readAllBytes()).split("\n");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        JSONArray jsonArray = new JSONArray();
-        for (var item : json) {
-            JSONParser parser = new JSONParser();
-            JSONObject jsonObject = null;
-            try {
-                jsonObject = (JSONObject) parser.parse(item);
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-            jsonArray.add(jsonObject);
-        }
-        return jsonArray;
+        return DataJumpUtils.getDataJumpTMDBArray(DataJumpTypeTMDB.SERIES);
     }
 
     /**

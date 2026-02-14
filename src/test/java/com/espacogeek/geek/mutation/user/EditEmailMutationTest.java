@@ -3,6 +3,8 @@ package com.espacogeek.geek.mutation.user;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -18,7 +20,10 @@ import org.springframework.test.context.ActiveProfiles;
 
 import com.espacogeek.geek.config.JwtConfig;
 import com.espacogeek.geek.controllers.UserController;
+import com.espacogeek.geek.models.EmailVerificationTokenModel;
 import com.espacogeek.geek.models.UserModel;
+import com.espacogeek.geek.services.EmailService;
+import com.espacogeek.geek.services.EmailVerificationService;
 import com.espacogeek.geek.services.JwtTokenService;
 import com.espacogeek.geek.services.UserService;
 import com.espacogeek.geek.utils.TokenUtils;
@@ -42,6 +47,12 @@ class EditEmailMutationTest {
     @MockitoBean
     private JwtTokenService jwtTokenService;
 
+    @MockitoBean
+    private EmailService emailService;
+
+    @MockitoBean
+    private EmailVerificationService emailVerificationService;
+
     // Necessário para satisfazer a dependência do UserController
     @MockitoBean
     private TokenUtils tokenUtils;
@@ -60,8 +71,12 @@ class EditEmailMutationTest {
         user.setEmail("old@example.com");
         user.setPassword(hashedPassword.getBytes());
 
+        EmailVerificationTokenModel token = new EmailVerificationTokenModel();
+        token.setToken("email-change-token");
+
         when(userService.findById(anyInt())).thenReturn(Optional.of(user));
-        when(userService.save(any(UserModel.class))).thenReturn(user);
+        when(emailVerificationService.createToken(any(UserModel.class), eq("EMAIL_CHANGE"), eq(newEmail), anyInt()))
+            .thenReturn(token);
 
         // When & Then
         graphQlTester.document("""
@@ -76,7 +91,8 @@ class EditEmailMutationTest {
                     assertThat(status).contains("200");
                 });
 
-        verify(userService).save(any(UserModel.class));
+        verify(emailVerificationService).createToken(any(UserModel.class), eq("EMAIL_CHANGE"), eq(newEmail), anyInt());
+        verify(emailService).sendEmailChangeVerificationEmail(any(UserModel.class), eq(newEmail), anyString());
     }
 
     @Test

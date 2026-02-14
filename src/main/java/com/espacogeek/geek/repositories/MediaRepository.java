@@ -36,6 +36,7 @@ public interface MediaRepository<T> extends JpaRepository<MediaModel, Integer>, 
      * @param name             The name of the media to search for.
      * @param alternativeTitle The alternative title of the media to search for.
      * @param category         The ID of the media category to filter results by.
+     * @param pageable         Pagination information.
      * @return A list of MediaModel objects that match the search criteria.
      */
     @Query("SELECT DISTINCT m FROM MediaModel m " +

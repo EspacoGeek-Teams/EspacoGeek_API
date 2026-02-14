@@ -28,6 +28,18 @@ type Query {
     vn(id: ID, name: String, page: Int, size: Int): MediaPage
 
     """
+    Search for anime by ID or name with pagination.
+    Example: anime(name: "Your Lie in April", page: 0, size: 10)
+    """
+    anime(id: ID, name: String, page: Int, size: Int): MediaPage
+
+    """
+    Search for movies by ID or name with pagination.
+    Example: movie(name: "Inception", page: 0, size: 10)
+    """
+    movie(id: ID, name: String, page: Int, size: Int): MediaPage
+
+    """
     Get detailed media information by ID.
     Example: media(id: "123")
     """
