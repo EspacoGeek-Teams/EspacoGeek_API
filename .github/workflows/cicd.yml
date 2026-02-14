@@ -1,14 +1,14 @@
 name: CI/CD
 
 on:
-  # Roda em PRs para master e em pushes (merge) para master
+  # Runs on PRs to master and on pushes (merge) to master
   pull_request:
     branches: [ "master" ]
   push:
     branches: [ "master" ]
   workflow_dispatch:
 
-# Permissões mínimas + permissão para publicar pacotes no GHCR
+# Minimal permissions + permission to publish packages to GHCR
 permissions:
   contents: read
   packages: write
@@ -22,32 +22,32 @@ jobs:
     name: Tests
     runs-on: ubuntu-latest
     steps:
-      # Baixa o código
+      # Checkout code
       - name: Check out code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # melhor para versionamento (tags/commits)
+          fetch-depth: 0 # better for versioning (tags/commits)
 
-      # Configura Java 21 (Temurin) para testes
+      # Set up Java 21 (Temurin) for tests
       - name: Set up Java 21 (Temurin)
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '21'
 
-      # Configura cache do Gradle automaticamente
+      # Set up Gradle cache automatically
       - name: Setup Gradle (with caching)
         uses: gradle/actions/setup-gradle@v3
 
-      # Garante permissão de execução para o wrapper
+      # Ensure wrapper has execute permission
       - name: Make Gradle wrapper executable
         run: chmod +x gradlew
 
-      # Executa a suíte de testes
+      # Run test suite
       - name: Run unit tests
         run: ./gradlew --no-daemon clean test
 
-      # Publica relatórios de testes sempre, mesmo em caso de falha
+      # Upload test reports always, even on failure
       - name: Upload test reports (always)
         if: always()
         uses: actions/upload-artifact@v4
@@ -60,14 +60,14 @@ jobs:
   build_and_publish:
     name: Build, Docker and Push
     runs-on: ubuntu-latest
-    needs: tests # Só executa se os testes passarem
+    needs: tests # Only runs if tests pass
     if: ${{ needs.tests.result == 'success' }}
     env:
-      # Nome base das imagens (pode ajustar conforme necessidade)
+      # Base image name (adjust as needed)
       APP_NAME: espacogeek-backend
-      DB_IMAGE_GHCR: ghcr.io/${{ github.repository_owner }}/espacogeek-db
+      # DB_IMAGE_GHCR is set later after lowercasing owner
 
-      # Variáveis do .env (use Secrets no GitHub Actions)
+      # .env variables (use Secrets in GitHub Actions)
       SPRING_DATASOURCE_URL: ${{ secrets.SPRING_DATASOURCE_URL }}
       SPRING_DATASOURCE_USERNAME: ${{ secrets.SPRING_DATASOURCE_USERNAME }}
       SPRING_DATASOURCE_PASSWORD: ${{ secrets.SPRING_DATASOURCE_PASSWORD }}
@@ -85,37 +85,48 @@ jobs:
       FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
 
     steps:
-      # Baixa o código (com histórico completo para gerar versões)
+      # Checkout code (with full history for versioning)
       - name: Check out code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      # Configura Java 21 (Temurin) para build do WAR
+      # Normalize owner/repo to lowercase (GHCR requirement)
+      - name: Normalize GHCR owner/repo
+        shell: bash
+        run: |
+          OWNER_LC="${GITHUB_REPOSITORY_OWNER,,}"
+          REPO_LC="${GITHUB_REPOSITORY#*/}"
+          REPO_LC="${REPO_LC,,}"
+          echo "GHCR_OWNER_LC=${OWNER_LC}" >> "$GITHUB_ENV"
+          echo "GHCR_REPO_LC=${REPO_LC}" >> "$GITHUB_ENV"
+          echo "DB_IMAGE_GHCR=ghcr.io/${OWNER_LC}/espacogeek-db" >> "$GITHUB_ENV"
+
+      # Set up Java 21 (Temurin) for WAR build
       - name: Set up Java 21 (Temurin)
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '21'
 
-      # Configura cache do Gradle para builds
+      # Set up Gradle cache for builds
       - name: Setup Gradle (with caching)
         uses: gradle/actions/setup-gradle@v3
 
-      # Garante permissão de execução para o wrapper (em runners Linux)
+      # Ensure wrapper has execute permission (Linux runners)
       - name: Make Gradle wrapper executable
         run: chmod +x gradlew
 
-      # Lê a versão do projeto definida no build.gradle (project.version)
+      # Read the project version defined in build.gradle (project.version)
       - name: Read Gradle project version
         id: gradle_version
         shell: bash
         run: |
           echo "version=$(./gradlew -q properties | sed -n 's/^version: \(.*\)$/\1/p')" >> "$GITHUB_OUTPUT"
 
-      # Gera tags de versão para as imagens Docker e artefatos
-      # - Em PR: pr-<numero>-<sha-curta>, v<versao>-pr-<numero>
-      # - Em push para master: latest, sha-<sha-curta>, <yyyyMMdd>, v<versao>
+      # Generate version tags for Docker images and artifacts
+      # - On PR: pr-<number>-<short-sha>, v<version>-pr-<number>
+      # - On push to master: latest, sha-<short-sha>, <yyyyMMdd>, v<version>
       - name: Compute version tags
         id: vars
         shell: bash
@@ -127,10 +138,10 @@ jobs:
           if [[ "${GITHUB_EVENT_NAME}" == "pull_request" ]]; then
             PR_NUMBER="${{ github.event.pull_request.number }}"
             TAGS="pr-${PR_NUMBER}-${SHORT_SHA},v${VERSION}-pr-${PR_NUMBER}"
-            SHOULD_PUSH="false" # não faz push em PRs por padrão
+            SHOULD_PUSH="false" # do not push on PRs by default
           else
-            # push para master
-            # Inclui tag 'last-release' (Docker não permite espaço em tags)
+            # push to master
+            # Includes the 'last-release' tag (Docker does not allow spaces in tags)
             TAGS="latest,last-release,sha-${SHORT_SHA},${DATE_TAG},v${VERSION}"
             SHOULD_PUSH="true"
           fi
@@ -139,13 +150,13 @@ jobs:
           echo "tags_csv=${TAGS}" >> "$GITHUB_OUTPUT"
           echo "should_push=${SHOULD_PUSH}" >> "$GITHUB_OUTPUT"
 
-      # Prepara Docker Buildx e cache de camadas
+      # Set up Docker Buildx and layer cache
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      # Login no GHCR (usa GITHUB_TOKEN)
+      # Log in to GHCR (uses GITHUB_TOKEN)
       - name: Login to GHCR
         uses: docker/login-action@v3
         with:
@@ -153,7 +164,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Normaliza as tags calculadas em formato multilinha para o docker/buildx
+      # Normalize the computed tags to a multiline format for docker/buildx
       - name: Prepare tag list (multiline)
         id: tags
         shell: bash
@@ -161,15 +172,15 @@ jobs:
           IFS=',' read -ra T <<< "${{ steps.vars.outputs.tags_csv }}"
           printf "jvm_tags<<EOF\n" >> "$GITHUB_OUTPUT"
           for tag in "${T[@]}"; do
-            # Usa APP_NAME como nome da imagem JVM
-            echo "ghcr.io/${{ github.repository_owner }}/${{ env.APP_NAME }}:$tag" >> "$GITHUB_OUTPUT"
+            # Use APP_NAME as the JVM image name
+            echo "ghcr.io/${{ env.GHCR_OWNER_LC }}/${{ env.APP_NAME }}:$tag" >> "$GITHUB_OUTPUT"
           done
           printf "EOF\n" >> "$GITHUB_OUTPUT"
 
           printf "native_tags<<EOF\n" >> "$GITHUB_OUTPUT"
           for tag in "${T[@]}"; do
-            # Usa sufixo '-native' para diferenciar imagem native (ajuste se necessário)
-            echo "ghcr.io/${{ github.repository_owner }}/${{ env.APP_NAME }}-native:$tag" >> "$GITHUB_OUTPUT"
+            # Use '-native' suffix to differentiate native image (adjust if needed)
+            echo "ghcr.io/${{ env.GHCR_OWNER_LC }}/${{ env.APP_NAME }}-native:$tag" >> "$GITHUB_OUTPUT"
           done
           printf "EOF\n" >> "$GITHUB_OUTPUT"
 
@@ -179,7 +190,7 @@ jobs:
           done
           printf "EOF\n" >> "$GITHUB_OUTPUT"
 
-      # Constrói imagem Docker da aplicação rodando na JVM usando Dockerfile existente
+      # Build Docker image for the JVM app using the existing Dockerfile
       - name: Build JVM Docker image
         uses: docker/build-push-action@v6
         with:
@@ -195,7 +206,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      # Constrói imagem Docker da aplicação como Native Image (usa Dockerfile existente)
+      # Build Docker image for the app as a Native Image (uses existing Dockerfile)
       - name: Build Native Docker image
         uses: docker/build-push-action@v6
         with:
@@ -211,16 +222,16 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      # Cria um Dockerfile simples para o banco (baseado em MySQL oficial)
+      # Create a simple DB Dockerfile (based on official MySQL)
       - name: Create DB Dockerfile (MySQL base)
         run: |
           mkdir -p docker
           cat > docker/Dockerfile.db << 'EOF'
           FROM mysql:8.0
-          # Ajustes opcionais de configuração poderiam ser adicionados aqui (volumes, conf, envs, etc.)
+          # Optional configuration adjustments could go here (volumes, conf, envs, etc.)
           EOF
 
-      # Constrói imagem do banco de dados a partir do Dockerfile.db
+      # Build DB image from Dockerfile.db
       - name: Build DB Docker image (MySQL)
         uses: docker/build-push-action@v6
         with:
@@ -258,15 +269,15 @@ jobs:
               -p 8080:8080 \
               --restart unless-stopped \
               --env-file .env.espacogeek \
-              ghcr.io/${{ github.repository_owner }}/espacogeek-backend:latest
+              ghcr.io/${{ env.GHCR_OWNER_LC }}/${{ env.APP_NAME }}:latest
 
-            # (Opcional) remove arquivo após subir o container (mantém apenas no container)
+            # (Optional) remove file after starting the container (keeps it only in the container)
             rm -f .env.espacogeek
 
-      # Resumo final com as tags geradas
+      # Final summary with generated tags
       - name: Summary
         if: always()
         run: |
           echo "Project version: ${{ steps.gradle_version.outputs.version }}"
-          echo "Tags geradas: ${{ steps.vars.outputs.tags_csv }}"
-          echo "Push habilitado: ${{ steps.vars.outputs.should_push }}"
+          echo "Tags generated: ${{ steps.vars.outputs.tags_csv }}"
+          echo "Push enabled: ${{ steps.vars.outputs.should_push }}"
