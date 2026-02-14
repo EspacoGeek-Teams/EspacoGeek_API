@@ -22,7 +22,6 @@ import com.espacogeek.geek.services.UserService;
 import com.espacogeek.geek.types.NewUser;
 import com.espacogeek.geek.utils.TokenUtils;
 import com.espacogeek.geek.utils.UserUtils;
-import com.espacogeek.geek.utils.Utils;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
 
@@ -140,11 +139,7 @@ public class UserController {
     @PreAuthorize("hasRole('user')")
     public String editPasswordUserLogged(Authentication authentication, @Argument(name = "actualPassword") String actualPassword, @Argument(name = "newPassword") String newPassword) {
 
-        if (!UserUtils.isValidPassword(newPassword)) {
-            throw new GenericException(HttpStatus.BAD_REQUEST.toString());
-        }
-
-        Integer userId = Utils.getUserID(authentication);
+        Integer userId = UserUtils.getUserID(authentication);
 
         UserModel userLogged = userService.findById(Integer.valueOf(userId)).get();
         boolean resultPassword = BCrypt.verifyer().verify(actualPassword.toCharArray(), userLogged.getPassword()).verified;
@@ -166,7 +161,7 @@ public class UserController {
     @PreAuthorize("hasRole('user')")
     public String deleteUserLogged(Authentication authentication, @Argument(name = "password") String password) {
 
-        Integer userId = Utils.getUserID(authentication);
+        Integer userId = UserUtils.getUserID(authentication);
 
         UserModel userLogged = userService.findById(userId).get();
         boolean resultPassword = BCrypt.verifyer().verify(password.toCharArray(), userLogged.getPassword()).verified;
@@ -183,7 +178,7 @@ public class UserController {
     @PreAuthorize("hasRole('user')")
     public String editUsernameUserLogged(Authentication authentication, @Argument(name = "password") String password, @Argument(name = "newUsername") String newUsername) {
 
-        Integer userId = Utils.getUserID(authentication);
+        Integer userId = UserUtils.getUserID(authentication);
 
         UserModel userLogged = userService.findById(userId).get();
         boolean resultPassword = BCrypt.verifyer().verify(password.toCharArray(), userLogged.getPassword()).verified;
@@ -201,7 +196,7 @@ public class UserController {
     @PreAuthorize("hasRole('user')")
     public String editEmailUserLogged(Authentication authentication, @Argument(name = "password") String password, @Argument(name = "newEmail") String newEmail) {
 
-        Integer userId = Utils.getUserID(authentication);
+        Integer userId = UserUtils.getUserID(authentication);
 
         UserModel userLogged = userService.findById(userId).get();
         boolean resultPassword = BCrypt.verifyer().verify(password.toCharArray(), userLogged.getPassword()).verified;
@@ -250,7 +245,7 @@ public class UserController {
     @MutationMapping(name = "verifyEmailChange")
     @PreAuthorize("hasRole('user')")
     public String verifyEmailChange(Authentication authentication, @Argument(name = "token") String token) {
-        Integer userId = Utils.getUserID(authentication);
+        Integer userId = UserUtils.getUserID(authentication);
 
         EmailVerificationTokenModel verificationToken = emailVerificationService.validateToken(token, "EMAIL_CHANGE")
             .orElseThrow(() -> new GenericException(HttpStatus.UNAUTHORIZED.toString()));

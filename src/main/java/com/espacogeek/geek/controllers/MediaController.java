@@ -14,7 +14,6 @@ import com.espacogeek.geek.services.TypeReferenceService;
 import com.espacogeek.geek.types.MediaPage;
 import com.espacogeek.geek.types.MediaSimplefied;
 import com.espacogeek.geek.utils.MediaUtils;
-import com.espacogeek.geek.utils.Utils;
 import com.espacogeek.geek.exception.GenericException;
 
 import graphql.schema.DataFetchingEnvironment;

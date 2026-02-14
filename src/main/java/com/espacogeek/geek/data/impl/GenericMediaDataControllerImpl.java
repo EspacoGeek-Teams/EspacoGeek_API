@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Date;
 
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -90,10 +91,15 @@ public class GenericMediaDataControllerImpl implements MediaDataController {
         MediaModel rawArtwork = new MediaModel();
 
         if (result == null) {
-            var externalReferences = media.getExternalReference();
-            for (ExternalReferenceModel externalReference : externalReferences) {
-                if (externalReference.getTypeReference().getId().equals(typeReference.getId())) {
-                    rawArtwork = mediaApi.getArtwork(Integer.valueOf(externalReference.getReference()));
+            List<ExternalReferenceModel> externalReferences = media.getExternalReference();
+            if (externalReferences == null || !Hibernate.isInitialized(externalReferences)) {
+                externalReferences = externalReferenceService.findAll(media);
+            }
+            if (externalReferences != null) {
+                for (ExternalReferenceModel externalReference : externalReferences) {
+                    if (externalReference.getTypeReference().getId().equals(typeReference.getId())) {
+                        rawArtwork = mediaApi.getArtwork(Integer.valueOf(externalReference.getReference()));
+                    }
                 }
             }
         } else {

@@ -29,7 +29,7 @@ public class ExternalReferenceServiceImpl implements ExternalReferenceService {
     @SuppressWarnings("unchecked")
     @Override
     public List<ExternalReferenceModel> findAll(MediaModel media) {
-        return this.externalReferenceRepository.findAll(Example.of(media)); 
+        return this.externalReferenceRepository.findAll(Example.of(media));
     }
 
     /**

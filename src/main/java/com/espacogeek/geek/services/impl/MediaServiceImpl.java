@@ -31,7 +31,6 @@ import com.espacogeek.geek.services.TypeReferenceService;
 import com.espacogeek.geek.types.MediaPage;
 import com.espacogeek.geek.types.MediaSimplefied;
 import com.espacogeek.geek.utils.MediaUtils;
-import com.espacogeek.geek.utils.Utils;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.transaction.Transactional;
@@ -237,7 +236,7 @@ public class MediaServiceImpl implements MediaService {
                 switch (categoryId) {
                     case MediaDataController.GAME_ID:
                     case MediaDataController.VN_ID:
-                        updated = Utils
+                        updated = MediaUtils
                                 .updateGenericMedia(
                                         Arrays.asList(media),
                                         genericMediaDataController,
@@ -246,7 +245,7 @@ public class MediaServiceImpl implements MediaService {
                                 .getFirst();
                         break;
                     case MediaDataController.SERIE_ID:
-                        updated = Utils.updateMedia(Arrays.asList(media), serieController).getFirst();
+                        updated = MediaUtils.updateMedia(Arrays.asList(media), serieController).getFirst();
                         break;
                 }
 
