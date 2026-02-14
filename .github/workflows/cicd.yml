@@ -210,7 +210,21 @@ jobs:
           envs: GHCR_OWNER_LC,APP_NAME
           script_stop: false
           script: |
-            # Simple and clean deployment script - NO health checks
+            # Trap for SSH-level cleanup (runs even if SSH connection interrupted)
+            cleanup_on_exit() {
+              echo "Running SSH-level cleanup..."
+              rm -f .env.espacogeek 2>/dev/null || true
+              docker logout ghcr.io 2>/dev/null || true
+            }
+            trap cleanup_on_exit EXIT INT TERM
+
+            # Define deploy script path
+            DEPLOY_SCRIPT="/opt/espacogeek/deploy.sh"
+
+            # Create directory if doesn't exist
+            mkdir -p "$(dirname "$DEPLOY_SCRIPT")"
+
+            # Create deployment script - NO health checks
             cat > "$DEPLOY_SCRIPT" << 'DEPLOY_SCRIPT_EOF'
             #!/bin/bash
             set -euo pipefail
@@ -235,6 +249,15 @@ jobs:
             OLD_CONTAINER_BACKUP="${CONTAINER_NAME}-old"
             TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 
+            # Trap to ensure env file cleanup on exit (success or failure)
+            cleanup_env_file() {
+              if [ -f "$ENV_FILE" ]; then
+                log_info "Cleaning up environment file..."
+                rm -f "$ENV_FILE"
+              fi
+            }
+            trap cleanup_env_file EXIT
+
             if [ -z "$GHCR_OWNER_LC" ] || [ -z "$APP_NAME" ]; then
               log_error "Usage: $0 <GHCR_OWNER_LC> <APP_NAME> [IMAGE_TAG] [ENV_FILE]"
               exit 1
@@ -243,16 +266,13 @@ jobs:
             IMAGE="ghcr.io/${GHCR_OWNER_LC}/${APP_NAME}:${IMAGE_TAG}"
 
             container_exists() { docker ps -a --format '{{.Names}}' | grep -q "^${1}$"; }
-            container_running() { docker ps --format '{{.Names}}' | grep -q "^${1}$"; }
 
-            # Step 1: Backup old container if exists
             if container_exists "$CONTAINER_NAME"; then
               log_info "Creating backup of old container..."
               mkdir -p "$BACKUP_DIR"
               BACKUP_FILE="${BACKUP_DIR}/${CONTAINER_NAME}_backup_${TIMESTAMP}.tar"
               if docker export "$CONTAINER_NAME" > "$BACKUP_FILE"; then
                 log_success "Container backup created"
-                # Keep only last 5 backups
                 ls -t "${BACKUP_DIR}/${CONTAINER_NAME}_backup_"*.tar 2>/dev/null | tail -n +6 | xargs rm -f 2>/dev/null || true
               else
                 log_error "Failed to backup container"
@@ -260,7 +280,6 @@ jobs:
               fi
             fi
 
-            # Step 2: Stop and rename old container
             if container_exists "$CONTAINER_NAME"; then
               log_info "Stopping old container..."
               docker stop "$CONTAINER_NAME" 2>/dev/null || true
@@ -268,11 +287,9 @@ jobs:
               log_success "Old container renamed to ${OLD_CONTAINER_BACKUP}"
             fi
 
-            # Step 3: Pull new image
             log_info "Pulling new image..."
             if ! docker pull "$IMAGE"; then
               log_error "Failed to pull image"
-              # Restore old container on failure
               if container_exists "${OLD_CONTAINER_BACKUP}"; then
                 log_warn "Restoring old container..."
                 docker rename "${OLD_CONTAINER_BACKUP}" "$CONTAINER_NAME" 2>/dev/null || true
@@ -282,11 +299,9 @@ jobs:
             fi
             log_success "Image pulled successfully"
 
-            # Step 4: Start new container
             log_info "Starting new container..."
             if ! docker run -d --name "$CONTAINER_NAME" -p 8080:8080 --restart unless-stopped --env-file "$ENV_FILE" "$IMAGE"; then
               log_error "Failed to start container"
-              # Restore old container on failure
               if container_exists "${OLD_CONTAINER_BACKUP}"; then
                 log_warn "Restoring old container..."
                 docker rename "${OLD_CONTAINER_BACKUP}" "$CONTAINER_NAME" 2>/dev/null || true
@@ -296,18 +311,51 @@ jobs:
             fi
             log_success "Container started successfully"
 
-            # Step 5: Wait a bit for app to initialize
-            log_info "Waiting for application to initialize (10s)..."
-            sleep 10
+            # Wait for the application to initialize with a basic health check
+            log_info "Waiting for application to initialize (up to 30s)..."
+            MAX_RETRIES=6
+            SLEEP_SECONDS=5
+            retries=0
+            HEALTHY=0
+            while [ "$retries" -lt "$MAX_RETRIES" ]; do
+              if ! container_exists "$CONTAINER_NAME"; then
+                log_error "Health check: container '$CONTAINER_NAME' is not running"
+                break
+              fi
 
-            # Step 6: Cleanup old container
+              STATUS="$(docker inspect -f '{{.State.Status}}' "$CONTAINER_NAME" 2>/dev/null || echo "unknown")"
+              RESTARTING="$(docker inspect -f '{{.State.Restarting}}' "$CONTAINER_NAME" 2>/dev/null || echo "false")"
+
+              if [ "$STATUS" = "running" ] && [ "$RESTARTING" = "false" ]; then
+                log_success "Health check passed: container is running (status=$STATUS, restarting=$RESTARTING)"
+                HEALTHY=1
+                break
+              fi
+
+              log_info "Health check: status=$STATUS, restarting=$RESTARTING. Retrying in ${SLEEP_SECONDS}s..."
+              sleep "$SLEEP_SECONDS"
+              retries=$((retries + 1))
+            done
+
+            if [ "$HEALTHY" -ne 1 ]; then
+              log_error "Container failed health check after $((MAX_RETRIES * SLEEP_SECONDS))s"
+              if container_exists "$CONTAINER_NAME"; then
+                log_warn "Stopping and removing failed new container..."
+                docker rm -f "$CONTAINER_NAME" 2>/dev/null || true
+              fi
+              if container_exists "${OLD_CONTAINER_BACKUP}"; then
+                log_warn "Restoring old container..."
+                docker rename "${OLD_CONTAINER_BACKUP}" "$CONTAINER_NAME" 2>/dev/null || true
+                docker start "$CONTAINER_NAME" 2>/dev/null || true
+              fi
+              exit 1
+            fi
             if container_exists "${OLD_CONTAINER_BACKUP}"; then
               log_info "Removing old container backup..."
               docker rm -f "${OLD_CONTAINER_BACKUP}" 2>/dev/null || true
               log_success "Old container removed"
             fi
 
-            # Step 7: Show status
             log_success ""
             log_success "=== DEPLOYMENT SUCCESSFUL ==="
             docker ps -a --filter name="$CONTAINER_NAME"
@@ -315,14 +363,13 @@ jobs:
             log_info "Recent logs:"
             docker logs --tail 10 "$CONTAINER_NAME" || true
             log_success "============================="
-
-            rm -f "$ENV_FILE"
             DEPLOY_SCRIPT_EOF
-              chmod +x "$DEPLOY_SCRIPT"
-            fi
 
-            # Create environment file
-            cat > .env.espacogeek << 'ENVEOF'
+            # Make script executable
+            chmod +x "$DEPLOY_SCRIPT"
+
+            # Create environment file with secrets expansion
+            cat > .env.espacogeek << ENVEOF
             SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }}
             SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }}
             SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }}
@@ -344,6 +391,12 @@ jobs:
 
             # Execute deployment script
             "$DEPLOY_SCRIPT" "${GHCR_OWNER_LC}" "${APP_NAME}" "latest" ".env.espacogeek"
+
+            # Explicit cleanup of environment file (in case script trap didn't run)
+            rm -f .env.espacogeek
+
+            # Logout from Docker to remove stored credentials
+            docker logout ghcr.io
 
 
       # Final summary with generated tags
