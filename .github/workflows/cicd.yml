@@ -65,7 +65,6 @@ jobs:
     env:
       # Base image name (adjust as needed)
       APP_NAME: espacogeek-backend
-      # DB_IMAGE_GHCR is set later after lowercasing owner
 
       # .env variables (use Secrets in GitHub Actions)
       SPRING_DATASOURCE_URL: ${{ secrets.SPRING_DATASOURCE_URL }}
@@ -100,7 +99,6 @@ jobs:
           REPO_LC="${REPO_LC,,}"
           echo "GHCR_OWNER_LC=${OWNER_LC}" >> "$GITHUB_ENV"
           echo "GHCR_REPO_LC=${REPO_LC}" >> "$GITHUB_ENV"
-          echo "DB_IMAGE_GHCR=ghcr.io/${OWNER_LC}/espacogeek-db" >> "$GITHUB_ENV"
 
       # Set up Java 21 (Temurin) for WAR build
       - name: Set up Java 21 (Temurin)
@@ -184,12 +182,6 @@ jobs:
           done
           printf "EOF\n" >> "$GITHUB_OUTPUT"
 
-          printf "db_tags<<EOF\n" >> "$GITHUB_OUTPUT"
-          for tag in "${T[@]}"; do
-            echo "${{ env.DB_IMAGE_GHCR }}:$tag" >> "$GITHUB_OUTPUT"
-          done
-          printf "EOF\n" >> "$GITHUB_OUTPUT"
-
       # Build Docker image for the JVM app using the existing Dockerfile
       - name: Build JVM Docker image
         uses: docker/build-push-action@v6
@@ -215,31 +207,6 @@ jobs:
           platforms: linux/amd64
           push: ${{ steps.vars.outputs.should_push == 'true' && github.event_name == 'push' }}
           tags: ${{ steps.tags.outputs.native_tags }}
-          labels: |
-            org.opencontainers.image.version=${{ steps.gradle_version.outputs.version }}
-            org.opencontainers.image.revision=${{ steps.vars.outputs.short_sha }}
-            org.opencontainers.image.source=https://github.com/${{ github.repository }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-      # Create a simple DB Dockerfile (based on official MySQL)
-      - name: Create DB Dockerfile (MySQL base)
-        run: |
-          mkdir -p docker
-          cat > docker/Dockerfile.db << 'EOF'
-          FROM mysql:8.0
-          # Optional configuration adjustments could go here (volumes, conf, envs, etc.)
-          EOF
-
-      # Build DB image from Dockerfile.db
-      - name: Build DB Docker image (MySQL)
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: docker/Dockerfile.db
-          platforms: linux/amd64
-          push: ${{ steps.vars.outputs.should_push == 'true' && github.event_name == 'push' }}
-          tags: ${{ steps.tags.outputs.db_tags }}
           labels: |
             org.opencontainers.image.version=${{ steps.gradle_version.outputs.version }}
             org.opencontainers.image.revision=${{ steps.vars.outputs.short_sha }}
