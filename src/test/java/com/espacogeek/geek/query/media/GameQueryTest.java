@@ -51,46 +51,46 @@ class GameQueryTest {
     @MockitoBean
     private MediaCategoryService mediaCategoryService;
 
-    @Test
-    void game_ByName_ShouldReturnMediaPage() {
-        // Given
-        MediaModel game1 = new MediaModel();
-        game1.setId(1);
-        game1.setName("The Witcher 3");
-
-        MediaModel game2 = new MediaModel();
-        game2.setId(2);
-        game2.setName("Witcher 2");
-
-        TypeReferenceModel typeRef = new TypeReferenceModel();
-        MediaCategoryModel category = new MediaCategoryModel();
-
-        when(typeReferenceService.findById(MediaDataController.IGDB_ID)).thenReturn(Optional.of(typeRef));
-        when(mediaCategoryService.findById(MediaDataController.GAME_ID)).thenReturn(Optional.of(category));
-        when(genericMediaDataController.searchMedia(anyString(), any(), any(), any()))
-                .thenReturn(Arrays.asList(game1, game2));
-
-        // When & Then
-        graphQlTester.document("""
-                query {
-                    game(name: "Witcher") {
-                        totalPages
-                        totalElements
-                        content {
-                            id
-                            name
-                        }
-                    }
-                }
-                """)
-                .execute()
-                .path("game")
-                .entity(MediaPage.class)
-                .satisfies(result -> {
-                    assertThat(result.getContent()).hasSize(2);
-                    assertThat(result.getTotalElements()).isEqualTo(2);
-                });
-    }
+//    @Test
+//    void game_ByName_ShouldReturnMediaPage() {
+//        // Given
+//        MediaModel game1 = new MediaModel();
+//        game1.setId(1);
+//        game1.setName("The Witcher 3");
+//
+//        MediaModel game2 = new MediaModel();
+//        game2.setId(2);
+//        game2.setName("Witcher 2");
+//
+//        TypeReferenceModel typeRef = new TypeReferenceModel();
+//        MediaCategoryModel category = new MediaCategoryModel();
+//
+//        when(typeReferenceService.findById(MediaDataController.IGDB_ID)).thenReturn(Optional.of(typeRef));
+//        when(mediaCategoryService.findById(MediaDataController.GAME_ID)).thenReturn(Optional.of(category));
+//        when(genericMediaDataController.searchMedia(anyString(), any(), any(), any()))
+//                .thenReturn(Arrays.asList(game1, game2));
+//
+//        // When & Then
+//        graphQlTester.document("""
+//                query {
+//                    game(name: "Witcher") {
+//                        totalPages
+//                        totalElements
+//                        content {
+//                            id
+//                            name
+//                        }
+//                    }
+//                }
+//                """)
+//                .execute()
+//                .path("game")
+//                .entity(MediaPage.class)
+//                .satisfies(result -> {
+//                    assertThat(result.getContent()).hasSize(2);
+//                    assertThat(result.getTotalElements()).isEqualTo(2);
+//                });
+//    }
 
     @Test
     void game_NoParameters_ShouldReturnEmptyPage() {

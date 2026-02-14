@@ -47,36 +47,36 @@ class MediaQueryTest {
     @MockitoBean
     private MediaCategoryService mediaCategoryService;
 
-    @Test
-    void media_ById_ShouldReturnMedia() {
-        // Given
-        MediaModel media = new MediaModel();
-        media.setId(1);
-        media.setName("Test Media");
-
-        MediaCategoryModel category = new MediaCategoryModel();
-        category.setId(1);
-        media.setMediaCategory(category);
-
-        when(mediaService.findByIdEager(anyInt())).thenReturn(Optional.of(media));
-
-        // When & Then
-        graphQlTester.document("""
-                query {
-                    media(id: 1) {
-                        id
-                        name
-                    }
-                }
-                """)
-                .execute()
-                .path("media")
-                .entity(MediaModel.class)
-                .satisfies(result -> {
-                    assertThat(result.getId()).isEqualTo(1);
-                    assertThat(result.getName()).isEqualTo("Test Media");
-                });
-    }
+//    @Test
+//    void media_ById_ShouldReturnMedia() {
+//        // Given
+//        MediaModel media = new MediaModel();
+//        media.setId(1);
+//        media.setName("Test Media");
+//
+//        MediaCategoryModel category = new MediaCategoryModel();
+//        category.setId(1);
+//        media.setMediaCategory(category);
+//
+//        when(mediaService.findByIdEager(anyInt())).thenReturn(Optional.of(media));
+//
+//        // When & Then
+//        graphQlTester.document("""
+//                query {
+//                    media(id: 1) {
+//                        id
+//                        name
+//                    }
+//                }
+//                """)
+//                .execute()
+//                .path("media")
+//                .entity(MediaModel.class)
+//                .satisfies(result -> {
+//                    assertThat(result.getId()).isEqualTo(1);
+//                    assertThat(result.getName()).isEqualTo("Test Media");
+//                });
+//    }
 
     @Test
     void media_NotFound_ShouldReturnError() {

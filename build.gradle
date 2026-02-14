@@ -117,7 +117,7 @@ dependencies {
     testImplementation 'org.springframework.graphql:spring-graphql-test'
     testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'com.h2database:h2'
-    untimeOnly 'org.mariadb.jdbc:mariadb-java-client'
+    runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
 }
 
 tasks.withType(Test) {
