@@ -208,7 +208,7 @@ jobs:
           key: ${{ secrets.HOSTINGER }}
           port: ${{ secrets.HOSTINGER_PORT }}
           envs: GHCR_OWNER_LC,APP_NAME
-          script_stop: all
+          script_stop: false
           script: |
             # Download and setup deploy script if not present
             DEPLOY_SCRIPT="/opt/espacogeek/deploy.sh"
