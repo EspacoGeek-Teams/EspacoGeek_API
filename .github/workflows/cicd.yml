@@ -210,16 +210,9 @@ jobs:
           envs: GHCR_OWNER_LC,APP_NAME
           script_stop: false
           script: |
-            # Download and setup deploy script if not present
-            DEPLOY_SCRIPT="/opt/espacogeek/deploy.sh"
-
-            if [ ! -f "$DEPLOY_SCRIPT" ]; then
-              echo "Downloading deploy script..."
-              mkdir -p "$(dirname "$DEPLOY_SCRIPT")"
-              # You can download from a specific release or use inline
-              cat > "$DEPLOY_SCRIPT" << 'DEPLOY_SCRIPT_EOF'
+            # Simple and clean deployment script - NO health checks
+            cat > "$DEPLOY_SCRIPT" << 'DEPLOY_SCRIPT_EOF'
             #!/bin/bash
-
             set -euo pipefail
 
             RED='\033[0;31m'
@@ -232,16 +225,6 @@ jobs:
             log_success() { echo -e "${GREEN}[✓]${NC} $*"; }
             log_warn() { echo -e "${YELLOW}[WARN]${NC} $*"; }
             log_error() { echo -e "${RED}[✗]${NC} $*"; }
-
-            trap 'on_error' ERR
-            on_error() {
-              local exit_code=$?
-              if [ $exit_code -ne 0 ]; then
-                log_error "Deployment failed with exit code $exit_code"
-                log_warn "Attempting rollback..."
-                rollback_deployment
-              fi
-            }
 
             GHCR_OWNER_LC="${1:-}"
             APP_NAME="${2:-}"
@@ -262,186 +245,75 @@ jobs:
             container_exists() { docker ps -a --format '{{.Names}}' | grep -q "^${1}$"; }
             container_running() { docker ps --format '{{.Names}}' | grep -q "^${1}$"; }
 
-            backup_old_container() {
-              if ! container_exists "$CONTAINER_NAME"; then
-                log_info "No existing container to backup"
-                return 0
-              fi
+            # Step 1: Backup old container if exists
+            if container_exists "$CONTAINER_NAME"; then
               log_info "Creating backup of old container..."
               mkdir -p "$BACKUP_DIR"
               BACKUP_FILE="${BACKUP_DIR}/${CONTAINER_NAME}_backup_${TIMESTAMP}.tar"
-              log_info "Exporting container to ${BACKUP_FILE}..."
               if docker export "$CONTAINER_NAME" > "$BACKUP_FILE"; then
-                log_success "Container backup created: ${BACKUP_FILE}"
+                log_success "Container backup created"
+                # Keep only last 5 backups
+                ls -t "${BACKUP_DIR}/${CONTAINER_NAME}_backup_"*.tar 2>/dev/null | tail -n +6 | xargs rm -f 2>/dev/null || true
               else
                 log_error "Failed to backup container"
-                return 1
+                exit 1
               fi
-              ls -t "${BACKUP_DIR}/${CONTAINER_NAME}_backup_"*.tar 2>/dev/null | tail -n +6 | xargs rm -f 2>/dev/null || true
-            }
+            fi
 
-            rename_old_container() {
-              if ! container_exists "$CONTAINER_NAME"; then
-                log_info "No old container to rename"
-                return 0
-              fi
-              log_info "Renaming old container..."
-              if container_running "$CONTAINER_NAME"; then
-                log_info "Stopping old container..."
-                docker stop "$CONTAINER_NAME" || log_warn "Failed to stop container"
-              fi
-              if docker rename "$CONTAINER_NAME" "${OLD_CONTAINER_BACKUP}" 2>/dev/null; then
-                log_success "Old container renamed to ${OLD_CONTAINER_BACKUP}"
-              else
-                log_warn "Could not rename old container"
-              fi
-            }
+            # Step 2: Stop and rename old container
+            if container_exists "$CONTAINER_NAME"; then
+              log_info "Stopping old container..."
+              docker stop "$CONTAINER_NAME" 2>/dev/null || true
+              docker rename "$CONTAINER_NAME" "${OLD_CONTAINER_BACKUP}" 2>/dev/null || true
+              log_success "Old container renamed to ${OLD_CONTAINER_BACKUP}"
+            fi
 
-            pull_new_image() {
-              log_info "Pulling new image: ${IMAGE}..."
-              if docker pull "$IMAGE"; then
-                log_success "Image pulled successfully"
-                return 0
-              else
-                log_error "Failed to pull image"
-                return 1
-              fi
-            }
-
-            start_new_container() {
-              log_info "Starting new container..."
-              if ! docker run -d --name "$CONTAINER_NAME" -p 8080:8080 --restart unless-stopped --env-file "$ENV_FILE" "$IMAGE"; then
-                log_error "Failed to start container"
-                return 1
-              fi
-              log_success "Container started with ID: $(docker ps --filter name=$CONTAINER_NAME -q)"
-            }
-
-            # HEALTH CHECK TEMPORARILY DISABLED
-            # validate_container_health() {
-            #   local max_attempts=40
-            #   local attempt=1
-            #   local initial_wait=5
-            #   log_info "Validating container health (max ${max_attempts} attempts, initial wait ${initial_wait}s)..."
-            #   sleep $initial_wait
-            #   while [ $attempt -le $max_attempts ]; do
-            #     if container_running "$CONTAINER_NAME"; then
-            #       local status=$(docker inspect "$CONTAINER_NAME" --format='{{.State.Status}}')
-            #       if [ "$status" = "running" ]; then
-            #         local health_response=$(docker exec "$CONTAINER_NAME" curl -s -w "\n%{http_code}" http://localhost:8080/actuator/health 2>&1)
-            #         local http_code=$(echo "$health_response" | tail -n 1)
-            #         local body=$(echo "$health_response" | head -n -1)
-            #         if [ "$http_code" = "200" ]; then
-            #           log_success "Container is healthy (HTTP $http_code)"
-            #           log_info "Health response: $body"
-            #           return 0
-            #         else
-            #           log_info "Health endpoint returned HTTP $http_code (attempt ${attempt}/${max_attempts})"
-            #         fi
-            #       elif [ "$status" = "exited" ]; then
-            #         log_error "Container exited (attempt ${attempt}/${max_attempts})"
-            #         log_error "Recent logs:"
-            #         docker logs --tail 30 "$CONTAINER_NAME" 2>&1 | sed 's/^/  /'
-            #         return 1
-            #       else
-            #         log_warn "Container status is: $status (attempt ${attempt}/${max_attempts})"
-            #       fi
-            #     else
-            #       log_warn "Container not found (attempt ${attempt}/${max_attempts})"
-            #     fi
-            #     sleep 2
-            #     attempt=$((attempt + 1))
-            #   done
-            #   log_error "Container failed health check after ${max_attempts} attempts"
-            #   log_error "Final container logs:"
-            #   docker logs --tail 50 "$CONTAINER_NAME" 2>&1 | sed 's/^/  /'
-            #   return 1
-            # }
-
-            cleanup_old_container() {
-              log_info "Cleaning up old container..."
+            # Step 3: Pull new image
+            log_info "Pulling new image..."
+            if ! docker pull "$IMAGE"; then
+              log_error "Failed to pull image"
+              # Restore old container on failure
               if container_exists "${OLD_CONTAINER_BACKUP}"; then
-                log_info "Removing backed-up container: ${OLD_CONTAINER_BACKUP}"
-                if docker rm -f "${OLD_CONTAINER_BACKUP}"; then
-                  log_success "Old container removed"
-                else
-                  log_warn "Could not remove old container"
-                fi
+                log_warn "Restoring old container..."
+                docker rename "${OLD_CONTAINER_BACKUP}" "$CONTAINER_NAME" 2>/dev/null || true
+                docker start "$CONTAINER_NAME" 2>/dev/null || true
               fi
-            }
-
-            rollback_deployment() {
-              log_warn "Starting rollback procedure..."
-              if container_exists "$CONTAINER_NAME"; then
-                log_info "Stopping new container..."
-                docker stop "$CONTAINER_NAME" 2>/dev/null || true
-                docker rm "$CONTAINER_NAME" 2>/dev/null || true
-              fi
-              if container_exists "${OLD_CONTAINER_BACKUP}"; then
-                log_info "Restoring old container from backup: ${OLD_CONTAINER_BACKUP}"
-                if docker rename "${OLD_CONTAINER_BACKUP}" "$CONTAINER_NAME" 2>/dev/null; then
-                  if docker start "$CONTAINER_NAME"; then
-                    log_success "Rollback successful: Old container restored"
-                    return 0
-                  else
-                    log_error "Failed to start rolled-back container"
-                    return 1
-                  fi
-                else
-                  log_error "Failed to rename backed-up container"
-                  return 1
-                fi
-              else
-                log_error "No backed-up container available for rollback"
-                return 1
-              fi
-            }
-
-            show_container_status() {
-              log_info "=== Container Status ==="
-              docker ps -a --filter name="$CONTAINER_NAME" --filter name="${OLD_CONTAINER_BACKUP}" || log_info "No containers found"
-              log_info "======================="
-            }
-
-            show_container_logs() {
-              log_info "=== Container Logs (last 20 lines) ==="
-              if container_exists "$CONTAINER_NAME"; then
-                docker logs --tail 20 "$CONTAINER_NAME" || log_info "No logs available"
-              fi
-              log_info "======================================="
-            }
-
-            log_info "Starting deployment of ${APP_NAME}:${IMAGE_TAG}"
-            log_info "Container name: ${CONTAINER_NAME}"
-            log_info "Image: ${IMAGE}"
-            log_info "Environment file: ${ENV_FILE}"
-            log_info ""
-
-            if [ ! -f "$ENV_FILE" ]; then
-              log_error "Environment file not found: ${ENV_FILE}"
               exit 1
             fi
-            log_success "Environment file found"
+            log_success "Image pulled successfully"
 
-            backup_old_container || exit 1
-            rename_old_container || exit 1
-            pull_new_image || exit 1
-            start_new_container || exit 1
+            # Step 4: Start new container
+            log_info "Starting new container..."
+            if ! docker run -d --name "$CONTAINER_NAME" -p 8080:8080 --restart unless-stopped --env-file "$ENV_FILE" "$IMAGE"; then
+              log_error "Failed to start container"
+              # Restore old container on failure
+              if container_exists "${OLD_CONTAINER_BACKUP}"; then
+                log_warn "Restoring old container..."
+                docker rename "${OLD_CONTAINER_BACKUP}" "$CONTAINER_NAME" 2>/dev/null || true
+                docker start "$CONTAINER_NAME" 2>/dev/null || true
+              fi
+              exit 1
+            fi
+            log_success "Container started successfully"
 
-            # TEMPORARILY DISABLED: Skip health check validation for now
-            # TODO: Re-enable after verifying /actuator/health endpoint
-            # if ! validate_container_health; then
-            #   log_error "Health check failed, initiating rollback..."
-            #   rollback_deployment || exit 1
-            #   exit 1
-            # fi
+            # Step 5: Wait a bit for app to initialize
+            log_info "Waiting for application to initialize (10s)..."
+            sleep 10
 
-            cleanup_old_container
+            # Step 6: Cleanup old container
+            if container_exists "${OLD_CONTAINER_BACKUP}"; then
+              log_info "Removing old container backup..."
+              docker rm -f "${OLD_CONTAINER_BACKUP}" 2>/dev/null || true
+              log_success "Old container removed"
+            fi
 
+            # Step 7: Show status
             log_success ""
             log_success "=== DEPLOYMENT SUCCESSFUL ==="
-            show_container_status
-            show_container_logs
+            docker ps -a --filter name="$CONTAINER_NAME"
+            log_info ""
+            log_info "Recent logs:"
+            docker logs --tail 10 "$CONTAINER_NAME" || true
             log_success "============================="
 
             rm -f "$ENV_FILE"
