@@ -24,20 +24,31 @@ public class GraphQLExecutionInstrumentation {
             // Garantir que operationName não seja nulo
             String name = operationName != null && !operationName.isEmpty() ? operationName : "anonymous";
             String type = operationType != null ? operationType.toLowerCase() : "unknown";
+            String status = success ? "success" : "error";
 
-            // Métrica: Total de operações
+            // Contador total (com labels)
             meterRegistry.counter(
                 "graphql.operations.total",
                 "operation", name,
                 "type", type,
-                "status", success ? "success" : "error"
+                "status", status
             ).increment();
 
-            // Métrica: Duração
+            // Contador dedicado para cada operação (nome + tipo + status)
+            meterRegistry.counter(
+                String.format("graphql.operation.%s.%s.%s.count", type, name, status)
+            ).increment();
+
+            // Timer/histograma para cada operação (Micrometer Timer já suporta histogramas)
             meterRegistry.timer(
                 "graphql.operations.duration",
                 "operation", name,
                 "type", type
+            ).record(durationMs, java.util.concurrent.TimeUnit.MILLISECONDS);
+
+            // Timer/histograma dedicado para cada operação
+            meterRegistry.timer(
+                String.format("graphql.operation.%s.%s.duration", type, name)
             ).record(durationMs, java.util.concurrent.TimeUnit.MILLISECONDS);
 
             log.debug("GraphQL Metrics recorded - Op: {}, Type: {}, Duration: {}ms, Success: {}",
