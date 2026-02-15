@@ -386,6 +386,27 @@ jobs:
             FRONTEND_URL=${{ secrets.FRONTEND_URL }}
             ENVEOF
 
+            # Validate SPRING_DATASOURCE_URL before deployment
+            echo "Validating environment file..."
+            if ! grep -q "^SPRING_DATASOURCE_URL=" .env.espacogeek; then
+              echo "ERROR: SPRING_DATASOURCE_URL not found in .env.espacogeek"
+              cat .env.espacogeek
+              rm -f .env.espacogeek
+              exit 1
+            fi
+            DATASOURCE_URL=$(grep "^SPRING_DATASOURCE_URL=" .env.espacogeek | cut -d'=' -f2)
+            if [ -z "$DATASOURCE_URL" ]; then
+              echo "ERROR: SPRING_DATASOURCE_URL is empty"
+              rm -f .env.espacogeek
+              exit 1
+            fi
+            if [[ ! "$DATASOURCE_URL" =~ ^jdbc: ]]; then
+              echo "ERROR: SPRING_DATASOURCE_URL must start with 'jdbc:' but got: $DATASOURCE_URL"
+              rm -f .env.espacogeek
+              exit 1
+            fi
+            echo "✓ SPRING_DATASOURCE_URL is valid: $DATASOURCE_URL"
+
             # Login to GHCR
             echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ secrets.GHCR_USER }}" --password-stdin
 
