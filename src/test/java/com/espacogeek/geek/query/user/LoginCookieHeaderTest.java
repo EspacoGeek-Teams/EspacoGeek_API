@@ -112,7 +112,7 @@ class LoginCookieHeaderTest {
         String origin = "http://client.example"; // cross-site to trigger SameSite=None; Secure
 
         // When
-        MvcResult mvcResult = mockMvc.perform(post("/api")
+        MvcResult mvcResult = mockMvc.perform(post("/")
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Origin", origin)
                         .content(json))
