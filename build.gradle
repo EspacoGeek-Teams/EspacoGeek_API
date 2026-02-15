@@ -84,6 +84,7 @@ dependencies {
     implementation 'at.favre.lib:bcrypt:0.10.2'
     implementation 'uk.co.conoregan:themoviedbapi:2.1.1'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'io.micrometer:micrometer-registry-prometheus'
     implementation 'org.springframework.boot:spring-boot-starter-graphql'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
