@@ -1,16 +1,12 @@
 package com.espacogeek.geek.data.impl;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Date;
 
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,15 +37,29 @@ import jakarta.persistence.OneToMany;
 
 @Component("genericMediaDataController")
 @Qualifier("genericMediaDataController")
-@AllArgsConstructor
-@NoArgsConstructor
+@Slf4j
 public class GenericMediaDataControllerImpl implements MediaDataController {
     @Lazy
     protected MediaService mediaService;
-    private GenreService genreService;
-    private AlternativeTitlesService alternativeTitlesService;
-    private ExternalReferenceService externalReferenceService;
-    private SeasonService seasonService;
+    private final GenreService genreService;
+    private final AlternativeTitlesService alternativeTitlesService;
+    private final ExternalReferenceService externalReferenceService;
+    private final SeasonService seasonService;
+
+    @Autowired
+    public GenericMediaDataControllerImpl(
+            @Lazy MediaService mediaService,
+            GenreService genreService,
+            AlternativeTitlesService alternativeTitlesService,
+            ExternalReferenceService externalReferenceService,
+            SeasonService seasonService
+    ) {
+        this.mediaService = mediaService;
+        this.genreService = genreService;
+        this.alternativeTitlesService = alternativeTitlesService;
+        this.externalReferenceService = externalReferenceService;
+        this.seasonService = seasonService;
+    }
 
     public GenericMediaDataControllerImpl getInstance() {
         return this;
@@ -99,7 +109,15 @@ public class GenericMediaDataControllerImpl implements MediaDataController {
             if (externalReferences != null) {
                 for (ExternalReferenceModel externalReference : externalReferences) {
                     if (externalReference.getTypeReference().getId().equals(typeReference.getId())) {
-                        rawArtwork = mediaApi.getArtwork(Integer.valueOf(externalReference.getReference()));
+                        try {
+                            rawArtwork = mediaApi.getArtwork(Integer.valueOf(externalReference.getReference()));
+                            if (rawArtwork != null) {
+                                break;
+                            }
+                        } catch (Exception e) {
+                            log.warn("Failed to fetch artwork for media with external reference {}: {}", externalReference.getReference(), e.getMessage());
+                            rawArtwork = null;
+                        }
                     }
                 }
             }
@@ -125,7 +143,7 @@ public class GenericMediaDataControllerImpl implements MediaDataController {
                     try {
                         allAlternativeTitles = mediaApi.getAlternativeTitles(Integer.valueOf(reference.getReference()));
                     } catch (NumberFormatException e) {
-                        e.printStackTrace();
+                        log.error("Failed to fetch alternative titles for media with reference {}: {}", reference.getReference(), e.getMessage());
                     }
                 }
             }
@@ -156,7 +174,7 @@ public class GenericMediaDataControllerImpl implements MediaDataController {
                     try {
                         rawExternalReferences = mediaApi.getExternalReference(Integer.valueOf(reference.getReference()));
                     } catch (NumberFormatException e) {
-                        e.printStackTrace();
+                        log.error("Failed to fetch external references for media with reference {}: {}", reference.getReference(), e.getMessage());
                     }
                 }
             }
@@ -189,7 +207,7 @@ public class GenericMediaDataControllerImpl implements MediaDataController {
                     try {
                         rawGenres = mediaApi.getGenre(Integer.valueOf(reference.getReference()));
                     } catch (NumberFormatException e) {
-                        e.printStackTrace();
+                        log.error("Failed to fetch genres for media with reference {}: {}", reference.getReference(), e.getMessage());
                     }
                 }
             }
@@ -201,7 +219,7 @@ public class GenericMediaDataControllerImpl implements MediaDataController {
 
         rawGenres.forEach((rawGenre) -> {
             if (media.getGenre().stream().noneMatch((genre) -> genre.getId().equals(rawGenre.getId()))) {
-                rawGenre.setMedias(new ArrayList<>(Arrays.asList(media)));
+                rawGenre.setMedias(new ArrayList<>(List.of(media)));
                 media.getGenre().add(rawGenre);
             }
         });
@@ -228,7 +246,7 @@ public class GenericMediaDataControllerImpl implements MediaDataController {
         if (CollectionUtils.isEmpty(rawSeasons)) return media.getSeason();
 
         rawSeasons.forEach((rawSeason) -> {
-            if (!media.getSeason().stream().anyMatch((season) -> season.getName().equals(rawSeason.getName()))) {
+            if (media.getSeason().stream().noneMatch((season) -> season.getName().equals(rawSeason.getName()))) {
                 seasons.add(new SeasonModel(null, rawSeason.getName(), rawSeason.getAirDate(), null, rawSeason.getAbout(), rawSeason.getCover(), rawSeason.getSeasonNumber(), rawSeason.getEpisodeCount(), media));
             }
         });
@@ -300,7 +318,7 @@ public class GenericMediaDataControllerImpl implements MediaDataController {
                     try {
                         field.set(media, rawField.get(rawMedia));
                     } catch (IllegalAccessException e) {
-                        e.printStackTrace();
+                        log.error("Failed to update basic attributes for media: {}", e.getMessage());
                     }
                 }
             }
@@ -324,7 +342,7 @@ public class GenericMediaDataControllerImpl implements MediaDataController {
 
         for (ExternalReferenceModel ereference : media.getExternalReference()) {
             var external = externalReferenceService.findByReferenceAndType(ereference.getReference(), typeReference);
-            if (external == null || external.isEmpty()) {
+            if (external.isEmpty()) {
                 media.setId(null);
                 return mediaService.save(media);
             } else {

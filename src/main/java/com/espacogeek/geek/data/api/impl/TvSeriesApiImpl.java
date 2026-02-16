@@ -128,8 +128,9 @@ public class TvSeriesApiImpl implements MediaApi {
     public MediaModel getArtwork(Integer id) {
         Images rawArtwork = new Images();
         try {
-            rawArtwork = api.getImages(id, "en");
+            rawArtwork = api.getImages(id, "");
         } catch (TmdbException e) {
+            log.error("Error fetching TV series artwork", e);
             throw new com.espacogeek.geek.exception.RequestException();
         }
         var media = new MediaModel();

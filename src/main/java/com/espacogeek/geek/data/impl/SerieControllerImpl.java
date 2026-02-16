@@ -8,6 +8,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.espacogeek.geek.services.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONObject;
@@ -24,16 +25,12 @@ import com.espacogeek.geek.models.ExternalReferenceModel;
 import com.espacogeek.geek.models.MediaCategoryModel;
 import com.espacogeek.geek.models.MediaModel;
 import com.espacogeek.geek.models.TypeReferenceModel;
-import com.espacogeek.geek.services.ExternalReferenceService;
-import com.espacogeek.geek.services.MediaCategoryService;
-import com.espacogeek.geek.services.TypeReferenceService;
 
 import jakarta.annotation.PostConstruct;
 
 @Component("serieController")
 @Qualifier("serieController")
 @Slf4j
-@RequiredArgsConstructor
 public class SerieControllerImpl extends GenericMediaDataControllerImpl {
     private final MediaApi tvSeriesApi;
     private final MediaCategoryService mediaCategoryService;
@@ -41,6 +38,14 @@ public class SerieControllerImpl extends GenericMediaDataControllerImpl {
     private final TypeReferenceService typeReferenceService;
 
     private TypeReferenceModel typeReference;
+
+    public SerieControllerImpl(MediaService mediaService, GenreService genreService, AlternativeTitlesService alternativeTitlesService, ExternalReferenceService externalReferenceService, SeasonService seasonService, MediaApi tvSeriesApi, MediaCategoryService mediaCategoryService, ExternalReferenceService externalReferenceService1, TypeReferenceService typeReferenceService) {
+        super(mediaService, genreService, alternativeTitlesService, externalReferenceService, seasonService);
+        this.tvSeriesApi = tvSeriesApi;
+        this.mediaCategoryService = mediaCategoryService;
+        this.externalReferenceService = externalReferenceService1;
+        this.typeReferenceService = typeReferenceService;
+    }
 
     @PostConstruct
     private void init() {

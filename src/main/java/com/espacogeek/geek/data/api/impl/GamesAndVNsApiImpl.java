@@ -171,4 +171,37 @@ public class GamesAndVNsApiImpl implements MediaApi {
 
         return medias;
     }
+
+    @Override
+    @Retryable(maxAttempts = 2, backoff = @Backoff(delay = 2000), retryFor = com.espacogeek.geek.exception.RequestException.class)
+    public MediaModel getArtwork(Integer id) {
+        var apicalypse = new APICalypse().fields("*, artworks.image_id, cover.image_id").where("id = " + id);
+        MediaModel media = null;
+
+        try {
+            var searchGames = ProtoRequestKt.games(wrapper, apicalypse);
+
+            for (Game result : searchGames) {
+                if ((long) result.getId() != (long) 0L) {
+                    media = new MediaModel();
+
+                    media.setCover(
+                        !result.getCover().getImageId().isEmpty()
+                                    ? ImageBuilderKt.imageBuilder(result.getCover().getImageId(),
+                                            ImageSize.COVER_BIG, ImageType.PNG)
+                                    : null);
+                    media.setBanner(result.getArtworksList().isEmpty() ? null
+                            : ImageBuilderKt.imageBuilder(result.getArtworksList().getFirst().getImageId(),
+                                    ImageSize.SCREENSHOT_HUGE, ImageType.PNG));
+                }
+            }
+
+        } catch (RequestException e) {
+            newToken();
+            log.error("Error while fetching artwork for media with id {}: {}", id, e.getMessage());
+            throw new com.espacogeek.geek.exception.RequestException();
+        }
+
+        return media;
+    }
 }

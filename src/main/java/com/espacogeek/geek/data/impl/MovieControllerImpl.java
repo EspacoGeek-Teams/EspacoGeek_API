@@ -7,7 +7,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import lombok.RequiredArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONObject;
@@ -25,7 +24,11 @@ import com.espacogeek.geek.models.MediaCategoryModel;
 import com.espacogeek.geek.models.MediaModel;
 import com.espacogeek.geek.models.TypeReferenceModel;
 import com.espacogeek.geek.services.ExternalReferenceService;
+import com.espacogeek.geek.services.GenreService;
+import com.espacogeek.geek.services.MediaService;
+import com.espacogeek.geek.services.AlternativeTitlesService;
 import com.espacogeek.geek.services.MediaCategoryService;
+import com.espacogeek.geek.services.SeasonService;
 import com.espacogeek.geek.services.TypeReferenceService;
 
 import jakarta.annotation.PostConstruct;
@@ -33,7 +36,6 @@ import jakarta.annotation.PostConstruct;
 @Component("movieController")
 @Qualifier("movieController")
 @Slf4j
-@RequiredArgsConstructor
 public class MovieControllerImpl extends GenericMediaDataControllerImpl {
     private final MediaApi movieAPI;
     private final MediaCategoryService mediaCategoryService;
@@ -41,6 +43,25 @@ public class MovieControllerImpl extends GenericMediaDataControllerImpl {
     private final TypeReferenceService typeReferenceService;
 
     private TypeReferenceModel typeReference;
+
+    @Autowired
+    public MovieControllerImpl(
+            MediaApi movieAPI,
+            MediaCategoryService mediaCategoryService,
+            ExternalReferenceService externalReferenceService,
+            TypeReferenceService typeReferenceService,
+            MediaService mediaService,
+            GenreService genreService,
+            AlternativeTitlesService alternativeTitlesService,
+            ExternalReferenceService baseExternalReferenceService,
+            SeasonService seasonService
+    ) {
+        super(mediaService, genreService, alternativeTitlesService, baseExternalReferenceService, seasonService);
+        this.movieAPI = movieAPI;
+        this.mediaCategoryService = mediaCategoryService;
+        this.externalReferenceService = externalReferenceService;
+        this.typeReferenceService = typeReferenceService;
+    }
 
     @PostConstruct
     private void init() {

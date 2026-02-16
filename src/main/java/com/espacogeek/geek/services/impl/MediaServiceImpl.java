@@ -9,8 +9,8 @@ import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.Map;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -40,7 +40,6 @@ import static com.espacogeek.geek.utils.TextUtils.capitalize;
  */
 @SuppressWarnings({"SpringQualifierCopyableLombok", "OptionalGetWithoutIsPresent", "unchecked"})
 @Service
-@RequiredArgsConstructor
 public class MediaServiceImpl implements MediaService {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(MediaServiceImpl.class);
 
@@ -62,6 +61,24 @@ public class MediaServiceImpl implements MediaService {
 
     @Qualifier("movieAPI")
     private final MediaApi movieAPI;
+
+    public MediaServiceImpl(
+            MediaRepository mediaRepository,
+            MediaCategoryService mediaCategoryService,
+            @Lazy @Qualifier("serieController") MediaDataController serieController,
+            @Qualifier("genericMediaDataController") MediaDataController genericMediaDataController,
+            TypeReferenceService typeReferenceService,
+            @Qualifier("gamesAndVNsAPI") MediaApi gamesAndVNsAPI,
+            @Qualifier("movieAPI") MediaApi movieAPI
+    ) {
+        this.mediaRepository = mediaRepository;
+        this.mediaCategoryService = mediaCategoryService;
+        this.serieController = serieController;
+        this.genericMediaDataController = genericMediaDataController;
+        this.typeReferenceService = typeReferenceService;
+        this.gamesAndVNsAPI = gamesAndVNsAPI;
+        this.movieAPI = movieAPI;
+    }
 
     /**
      * @see MediaService#save(MediaModel)
