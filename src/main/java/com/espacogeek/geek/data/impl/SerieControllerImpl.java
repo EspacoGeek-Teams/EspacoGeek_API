@@ -62,7 +62,7 @@ public class SerieControllerImpl extends GenericMediaDataControllerImpl {
         MediaCategoryModel mediaSerieCategory = mediaCategoryService.findById(SERIE_ID).orElseThrow(() -> new GenericException("Category not found"));
         MediaCategoryModel mediaAnimeCategory = mediaCategoryService.findById(ANIME_SERIE_ID).orElseThrow(() -> new GenericException("Category not found"));
         MediaCategoryModel mediaUndefinedCategory = mediaCategoryService.findById(UNDEFINED_MEDIA_ID).orElseThrow(() -> new GenericException("Category not found"));
-        ExecutorService executorService = Executors.newFixedThreadPool(400);
+        ExecutorService executorService = Executors.newFixedThreadPool(5);
 
         try {
             var jsonArrayDailyExport = tvSeriesApi.updateTitles();
