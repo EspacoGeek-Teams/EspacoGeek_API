@@ -61,7 +61,7 @@ public class MovieControllerImpl extends GenericMediaDataControllerImpl {
         MediaCategoryModel mediaMovieCategory = mediaCategoryService.findById(MOVIE_ID).orElseThrow(() -> new GenericException("Category not found"));
         MediaCategoryModel mediaAnimeCategory = mediaCategoryService.findById(ANIME_MOVIE_ID).orElseThrow(() -> new GenericException("Category not found"));
         MediaCategoryModel mediaUndefinedCategory = mediaCategoryService.findById(UNDEFINED_MEDIA_ID).orElseThrow(() -> new GenericException("Category not found"));
-        ExecutorService executorService = Executors.newFixedThreadPool(400);
+        ExecutorService executorService = Executors.newFixedThreadPool(5);
 
         try {
             var jsonArrayDailyExport = movieAPI.updateTitles();
