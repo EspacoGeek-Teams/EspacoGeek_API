@@ -97,7 +97,7 @@ public class MovieControllerImpl extends GenericMediaDataControllerImpl {
                         externalReference.setReference(json.get("id").toString());
                         var externalReferenceExisted = externalReferenceService.findByReferenceAndType(externalReference.getReference(), typeReference);
 
-                        if (!externalReferenceExisted.isPresent()) {
+                        if (externalReferenceExisted.isEmpty()) {
                             boolean isAnime = false;
                             boolean isUndefined = false;
                             try {
@@ -148,5 +148,10 @@ public class MovieControllerImpl extends GenericMediaDataControllerImpl {
     @Override
     public MediaModel updateAllInformation(MediaModel media, MediaModel result) {
         return super.updateAllInformation(media, result, this.typeReference, this.movieAPI);
+    }
+
+    // Spring Shell
+    public void updateMoviesNow() {
+        updateMovies();
     }
 }

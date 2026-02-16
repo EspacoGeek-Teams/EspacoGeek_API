@@ -81,7 +81,7 @@ public class SerieControllerImpl extends GenericMediaDataControllerImpl {
                         externalReference.setReference(json.get("id").toString());
                         var externalReferenceExisted = externalReferenceService.findByReferenceAndType(externalReference.getReference(), typeReference);
 
-                        if (!externalReferenceExisted.isPresent()) {
+                        if (externalReferenceExisted.isEmpty()) {
                             boolean isAnime = false;
                             boolean isUndefined = false;
                             try {
@@ -134,5 +134,10 @@ public class SerieControllerImpl extends GenericMediaDataControllerImpl {
     @Override
     public MediaModel updateArtworks(MediaModel media, MediaModel result) {
         return super.updateArtworks(media, result, this.typeReference, this.tvSeriesApi);
+    }
+
+    // Spring Shell
+    public void updateTvSeriesNow() {
+        updateTvSeries();
     }
 }
