@@ -51,47 +51,6 @@ class VisualNovelQueryTest {
     @MockitoBean
     private MediaCategoryService mediaCategoryService;
 
-//    @Test
-//    void vn_ByName_ShouldReturnMediaPage() {
-//        // Given
-//        MediaModel vn1 = new MediaModel();
-//        vn1.setId(1);
-//        vn1.setName("Steins;Gate");
-//
-//        MediaModel vn2 = new MediaModel();
-//        vn2.setId(2);
-//        vn2.setName("Steins;Gate 0");
-//
-//        TypeReferenceModel typeRef = new TypeReferenceModel();
-//        MediaCategoryModel category = new MediaCategoryModel();
-//
-//        when(typeReferenceService.findById(MediaDataController.IGDB_ID)).thenReturn(Optional.of(typeRef));
-//        when(mediaCategoryService.findById(MediaDataController.VN_ID)).thenReturn(Optional.of(category));
-//        when(genericMediaDataController.searchMedia(anyString(), any(), any(), any()))
-//                .thenReturn(Arrays.asList(vn1, vn2));
-//
-//        // When & Then
-//        graphQlTester.document("""
-//                query {
-//                    vn(name: "Steins") {
-//                        totalPages
-//                        totalElements
-//                        content {
-//                            id
-//                            name
-//                        }
-//                    }
-//                }
-//                """)
-//                .execute()
-//                .path("vn")
-//                .entity(MediaPage.class)
-//                .satisfies(result -> {
-//                    assertThat(result.getContent()).hasSize(2);
-//                    assertThat(result.getTotalElements()).isEqualTo(2);
-//                });
-//    }
-
     @Test
     void vn_NoParameters_ShouldReturnEmptyPage() {
         // When & Then

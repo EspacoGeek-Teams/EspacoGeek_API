@@ -2,6 +2,7 @@ package com.espacogeek.geek.controllers;
 
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
@@ -29,24 +30,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Controller
+@RequiredArgsConstructor
 public class UserController {
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private JwtConfig jwtConfig;
-
-    @Autowired
-    private JwtTokenService jwtTokenService;
-
-    @Autowired
-    private TokenUtils tokenUtils;
-
-    @Autowired
-    private EmailService emailService;
-
-    @Autowired
-    private EmailVerificationService emailVerificationService;
+    private final UserService userService;
+    private final JwtConfig jwtConfig;
+    private final JwtTokenService jwtTokenService;
+    private final TokenUtils tokenUtils;
+    private final EmailService emailService;
+    private final EmailVerificationService emailVerificationService;
 
     private static final Logger log = LoggerFactory.getLogger(UserController.class);
 

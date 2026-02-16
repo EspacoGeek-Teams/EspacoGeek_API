@@ -12,23 +12,49 @@ import com.espacogeek.geek.models.SeasonModel;
 import com.espacogeek.geek.models.TypeReferenceModel;
 
 import jakarta.annotation.Nullable;
+import lombok.Getter;
 
 public interface MediaDataController {
-    // External references
-    public static final int TMDB_ID = 1;
-    public static final int TVDB_ID = 2;
-    public static final int IMDB_ID = 3;
-    public static final int IGDB_ID = 4;
-    public static final int YT_ID = 5;
 
-    // Media Type references
-    public static final int SERIE_ID = 1;
-    public static final int GAME_ID = 2;
-    public static final int VN_ID = 3;
-    public static final int MOVIE_ID = 4;
-    public static final int ANIME_SERIE_ID = 5;
-    public static final int UNDEFINED_MEDIA_ID = 6;
-    public static final int ANIME_MOVIE_ID = 7;
+    /**
+     * This enum is used to define the type of external reference.
+     */
+    @Getter
+    enum ExternalReferenceType {
+        TMDB(1),
+        TVDB(2),
+        IMDB(3),
+        IGDB(4),
+        YT(5);
+
+        private final int id;
+
+        ExternalReferenceType(int id) {
+            this.id = id;
+        }
+
+    }
+
+    /**
+     * This enum is used to define the type of media.
+     * see randomArtwork
+     */
+    @Getter
+    enum MediaType {
+        SERIE(1),
+        GAME(2),
+        VN(3),
+        MOVIE(4),
+        ANIME_SERIE(5),
+        UNDEFINED_MEDIA(6),
+        ANIME_MOVIE(7);
+
+        private final int id;
+
+        MediaType(int id) {
+            this.id = id;
+        }
+    }
 
     /**
      * This method update all information from provide <code>MediaModel</code>.
@@ -40,47 +66,47 @@ public interface MediaDataController {
      * <p>
      * @return <code>MediaModel</code> object with updated information about the provide Media.
      */
-    default public MediaModel updateAllInformation(MediaModel media, @Nullable MediaModel result, TypeReferenceModel typeReference, MediaApi mediaApi) {
+    default MediaModel updateAllInformation(MediaModel media, @Nullable MediaModel result, TypeReferenceModel typeReference, MediaApi mediaApi) {
         throw new UnsupportedOperationException();
     }
 
-    default public MediaModel updateAllInformation(MediaModel media, @Nullable MediaModel result) {
+    default MediaModel updateAllInformation(MediaModel media, @Nullable MediaModel result) {
         throw new UnsupportedOperationException();
     }
 
-    default public MediaModel updateArtworks(MediaModel media, @Nullable MediaModel result, TypeReferenceModel typeReference, MediaApi mediaApi) {
+    default MediaModel updateArtworks(MediaModel media, @Nullable MediaModel result, TypeReferenceModel typeReference, MediaApi mediaApi) {
         throw new UnsupportedOperationException();
     }
 
-    default public MediaModel updateArtworks(MediaModel media, @Nullable MediaModel result) {
+    default MediaModel updateArtworks(MediaModel media, @Nullable MediaModel result) {
         throw new UnsupportedOperationException();
     }
 
-    default public List<AlternativeTitleModel> updateAlternativeTitles(MediaModel media, @Nullable MediaModel result, TypeReferenceModel typeReference, MediaApi mediaApi) {
+    default List<AlternativeTitleModel> updateAlternativeTitles(MediaModel media, @Nullable MediaModel result, TypeReferenceModel typeReference, MediaApi mediaApi) {
         throw new UnsupportedOperationException();
     }
 
-    default public List<ExternalReferenceModel> updateExternalReferences(MediaModel media, @Nullable MediaModel result, TypeReferenceModel typeReference, MediaApi mediaApi) {
+    default List<ExternalReferenceModel> updateExternalReferences(MediaModel media, @Nullable MediaModel result, TypeReferenceModel typeReference, MediaApi mediaApi) {
         throw new UnsupportedOperationException();
     }
 
-    default public List<GenreModel> updateGenres(MediaModel media, @Nullable MediaModel result, TypeReferenceModel typeReference, MediaApi mediaApi) {
+    default List<GenreModel> updateGenres(MediaModel media, @Nullable MediaModel result, TypeReferenceModel typeReference, MediaApi mediaApi) {
         throw new UnsupportedOperationException();
     }
 
-    default public List<SeasonModel> updateSeason(MediaModel media, @Nullable MediaModel result, TypeReferenceModel typeReference, MediaApi mediaApi) {
+    default List<SeasonModel> updateSeason(MediaModel media, @Nullable MediaModel result, TypeReferenceModel typeReference, MediaApi mediaApi) {
         throw new UnsupportedOperationException();
     }
 
-    default public List<MediaModel> searchMedia(String search, MediaApi mediaApi, TypeReferenceModel typeReference, MediaCategoryModel mediaCategory) {
+    default List<MediaModel> searchMedia(String search, MediaApi mediaApi, TypeReferenceModel typeReference, MediaCategoryModel mediaCategory) {
         throw new UnsupportedOperationException();
     }
 
-    default public MediaModel updateBasicAttributes(MediaModel media, @Nullable MediaModel result, TypeReferenceModel typeReference, MediaApi mediaApi) {
+    default MediaModel updateBasicAttributes(MediaModel media, @Nullable MediaModel result, TypeReferenceModel typeReference, MediaApi mediaApi) {
         throw new UnsupportedOperationException();
     }
 
-    default public MediaModel createMediaIfNotExistAndIfExistReturnIt(MediaModel media, TypeReferenceModel typeReference) {
+    default MediaModel createMediaIfNotExistAndIfExistReturnIt(MediaModel media, TypeReferenceModel typeReference) {
         throw new UnsupportedOperationException();
     }
 }

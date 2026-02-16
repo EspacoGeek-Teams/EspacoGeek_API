@@ -7,6 +7,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.SuperBuilder;
+import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,23 +32,19 @@ import jakarta.annotation.PostConstruct;
 
 @Component("movieController")
 @Qualifier("movieController")
+@Slf4j
+@RequiredArgsConstructor
 public class MovieControllerImpl extends GenericMediaDataControllerImpl {
-    @Autowired
-    private MediaApi movieAPI;
-    @Autowired
-    private MediaCategoryService mediaCategoryService;
-    @Autowired
-    private ExternalReferenceService externalReferenceService;
-    @Autowired
-    private TypeReferenceService typeReferenceService;
+    private final MediaApi movieAPI;
+    private final MediaCategoryService mediaCategoryService;
+    private final ExternalReferenceService externalReferenceService;
+    private final TypeReferenceService typeReferenceService;
 
     private TypeReferenceModel typeReference;
 
-    private static final Logger log = LoggerFactory.getLogger(SerieControllerImpl.class);
-
     @PostConstruct
     private void init() {
-        this.typeReference = typeReferenceService.findById(TMDB_ID).orElseThrow(() -> new GenericException("Type Reference not found"));
+        this.typeReference = typeReferenceService.findById(ExternalReferenceType.TMDB.getId()).orElseThrow(() -> new GenericException("Type Reference not found"));
     }
 
     /**
@@ -54,16 +53,14 @@ public class MovieControllerImpl extends GenericMediaDataControllerImpl {
      * Every day at 10:00PM this function is executed.
      */
     @Scheduled(cron = "* * 22 * * *")
-    // @Scheduled(initialDelay = 1)
     private void updateMovies() {
         log.info("START TO UPDATE movie, AT {}", LocalDateTime.now());
 
-        MediaCategoryModel mediaMovieCategory = mediaCategoryService.findById(MOVIE_ID).orElseThrow(() -> new GenericException("Category not found"));
-        MediaCategoryModel mediaAnimeCategory = mediaCategoryService.findById(ANIME_MOVIE_ID).orElseThrow(() -> new GenericException("Category not found"));
-        MediaCategoryModel mediaUndefinedCategory = mediaCategoryService.findById(UNDEFINED_MEDIA_ID).orElseThrow(() -> new GenericException("Category not found"));
-        ExecutorService executorService = Executors.newFixedThreadPool(5);
+        MediaCategoryModel mediaMovieCategory = mediaCategoryService.findById(MediaType.MOVIE.getId()).orElseThrow(() -> new GenericException("Category not found"));
+        MediaCategoryModel mediaAnimeCategory = mediaCategoryService.findById(MediaType.ANIME_MOVIE.getId()).orElseThrow(() -> new GenericException("Category not found"));
+        MediaCategoryModel mediaUndefinedCategory = mediaCategoryService.findById(MediaType.UNDEFINED_MEDIA.getId()).orElseThrow(() -> new GenericException("Category not found"));
 
-        try {
+        try(ExecutorService executorService = Executors.newFixedThreadPool(4)) {
             var jsonArrayDailyExport = movieAPI.updateTitles();
             for (int i = 0; i < jsonArrayDailyExport.size(); i++) {
                 final int index = i;
@@ -120,7 +117,6 @@ public class MovieControllerImpl extends GenericMediaDataControllerImpl {
                 });
             }
             executorService.shutdown();
-            executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
 
             log.info("SUCCESS TO UPDATE movie, AT {}", LocalDateTime.now());
         } catch (Exception e) {

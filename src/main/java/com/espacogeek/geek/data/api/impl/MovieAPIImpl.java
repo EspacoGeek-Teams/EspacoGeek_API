@@ -3,10 +3,9 @@ package com.espacogeek.geek.data.api.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONArray;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
@@ -36,26 +35,23 @@ import info.movito.themoviedbapi.tools.TmdbException;
 import info.movito.themoviedbapi.tools.appendtoresponse.MovieAppendToResponse;
 import jakarta.annotation.PostConstruct;
 
+import static com.espacogeek.geek.data.api.MediaApi.ApiKey.TMDB_API_KEY_ID;
+
+@SuppressWarnings("OptionalGetWithoutIsPresent")
 @Component("movieAPI")
+@Slf4j
+@RequiredArgsConstructor
 public class MovieAPIImpl implements MediaApi {
-    private static final Logger log = LoggerFactory.getLogger(MovieAPIImpl.class);
     private TmdbMovies api;
 
-    @Autowired
-    private ApiKeyService apiKeyService;
-
-    @Autowired
-    private TypeReferenceService typeReferenceService;
-
-    @Autowired
-    private MediaCategoryService mediaCategoryService;
-
-    @Autowired
-    private GenreService genreService;
+    private final ApiKeyService apiKeyService;
+    private final TypeReferenceService typeReferenceService;
+    private final MediaCategoryService mediaCategoryService;
+    private final GenreService genreService;
 
     @PostConstruct
     private void init() {
-        this.api = new TmdbApi(this.apiKeyService.findById(TMDB_API_KEY_ID).get().getKey()).getMovies();
+        this.api = new TmdbApi(this.apiKeyService.findById(TMDB_API_KEY_ID.getId()).get().getKey()).getMovies();
     }
 
     /**
@@ -69,7 +65,7 @@ public class MovieAPIImpl implements MediaApi {
     }
 
         /**
-     * @see MediaApi#updateTitles(Integer)
+     * @see MediaApi#updateTitles(
      */
     @Retryable(maxAttempts = 2, backoff = @Backoff(delay = 2000), retryFor = com.espacogeek.geek.exception.RequestException.class)
     @Override
@@ -93,9 +89,9 @@ public class MovieAPIImpl implements MediaApi {
                 null,
                 movieDb.getRuntime(),
                 movieDb.getOverview(),
-                movieDb.getPosterPath() == null ? null : URL_IMAGE_TMDB + movieDb.getPosterPath(),
-                movieDb.getBackdropPath() == null ? null : URL_IMAGE_TMDB + movieDb.getBackdropPath(),
-                mediaCategoryService.findById(MediaDataController.MOVIE_ID).get(),
+                movieDb.getPosterPath() == null ? null : ExternalCDN.TMDB.getUrl() + movieDb.getPosterPath(),
+                movieDb.getBackdropPath() == null ? null : ExternalCDN.TMDB.getUrl() + movieDb.getBackdropPath(),
+                mediaCategoryService.findById(MediaDataController.MediaType.MOVIE.getId()).get(),
                 externalReferences,
                 null,
                 null,
@@ -111,7 +107,7 @@ public class MovieAPIImpl implements MediaApi {
         ExternalReferenceModel trailers = null;
 
         trailers = movieDb.getVideos().getResults().stream().filter(video -> video.getType().equals("Trailer"))
-                .findFirst().map(video -> new ExternalReferenceModel(null, video.getKey(), null, typeReferenceService.findById(MediaDataController.YT_ID).get()))
+                .findFirst().map(video -> new ExternalReferenceModel(null, video.getKey(), null, typeReferenceService.findById(MediaDataController.ExternalReferenceType.YT.getId()).get()))
                 .orElse(null);
 
         return trailers;
@@ -132,8 +128,8 @@ public class MovieAPIImpl implements MediaApi {
         }
         var media = new MediaModel();
 
-        media.setCover(rawArtwork.getPosters().isEmpty() ? "" : URL_IMAGE_TMDB + rawArtwork.getPosters().getFirst());
-        media.setBanner(rawArtwork.getBackdrops().isEmpty() ? "" : URL_IMAGE_TMDB + rawArtwork.getBackdrops().getFirst());
+        media.setCover(rawArtwork.getPosters().isEmpty() ? "" : ExternalCDN.TMDB.getUrl() + rawArtwork.getPosters().getFirst());
+        media.setBanner(rawArtwork.getBackdrops().isEmpty() ? "" : ExternalCDN.TMDB.getUrl() + rawArtwork.getBackdrops().getFirst());
 
         return media;
     }
@@ -197,10 +193,10 @@ public class MovieAPIImpl implements MediaApi {
     private List<ExternalReferenceModel> formatExternalReference(ExternalIds rawExternalReferences, Integer id) {
         var externalReferences = new ArrayList<ExternalReferenceModel>();
 
-        externalReferences.add(new ExternalReferenceModel(null, id.toString(), null, typeReferenceService.findById(MediaDataController.TMDB_ID).get()));
+        externalReferences.add(new ExternalReferenceModel(null, id.toString(), null, typeReferenceService.findById(MediaDataController.ExternalReferenceType.TMDB.getId()).get()));
 
         if (rawExternalReferences != null && rawExternalReferences.getImdbId() != null) {
-            externalReferences.add(new ExternalReferenceModel(null, rawExternalReferences.getImdbId(), null, typeReferenceService.findById(MediaDataController.IMDB_ID).get()));
+            externalReferences.add(new ExternalReferenceModel(null, rawExternalReferences.getImdbId(), null, typeReferenceService.findById(MediaDataController.ExternalReferenceType.IMDB.getId()).get()));
         }
 
         return externalReferences;

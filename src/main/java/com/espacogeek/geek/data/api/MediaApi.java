@@ -2,6 +2,7 @@ package com.espacogeek.geek.data.api;
 
 import java.util.List;
 
+import lombok.Getter;
 import org.json.simple.JSONArray;
 
 import com.espacogeek.geek.models.AlternativeTitleModel;
@@ -14,54 +15,73 @@ import com.espacogeek.geek.models.SeasonModel;
 import info.movito.themoviedbapi.model.keywords.Keyword;
 
 public interface MediaApi {
-    public final static String URL_IMAGE_TMDB = "https://image.tmdb.org/t/p/original";
-    public final static Integer TMDB_API_KEY_ID = 1;
-    public final static Integer IGDB_CLIENT_ID = 2;
-    public final static Integer IGDB_TOKEN = 3;
-    public final static Integer IGDB_CLIENT_SECRET = 4;
-    public final static Integer NINJA_QUOTE_API_KEY = 5;
+    @Getter
+    enum ExternalCDN {
+        TMDB("https://image.tmdb.org/t/p/original");
 
-    default public JSONArray updateTitles() {
+        private final String url;
+
+        ExternalCDN(String url) {
+            this.url = url;
+        }
+    }
+
+    @Getter
+    enum ApiKey {
+        TMDB_API_KEY_ID(1),
+        IGDB_CLIENT_ID(2),
+        IGDB_TOKEN(3),
+        IGDB_CLIENT_SECRET(4),
+        NINJA_QUOTE_API_KEY(5);
+
+        private final Integer id;
+
+        ApiKey(Integer id) {
+            this.id = id;
+        }
+    }
+
+    default JSONArray updateTitles() {
         throw new UnsupportedOperationException();
     }
 
-    default public MediaModel getDetails(Integer id) {
+    default MediaModel getDetails(Integer id) {
         throw new UnsupportedOperationException();
     }
 
-    default public MediaModel getArtwork(Integer id) {
+    default MediaModel getArtwork(Integer id) {
         throw new UnsupportedOperationException();
     }
 
-    default public MediaModel getUpdateBasicAttributes(Integer id) {
+    default MediaModel getUpdateBasicAttributes(Integer id) {
         throw new UnsupportedOperationException();
     }
 
-    default public List<Keyword> getKeyword(Integer id) {
+    default List<Keyword> getKeyword(Integer id) {
         throw new UnsupportedOperationException();
     }
 
-    default public List<AlternativeTitleModel> getAlternativeTitles(Integer id) {
+    default List<AlternativeTitleModel> getAlternativeTitles(Integer id) {
         throw new UnsupportedOperationException();
     }
 
-    default public List<ExternalReferenceModel> getExternalReference(Integer id) {
+    default List<ExternalReferenceModel> getExternalReference(Integer id) {
         throw new UnsupportedOperationException();
     }
 
-    default public List<GenreModel> getGenre(Integer id) {
+    default List<GenreModel> getGenre(Integer id) {
         throw new UnsupportedOperationException();
     }
 
-    default public List<SeasonModel> getSeason(Integer id) {
+    default List<SeasonModel> getSeason(Integer id) {
         throw new UnsupportedOperationException();
     }
 
-    default public List<MediaModel> doSearch(String search) {
+    default List<MediaModel> doSearch(String search) {
         throw new UnsupportedOperationException();
     }
 
-    default public List<MediaModel> doSearch(String search, MediaCategoryModel mediaCategoryModel) {
+    default List<MediaModel> doSearch(String search, MediaCategoryModel mediaCategoryModel) {
         throw new UnsupportedOperationException();
     }
 }

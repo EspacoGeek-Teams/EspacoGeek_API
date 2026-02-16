@@ -8,6 +8,10 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Date;
 
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -37,17 +41,14 @@ import jakarta.persistence.OneToMany;
 
 @Component("genericMediaDataController")
 @Qualifier("genericMediaDataController")
+@AllArgsConstructor
+@NoArgsConstructor
 public class GenericMediaDataControllerImpl implements MediaDataController {
-
-    @Autowired @Lazy
+    @Lazy
     protected MediaService mediaService;
-    @Autowired
     private GenreService genreService;
-    @Autowired
     private AlternativeTitlesService alternativeTitlesService;
-    @Autowired
     private ExternalReferenceService externalReferenceService;
-    @Autowired
     private SeasonService seasonService;
 
     public GenericMediaDataControllerImpl getInstance() {
@@ -62,7 +63,7 @@ public class GenericMediaDataControllerImpl implements MediaDataController {
         if (result == null) {
             var id = media.getExternalReference().stream()
                         .filter(externalReference -> externalReference.getTypeReference().getId().equals(typeReference.getId()))
-                        .map(externalReference -> externalReference.getReference())
+                        .map(ExternalReferenceModel::getReference)
                         .findFirst()
                         .orElseThrow(() -> new IllegalArgumentException("Reference not found for the given typeReference"));
             result = mediaApi.getDetails(Integer.valueOf(id));

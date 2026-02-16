@@ -8,6 +8,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,23 +32,19 @@ import jakarta.annotation.PostConstruct;
 
 @Component("serieController")
 @Qualifier("serieController")
+@Slf4j
+@RequiredArgsConstructor
 public class SerieControllerImpl extends GenericMediaDataControllerImpl {
-    @Autowired
-    private MediaApi tvSeriesApi;
-    @Autowired
-    private MediaCategoryService mediaCategoryService;
-    @Autowired
-    private ExternalReferenceService externalReferenceService;
-    @Autowired
-    private TypeReferenceService typeReferenceService;
+    private final MediaApi tvSeriesApi;
+    private final MediaCategoryService mediaCategoryService;
+    private final ExternalReferenceService externalReferenceService;
+    private final TypeReferenceService typeReferenceService;
 
     private TypeReferenceModel typeReference;
 
-    private static final Logger log = LoggerFactory.getLogger(SerieControllerImpl.class);
-
     @PostConstruct
     private void init() {
-        this.typeReference = typeReferenceService.findById(TMDB_ID).orElseThrow(() -> new GenericException("Type Reference not found"));
+        this.typeReference = typeReferenceService.findById(ExternalReferenceType.TMDB.getId()).orElseThrow(() -> new GenericException("Type Reference not found"));
     }
 
     /**
@@ -55,16 +53,14 @@ public class SerieControllerImpl extends GenericMediaDataControllerImpl {
      * Every day at 9:00AM this function is executed.
      */
     @Scheduled(cron = "* * 12 * * *")
-    // @Scheduled(initialDelay = 1)
     private void updateTvSeries() {
         log.info("START TO UPDATE TV SERIES, AT {}", LocalDateTime.now());
 
-        MediaCategoryModel mediaSerieCategory = mediaCategoryService.findById(SERIE_ID).orElseThrow(() -> new GenericException("Category not found"));
-        MediaCategoryModel mediaAnimeCategory = mediaCategoryService.findById(ANIME_SERIE_ID).orElseThrow(() -> new GenericException("Category not found"));
-        MediaCategoryModel mediaUndefinedCategory = mediaCategoryService.findById(UNDEFINED_MEDIA_ID).orElseThrow(() -> new GenericException("Category not found"));
-        ExecutorService executorService = Executors.newFixedThreadPool(5);
+        MediaCategoryModel mediaSerieCategory = mediaCategoryService.findById(MediaType.SERIE.getId()).orElseThrow(() -> new GenericException("Category not found"));
+        MediaCategoryModel mediaAnimeCategory = mediaCategoryService.findById(MediaType.ANIME_SERIE.getId()).orElseThrow(() -> new GenericException("Category not found"));
+        MediaCategoryModel mediaUndefinedCategory = mediaCategoryService.findById(MediaType.UNDEFINED_MEDIA.getId()).orElseThrow(() -> new GenericException("Category not found"));
 
-        try {
+        try(ExecutorService executorService = Executors.newFixedThreadPool(4)) {
             var jsonArrayDailyExport = tvSeriesApi.updateTitles();
             for (int i = 0; i < jsonArrayDailyExport.size(); i++) {
                 final int index = i;
@@ -118,7 +114,6 @@ public class SerieControllerImpl extends GenericMediaDataControllerImpl {
                 });
             }
             executorService.shutdown();
-            executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
 
             log.info("SUCCESS TO UPDATE TV SERIES, AT {}", LocalDateTime.now());
         } catch (Exception e) {
