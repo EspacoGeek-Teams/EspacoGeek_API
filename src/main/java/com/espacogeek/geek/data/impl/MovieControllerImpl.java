@@ -5,16 +5,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
-import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.espacogeek.geek.data.api.MediaApi;
@@ -73,7 +68,6 @@ public class MovieControllerImpl extends GenericMediaDataControllerImpl {
      * <p>
      * Every day at 10:00PM this function is executed.
      */
-    @Scheduled(cron = "* * 22 * * *")
     private void updateMovies() {
         log.info("START TO UPDATE movie, AT {}", LocalDateTime.now());
 

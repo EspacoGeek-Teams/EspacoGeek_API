@@ -4,19 +4,13 @@ import java.time.LocalDateTime;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.espacogeek.geek.services.*;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.espacogeek.geek.data.api.MediaApi;
@@ -57,7 +51,6 @@ public class SerieControllerImpl extends GenericMediaDataControllerImpl {
      * <p>
      * Every day at 9:00AM this function is executed.
      */
-    @Scheduled(cron = "* * 12 * * *")
     private void updateTvSeries() {
         log.info("START TO UPDATE TV SERIES, AT {}", LocalDateTime.now());
 
