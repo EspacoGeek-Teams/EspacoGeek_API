@@ -8,9 +8,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.Map;
-import java.util.Arrays;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -19,8 +19,6 @@ import org.springframework.stereotype.Service;
 
 import com.espacogeek.geek.data.MediaDataController;
 import com.espacogeek.geek.data.api.MediaApi;
-import com.espacogeek.geek.data.api.impl.GamesAndVNsApiImpl;
-import com.espacogeek.geek.data.api.impl.MovieAPIImpl;
 import com.espacogeek.geek.models.ExternalReferenceModel;
 import com.espacogeek.geek.models.MediaModel;
 import com.espacogeek.geek.models.TypeReferenceModel;
@@ -40,39 +38,47 @@ import static com.espacogeek.geek.utils.TextUtils.capitalize;
 /**
  * A Implementation class of MediaService @see MediaService
  */
+@SuppressWarnings({"SpringQualifierCopyableLombok", "OptionalGetWithoutIsPresent", "unchecked"})
 @Service
 public class MediaServiceImpl implements MediaService {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(MediaServiceImpl.class);
 
-    @Autowired
     @SuppressWarnings("rawtypes")
-    private MediaRepository mediaRepository;
+    private final MediaRepository mediaRepository;
 
-    @Autowired
-    private MediaCategoryService mediaCategoryService;
+    private final MediaCategoryService mediaCategoryService;
 
-    @Autowired
     @Qualifier("serieController")
-    private MediaDataController serieController;
+    private final MediaDataController serieController;
 
-    @Autowired
     @Qualifier("genericMediaDataController")
-    private MediaDataController genericMediaDataController;
+    private final MediaDataController genericMediaDataController;
 
-    @Autowired
-    private TypeReferenceService typeReferenceService;
+    private final TypeReferenceService typeReferenceService;
 
-    @Autowired
     @Qualifier("gamesAndVNsAPI")
-    private MediaApi gamesAndVNsAPI;
+    private final MediaApi gamesAndVNsAPI;
 
-    @Autowired
     @Qualifier("movieAPI")
-    private MediaApi movieAPI;
+    private final MediaApi movieAPI;
 
-    @Autowired
-    @Qualifier("tvSeriesApi")
-    private MediaApi tvSeriesApi;
+    public MediaServiceImpl(
+            MediaRepository mediaRepository,
+            MediaCategoryService mediaCategoryService,
+            @Lazy @Qualifier("serieController") MediaDataController serieController,
+            @Qualifier("genericMediaDataController") MediaDataController genericMediaDataController,
+            TypeReferenceService typeReferenceService,
+            @Qualifier("gamesAndVNsAPI") MediaApi gamesAndVNsAPI,
+            @Qualifier("movieAPI") MediaApi movieAPI
+    ) {
+        this.mediaRepository = mediaRepository;
+        this.mediaCategoryService = mediaCategoryService;
+        this.serieController = serieController;
+        this.genericMediaDataController = genericMediaDataController;
+        this.typeReferenceService = typeReferenceService;
+        this.gamesAndVNsAPI = gamesAndVNsAPI;
+        this.movieAPI = movieAPI;
+    }
 
     /**
      * @see MediaService#save(MediaModel)
@@ -84,7 +90,7 @@ public class MediaServiceImpl implements MediaService {
     }
 
     /**
-     * @see MediaService#saveAll(List<MediaModel>)
+     * @see MediaService#saveAll(List)
      */
     @SuppressWarnings("unchecked")
     @Override
@@ -102,14 +108,13 @@ public class MediaServiceImpl implements MediaService {
         if (id != null) {
             results = (Page<MediaModel>) this.mediaRepository.findById(id).orElseGet(null);
         } else {
-            results = this.mediaRepository.findMediaByNameOrAlternativeTitleAndMediaCategory(name, name, mediaCategoryService.findById(MediaDataController.SERIE_ID).get().getId(), pageable);
+            results = this.mediaRepository.findMediaByNameOrAlternativeTitleAndMediaCategory(name, name, mediaCategoryService.findById(MediaDataController.MediaType.SERIE.getId()).get().getId(), pageable);
         }
         return mountMediaPage(results);
     }
 
     /**
-     * @see MediaService#findSerieByIdOrName(Integer, String, Map<String,
-     *      List<String>>, Pageable)
+     * @see MediaService#findSerieByIdOrName(Integer, String, Map, Pageable)
      */
     @SuppressWarnings("unchecked")
     @Override
@@ -121,7 +126,7 @@ public class MediaServiceImpl implements MediaService {
             Pageable safePageable = pageable != null ? pageable : Pageable.unpaged();
             results = new PageImpl<>(medias, safePageable, medias.size());
         } else {
-            results = mediaRepository.findMediaByNameOrAlternativeTitleAndMediaCategory(name, name, mediaCategoryService.findById(MediaDataController.SERIE_ID).get().getId(), requestedFields, pageable);
+            results = mediaRepository.findMediaByNameOrAlternativeTitleAndMediaCategory(name, name, mediaCategoryService.findById(MediaDataController.MediaType.SERIE.getId()).get().getId(), requestedFields, pageable);
         }
         return mountMediaPage(results);
     }
@@ -136,7 +141,7 @@ public class MediaServiceImpl implements MediaService {
         if (id != null) {
             results = (Page<MediaModel>) this.mediaRepository.findById(id).orElseGet(null);
         } else {
-            results = this.mediaRepository.findMediaByNameOrAlternativeTitleAndMediaCategory(name, name, mediaCategoryService.findById(MediaDataController.GAME_ID).get().getId(), pageable);
+            results = this.mediaRepository.findMediaByNameOrAlternativeTitleAndMediaCategory(name, name, mediaCategoryService.findById(MediaDataController.MediaType.GAME.getId()).get().getId(), pageable);
         }
         return mountMediaPage(results);
     }
@@ -148,7 +153,7 @@ public class MediaServiceImpl implements MediaService {
         if(id != null) {
             results = (Page<MediaModel>) this.mediaRepository.findById(id).orElseGet(null);
         } else {
-            results = this.mediaRepository.findMediaByNameOrAlternativeTitleAndMediaCategory(name, name, mediaCategoryService.findById(MediaDataController.VN_ID).get().getId(), pageable);
+            results = this.mediaRepository.findMediaByNameOrAlternativeTitleAndMediaCategory(name, name, mediaCategoryService.findById(MediaDataController.MediaType.VN.getId()).get().getId(), pageable);
         }
         return mountMediaPage(results);
     }
@@ -166,7 +171,7 @@ public class MediaServiceImpl implements MediaService {
     /**
      * @see MediaService#findByIdEager(Integer)
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "ResultOfMethodCallIgnored"})
     @Override
     @Transactional
     public Optional<MediaModel> findByIdEager(Integer id) {
@@ -192,7 +197,7 @@ public class MediaServiceImpl implements MediaService {
                     ((List<?>) fieldValue).size(); // This will initialize the collection
                 }
             } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-                e.printStackTrace();
+                log.error("Failed to initialize field {} for media id={}: {}", field.getName(), media.getId(), e.getMessage());
             }
         }
 
@@ -233,21 +238,17 @@ public class MediaServiceImpl implements MediaService {
                     continue;
 
                 MediaModel updated = media;
-                switch (categoryId) {
-                    case MediaDataController.GAME_ID:
-                    case MediaDataController.VN_ID:
-                        updated = MediaUtils
-                                .updateGenericMedia(
-                                        Arrays.asList(media),
-                                        genericMediaDataController,
-                                        typeReferenceService.findById(MediaDataController.IGDB_ID).orElseThrow(),
-                                        gamesAndVNsAPI)
-                                .getFirst();
-                        break;
-                    case MediaDataController.SERIE_ID:
-                        updated = MediaUtils.updateMedia(Arrays.asList(media), serieController).getFirst();
-                        break;
-                }
+                updated = switch (categoryId) {
+                    case 2, 3 -> MediaUtils
+                        .updateGenericMedia(
+                            List.of(media),
+                            genericMediaDataController,
+                            typeReferenceService.findById(MediaDataController.ExternalReferenceType.IGDB.getId()).orElseThrow(),
+                            gamesAndVNsAPI)
+                        .getFirst();
+                    case 1 -> MediaUtils.updateMedia(List.of(media), serieController).getFirst();
+                    default -> updated;
+                };
 
                 if (updated != null && updated.getBanner() != null && !updated.getBanner().isEmpty()) {
                     return Optional.of(updated.getBanner());
@@ -262,7 +263,7 @@ public class MediaServiceImpl implements MediaService {
     }
 
     /**
-     * @see MediaService#findMovieByIdOrName(Integer, String, Map<String, List<String>>, Pageable)
+     * @see MediaService#findMovieByIdOrName(Integer, String, Pageable)
      */
     @Override
     public MediaPage findMovieByIdOrName(Integer id, String name, Map<String, List<String>> requestedFields, Pageable pageable) {
@@ -272,7 +273,7 @@ public class MediaServiceImpl implements MediaService {
             medias.add((MediaModel) this.mediaRepository.findById(id).orElseGet(null));
             results = new PageImpl<>(medias, pageable, medias.size());
         } else {
-            results = mediaRepository.findMediaByNameOrAlternativeTitleAndMediaCategory(name, name, mediaCategoryService.findById(MediaDataController.MOVIE_ID).get().getId(), pageable);
+            results = mediaRepository.findMediaByNameOrAlternativeTitleAndMediaCategory(name, name, mediaCategoryService.findById(MediaDataController.MediaType.MOVIE.getId()).get().getId(), pageable);
         }
         return mountMediaPage(results);
     }
@@ -287,7 +288,7 @@ public class MediaServiceImpl implements MediaService {
         if (id != null) {
             results = (Page<MediaModel>) this.mediaRepository.findById(id).orElseGet(null);
         } else {
-            results = (Page<MediaModel>) this.mediaRepository.findMediaByNameOrAlternativeTitleAndMediaCategory(name, name, mediaCategoryService.findById(MediaDataController.ANIME_SERIE_ID).get().getId(), pageable);
+            results = (Page<MediaModel>) this.mediaRepository.findMediaByNameOrAlternativeTitleAndMediaCategory(name, name, mediaCategoryService.findById(MediaDataController.MediaType.ANIME_SERIE.getId()).get().getId(), pageable);
         }
         return mountMediaPage(results);
     }
@@ -302,25 +303,21 @@ public class MediaServiceImpl implements MediaService {
         if (id != null) {
             results = (Page<MediaModel>) this.mediaRepository.findById(id).orElseGet(null);
         } else {
-            results = (Page<MediaModel>) this.mediaRepository.findMediaByNameOrAlternativeTitleAndMediaCategory(name, name, mediaCategoryService.findById(MediaDataController.MOVIE_ID).get().getId(), pageable);
+            results = (Page<MediaModel>) this.mediaRepository.findMediaByNameOrAlternativeTitleAndMediaCategory(name, name, mediaCategoryService.findById(MediaDataController.MediaType.MOVIE.getId()).get().getId(), pageable);
         }
         return mountMediaPage(results);
     }
 
     private MediaModel update(MediaModel media) {
-        switch (media.getMediaCategory().getId()) {
-            case MediaDataController.SERIE_ID:
-                return MediaUtils.updateMedia(Arrays.asList(media), serieController).getFirst();
-            case MediaDataController.MOVIE_ID:
-            case MediaDataController.ANIME_MOVIE_ID:
-            case MediaDataController.ANIME_SERIE_ID:
-                return MediaUtils.updateGenericMedia(Arrays.asList(media), genericMediaDataController, typeReferenceService.findById(MediaDataController.TMDB_ID).get(), movieAPI).getFirst();
-            case MediaDataController.GAME_ID:
-            case MediaDataController.VN_ID:
-                return MediaUtils.updateGenericMedia(Arrays.asList(media), genericMediaDataController, typeReferenceService.findById(MediaDataController.IGDB_ID).get(), gamesAndVNsAPI).getFirst();
-        }
+        return switch (media.getMediaCategory().getId()) {
+            case 1 -> MediaUtils.updateMedia(List.of(media), serieController).getFirst();
+            case 4, 7, 5 ->
+                MediaUtils.updateGenericMedia(List.of(media), genericMediaDataController, typeReferenceService.findById(MediaDataController.ExternalReferenceType.TMDB.getId()).get(), movieAPI).getFirst();
+            case 2, 3 ->
+                MediaUtils.updateGenericMedia(List.of(media), genericMediaDataController, typeReferenceService.findById(MediaDataController.ExternalReferenceType.IGDB.getId()).get(), gamesAndVNsAPI).getFirst();
+            default -> media;
+        };
 
-        return media;
     }
 
     private MediaPage mountMediaPage(Page<MediaModel> medias) {
@@ -334,15 +331,15 @@ public class MediaServiceImpl implements MediaService {
         var mediasList = medias.getContent();
         for (MediaModel mediaModel : mediasList) {
             switch (mediaModel.getMediaCategory().getId()) {
-                case MediaDataController.ANIME_SERIE_ID:
-                case MediaDataController.SERIE_ID:
+                case 5:
+                case 1:
                     serieController.updateArtworks(mediaModel, null);
-                case MediaDataController.ANIME_MOVIE_ID:
-                case MediaDataController.MOVIE_ID:
-                    genericMediaDataController.updateArtworks(mediaModel, null, typeReferenceService.findById(MediaDataController.TMDB_ID).get(), movieAPI);
-                case MediaDataController.GAME_ID:
-                case MediaDataController.VN_ID:
-                    genericMediaDataController.updateArtworks(mediaModel, null, typeReferenceService.findById(MediaDataController.IGDB_ID).get(), gamesAndVNsAPI);
+                case 7:
+                case 4:
+                    genericMediaDataController.updateArtworks(mediaModel, null, typeReferenceService.findById(MediaDataController.ExternalReferenceType.TMDB.getId()).get(), movieAPI);
+                case 2:
+                case 3:
+                    genericMediaDataController.updateArtworks(mediaModel, null, typeReferenceService.findById(MediaDataController.ExternalReferenceType.IGDB.getId()).get(), gamesAndVNsAPI);
             }
         }
 

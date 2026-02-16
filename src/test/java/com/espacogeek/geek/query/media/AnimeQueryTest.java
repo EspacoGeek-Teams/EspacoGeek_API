@@ -48,54 +48,6 @@ public class AnimeQueryTest {
     @MockitoBean
     private MediaCategoryService mediaCategoryService;
 
-//    @SuppressWarnings("null")
-//    @Test
-//    void anime_ByName_ShouldReturnMediaPage() {
-//        // Given
-//        MediaModel media1 = new MediaModel();
-//        media1.setId(1);
-//        media1.setName("Your Lie in April");
-//
-//        MediaModel media2 = new MediaModel();
-//        media2.setId(2);
-//        media2.setName("Naruto");
-//
-//        Page<MediaModel> page = new PageImpl<>(Arrays.asList(media1, media2));
-//
-//        MediaPage response = new MediaPage();
-//
-//        response.setTotalPages(page.getTotalPages());
-//        response.setTotalElements(page.getTotalElements());
-//        response.setNumber(page.getNumber());
-//        response.setSize(page.getSize());
-//        response.setContent(MediaSimplefied.fromMediaModelList(page.getContent()));
-//
-//        when(mediaService.findAnimeByIdOrName(any(), anyString(), any())).thenReturn(response);
-//
-//        // When & Then
-//        graphQlTester.document("""
-//                query {
-//                    anime(name: "Your Lie in April") {
-//                        totalPages
-//                        totalElements
-//                        number
-//                        size
-//                        content {
-//                            id
-//                            name
-//                        }
-//                    }
-//                }
-//                """)
-//                .execute()
-//                .path("anime")
-//                .entity(MediaPage.class)
-//                .satisfies(result -> {
-//                    assertThat(result.getContent()).hasSize(2);
-//                    assertThat(result.getTotalElements()).isEqualTo(2);
-//                });
-//    }
-
     @Test
     void anime_NoParameters_ShouldReturnEmptyPage() {
         // When & Then

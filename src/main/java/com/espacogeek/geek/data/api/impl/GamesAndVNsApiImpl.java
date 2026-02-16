@@ -1,10 +1,10 @@
 package com.espacogeek.geek.data.api.impl;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
@@ -33,29 +33,29 @@ import jakarta.annotation.PostConstruct;
 import proto.Game;
 import proto.Search;
 
-@Component("gamesAndVNsAPI")
-public class GamesAndVNsApiImpl implements MediaApi {
+import static com.espacogeek.geek.data.api.MediaApi.ApiKey.*;
 
-    @Autowired
-    private ApiKeyService apiKeyService;
+@Component("gamesAndVNsAPI")
+@RequiredArgsConstructor
+@Slf4j
+public class GamesAndVNsApiImpl implements MediaApi {
+    private final ApiKeyService apiKeyService;
     private IGDBWrapper wrapper;
     private TypeReferenceModel typeReference;
-    @Autowired
-    private TypeReferenceService typeReferenceService;
-    @Autowired
-    private MediaCategoryService mediaCategoryService;
+    private final TypeReferenceService typeReferenceService;
+    private final MediaCategoryService mediaCategoryService;
     private MediaCategoryModel category;
     private final static String VN_ID_IGDB = "34"; // VN Genre ID in IGDB
-    @Autowired
-    private GenreService genreService;
+    private final GenreService genreService;
 
     private void newToken() {
         var tAuth = TwitchAuthenticator.INSTANCE;
-        var clientId = apiKeyService.findById(IGDB_CLIENT_ID).orElseThrow().getKey();
-        var clientSecrete = apiKeyService.findById(IGDB_CLIENT_SECRET).orElseThrow().getKey();
+        var clientId = apiKeyService.findById(IGDB_CLIENT_ID.getId()).orElseThrow().getKey();
+        var clientSecrete = apiKeyService.findById(IGDB_CLIENT_SECRET.getId()).orElseThrow().getKey();
         var token = tAuth.requestTwitchToken(clientId, clientSecrete);
-        var tokenId = apiKeyService.findById(IGDB_TOKEN).orElseThrow();
+        var tokenId = apiKeyService.findById(IGDB_TOKEN.getId()).orElseThrow();
 
+        assert token != null;
         if (!token.getAccess_token().equals(tokenId.getKey())) {
             tokenId.setKey(token.getAccess_token());
             apiKeyService.save(tokenId);
@@ -66,14 +66,14 @@ public class GamesAndVNsApiImpl implements MediaApi {
 
     @PostConstruct
     private void init() {
-        var tokenId = apiKeyService.findById(IGDB_TOKEN).orElseThrow();
-        var clientId = apiKeyService.findById(IGDB_CLIENT_ID).orElseThrow().getKey();
+        var tokenId = apiKeyService.findById(IGDB_TOKEN.getId()).orElseThrow();
+        var clientId = apiKeyService.findById(IGDB_CLIENT_ID.getId()).orElseThrow().getKey();
 
         wrapper = IGDBWrapper.INSTANCE;
         wrapper.setCredentials(clientId, tokenId.getKey());
 
-        typeReference = typeReferenceService.findById(MediaDataController.IGDB_ID).orElseThrow();
-        category = mediaCategoryService.findById(MediaDataController.GAME_ID).orElseThrow();
+        typeReference = typeReferenceService.findById(MediaDataController.ExternalReferenceType.IGDB.getId()).orElseThrow();
+        category = mediaCategoryService.findById(MediaDataController.MediaType.GAME.getId()).orElseThrow();
     }
 
     @Override
@@ -86,7 +86,7 @@ public class GamesAndVNsApiImpl implements MediaApi {
             var searchGames = ProtoRequestKt.games(wrapper, apicalypse);
 
             for (Game result : searchGames) {
-                if ((long) result.getId() != (long) 0l) {
+                if ((long) result.getId() != (long) 0L) {
                     var reference = new ExternalReferenceModel(null, String.valueOf(result.getId()), media, typeReference);
                     media = new MediaModel();
 
@@ -100,7 +100,7 @@ public class GamesAndVNsApiImpl implements MediaApi {
                     media.setName(result.getName());
 
                     media.setCover(
-                            !"".equals(result.getCover().getImageId())
+                        !result.getCover().getImageId().isEmpty()
                                     ? ImageBuilderKt.imageBuilder(result.getCover().getImageId(),
                                             ImageSize.COVER_BIG, ImageType.PNG)
                                     : null);
@@ -110,16 +110,17 @@ public class GamesAndVNsApiImpl implements MediaApi {
 
                     var alternativeTitles = new ArrayList<AlternativeTitleModel>();
                     for (proto.AlternativeName title : result.getAlternativeNamesList()) {
-                        if (!title.getName().equals("")) alternativeTitles.add(new AlternativeTitleModel(null, title.getName(), media));
+                        if (!title.getName().isEmpty()) alternativeTitles.add(new AlternativeTitleModel(null, title.getName(), media));
                     }
                     media.setAlternativeTitles(alternativeTitles);
-                    media.setExternalReference(new ArrayList<>(Arrays.asList(reference)));
+                    media.setExternalReference(new ArrayList<>(List.of(reference)));
                     media.setMediaCategory(category);
                 }
             }
 
         } catch (RequestException e) {
             newToken();
+            log.error("Error while fetching details for media with id {}: {}", id, e.getMessage());
             throw new com.espacogeek.geek.exception.RequestException();
         }
         return media;
@@ -128,20 +129,20 @@ public class GamesAndVNsApiImpl implements MediaApi {
     @Override
     @Retryable(maxAttempts = 2, backoff = @Backoff(delay = 2000), retryFor = com.espacogeek.geek.exception.RequestException.class)
     public List<MediaModel> doSearch(String search, MediaCategoryModel mediaCategoryModel) {
-        var apicalypse = new APICalypse().search(search).fields("game.age_ratings, game.aggregated_rating, game.alternative_names.name, game.artworks.image_id, game.cover.image_id, game.name").where("game.genres " + (mediaCategoryModel.getId() == MediaDataController.GAME_ID ? "!=" : "=") + " [" + VN_ID_IGDB + "]").limit(10);
+        var apicalypse = new APICalypse().search(search).fields("game.age_ratings, game.aggregated_rating, game.alternative_names.name, game.artworks.image_id, game.cover.image_id, game.name").where("game.genres " + (mediaCategoryModel.getId() == MediaDataController.MediaType.GAME.getId() ? "!=" : "=") + " [" + VN_ID_IGDB + "]").limit(10);
         List<MediaModel> medias = new ArrayList<>();
 
         try {
             var searchGames = ProtoRequestKt.search(wrapper, apicalypse);
 
             for (Search result : searchGames) {
-                if ((long) result.getGame().getId() != (long) 0l) {
+                if ((long) result.getGame().getId() != (long) 0L) {
                     var media = new MediaModel();
                     var reference = new ExternalReferenceModel(null, String.valueOf(result.getGame().getId()), media, typeReference);
 
                     media.setName(result.getGame().getName());
                     media.setCover(
-                            !"".equals(result.getGame().getCover().getImageId())
+                        !result.getGame().getCover().getImageId().isEmpty()
                                     ? ImageBuilderKt.imageBuilder(result.getGame().getCover().getImageId(),
                                             ImageSize.COVER_BIG, ImageType.PNG)
                                     : null);
@@ -151,10 +152,10 @@ public class GamesAndVNsApiImpl implements MediaApi {
 
                     var alternativeTitles = new ArrayList<AlternativeTitleModel>();
                     for (proto.AlternativeName title : result.getGame().getAlternativeNamesList()) {
-                        if (!title.getName().equals("")) alternativeTitles.add(new AlternativeTitleModel(null, title.getName(), media));
+                        if (!title.getName().isEmpty()) alternativeTitles.add(new AlternativeTitleModel(null, title.getName(), media));
                     }
                     media.setAlternativeTitles(alternativeTitles);
-                    media.setExternalReference(new ArrayList<>(Arrays.asList(reference)));
+                    media.setExternalReference(new ArrayList<>(List.of(reference)));
 
                     media.setMediaCategory(category);
 
@@ -164,9 +165,43 @@ public class GamesAndVNsApiImpl implements MediaApi {
 
         } catch (RequestException e) {
             newToken();
+            log.error("Error while searching for media with query {}: {}", search, e.getMessage());
             throw new com.espacogeek.geek.exception.RequestException();
         }
 
         return medias;
+    }
+
+    @Override
+    @Retryable(maxAttempts = 2, backoff = @Backoff(delay = 2000), retryFor = com.espacogeek.geek.exception.RequestException.class)
+    public MediaModel getArtwork(Integer id) {
+        var apicalypse = new APICalypse().fields("*, artworks.image_id, cover.image_id").where("id = " + id);
+        MediaModel media = null;
+
+        try {
+            var searchGames = ProtoRequestKt.games(wrapper, apicalypse);
+
+            for (Game result : searchGames) {
+                if ((long) result.getId() != (long) 0L) {
+                    media = new MediaModel();
+
+                    media.setCover(
+                        !result.getCover().getImageId().isEmpty()
+                                    ? ImageBuilderKt.imageBuilder(result.getCover().getImageId(),
+                                            ImageSize.COVER_BIG, ImageType.PNG)
+                                    : null);
+                    media.setBanner(result.getArtworksList().isEmpty() ? null
+                            : ImageBuilderKt.imageBuilder(result.getArtworksList().getFirst().getImageId(),
+                                    ImageSize.SCREENSHOT_HUGE, ImageType.PNG));
+                }
+            }
+
+        } catch (RequestException e) {
+            newToken();
+            log.error("Error while fetching artwork for media with id {}: {}", id, e.getMessage());
+            throw new com.espacogeek.geek.exception.RequestException();
+        }
+
+        return media;
     }
 }

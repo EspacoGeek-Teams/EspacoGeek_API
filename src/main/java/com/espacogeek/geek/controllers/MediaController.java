@@ -1,5 +1,6 @@
 package com.espacogeek.geek.controllers;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
@@ -19,9 +20,9 @@ import com.espacogeek.geek.exception.GenericException;
 import graphql.schema.DataFetchingEnvironment;
 
 @Controller
+@RequiredArgsConstructor
 public class MediaController {
-    @Autowired
-    private MediaService mediaService;
+    private final MediaService mediaService;
 
     /**
      * Finds a MediaModel object by its ID.

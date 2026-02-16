@@ -5,8 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import info.movito.themoviedbapi.model.core.NamedIdElement;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONArray;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
@@ -37,29 +39,24 @@ import info.movito.themoviedbapi.model.tv.series.TvSeriesDb;
 import info.movito.themoviedbapi.tools.TmdbException;
 import info.movito.themoviedbapi.tools.appendtoresponse.TvSeriesAppendToResponse;
 import jakarta.annotation.PostConstruct;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import static com.espacogeek.geek.data.api.MediaApi.ApiKey.TMDB_API_KEY_ID;
+
+@SuppressWarnings({"OptionalGetWithoutIsPresent", "DataFlowIssue"})
 @Component("tvSeriesApi")
+@RequiredArgsConstructor
+@Slf4j
 public class TvSeriesApiImpl implements MediaApi {
-    private static final Logger log = LoggerFactory.getLogger(TvSeriesApiImpl.class);
     private TmdbTvSeries api;
 
-    @Autowired
-    private ApiKeyService apiKeyService;
-
-    @Autowired
-    private MediaCategoryService mediaCategoryService;
-
-    @Autowired
-    private TypeReferenceService typeReferenceService;
-
-    @Autowired
-    private GenreService genreService;
+    private final ApiKeyService apiKeyService;
+    private final MediaCategoryService mediaCategoryService;
+    private final TypeReferenceService typeReferenceService;
+    private final GenreService genreService;
 
     @PostConstruct
     private void init() {
-        this.api = new TmdbApi(this.apiKeyService.findById(TMDB_API_KEY_ID).get().getKey()).getTvSeries();
+        this.api = new TmdbApi(this.apiKeyService.findById(TMDB_API_KEY_ID.getId()).get().getKey()).getTvSeries();
     }
 
     /**
@@ -73,7 +70,7 @@ public class TvSeriesApiImpl implements MediaApi {
     }
 
     /**
-     * @see MediaApi#updateTitles(Integer)
+     * @see MediaApi#updateTitles()
      */
     @Retryable(maxAttempts = 2, backoff = @Backoff(delay = 2000), retryFor = com.espacogeek.geek.exception.RequestException.class)
     @Override
@@ -98,9 +95,9 @@ public class TvSeriesApiImpl implements MediaApi {
                 Optional.ofNullable(rawSerieDetails.getNumberOfEpisodes()).orElse(season.stream().map(SeasonModel::getEpisodeCount).reduce(Integer::sum).orElseGet(null)),
                 rawSerieDetails.getEpisodeRunTime() == null || rawSerieDetails.getEpisodeRunTime().isEmpty() ? null : rawSerieDetails.getEpisodeRunTime().getFirst(),
                 rawSerieDetails.getOverview(),
-                rawSerieDetails.getPosterPath() == null ? null : URL_IMAGE_TMDB + rawSerieDetails.getPosterPath(),
-                rawSerieDetails.getBackdropPath() == null ? null : URL_IMAGE_TMDB + rawSerieDetails.getBackdropPath(),
-                mediaCategoryService.findById(MediaDataController.SERIE_ID).get(),
+                rawSerieDetails.getPosterPath() == null ? null : ExternalCDN.TMDB.getUrl() + rawSerieDetails.getPosterPath(),
+                rawSerieDetails.getBackdropPath() == null ? null : ExternalCDN.TMDB.getUrl() + rawSerieDetails.getBackdropPath(),
+                mediaCategoryService.findById(MediaDataController.MediaType.SERIE.getId()).get(),
                 externalReferences,
                 null,
                 null,
@@ -117,7 +114,7 @@ public class TvSeriesApiImpl implements MediaApi {
 
         trailers = rawSerieDetails.getVideos().getResults().stream().filter(video -> video.getType().equals("Trailer"))
                 .findFirst().map(video -> new ExternalReferenceModel(null, video.getKey(), null,
-                        typeReferenceService.findById(MediaDataController.YT_ID).get()))
+                        typeReferenceService.findById(MediaDataController.ExternalReferenceType.YT.getId()).get()))
                 .orElse(null);
 
         return trailers;
@@ -131,14 +128,15 @@ public class TvSeriesApiImpl implements MediaApi {
     public MediaModel getArtwork(Integer id) {
         Images rawArtwork = new Images();
         try {
-            rawArtwork = api.getImages(id, "en");
+            rawArtwork = api.getImages(id, "");
         } catch (TmdbException e) {
+            log.error("Error fetching TV series artwork", e);
             throw new com.espacogeek.geek.exception.RequestException();
         }
         var media = new MediaModel();
 
-        media.setCover(rawArtwork.getPosters().isEmpty() ? "" : URL_IMAGE_TMDB + rawArtwork.getPosters().getFirst());
-        media.setBanner(rawArtwork.getBackdrops().isEmpty() ? "" : URL_IMAGE_TMDB + rawArtwork.getBackdrops().getFirst());
+        media.setCover(rawArtwork.getPosters().isEmpty() ? "" : ExternalCDN.TMDB.getUrl() + rawArtwork.getPosters().getFirst());
+        media.setBanner(rawArtwork.getBackdrops().isEmpty() ? "" : ExternalCDN.TMDB.getUrl() + rawArtwork.getBackdrops().getFirst());
 
         return media;
     }
@@ -200,15 +198,15 @@ public class TvSeriesApiImpl implements MediaApi {
         var externalReferences = new ArrayList<ExternalReferenceModel>();
 
         externalReferences.add(new ExternalReferenceModel(null, id.toString(), null,
-                typeReferenceService.findById(MediaDataController.TMDB_ID).get()));
+                typeReferenceService.findById(MediaDataController.ExternalReferenceType.TMDB.getId()).get()));
 
         if (rawExternalReferences != null && rawExternalReferences.getTvdbId() != null) {
             externalReferences.add(new ExternalReferenceModel(null, rawExternalReferences.getTvdbId(), null,
-                    typeReferenceService.findById(MediaDataController.TVDB_ID).get()));
+                    typeReferenceService.findById(MediaDataController.ExternalReferenceType.TVDB.getId()).get()));
         }
         if (rawExternalReferences != null && rawExternalReferences.getImdbId() != null) {
             externalReferences.add(new ExternalReferenceModel(null, rawExternalReferences.getImdbId(), null,
-                    typeReferenceService.findById(MediaDataController.IMDB_ID).get()));
+                    typeReferenceService.findById(MediaDataController.ExternalReferenceType.IMDB.getId()).get()));
         }
 
         return externalReferences;
@@ -234,15 +232,14 @@ public class TvSeriesApiImpl implements MediaApi {
     }
 
     private List<GenreModel> formatGenre(List<Genre> rawGenres) {
-        List<GenreModel> genres = new ArrayList<GenreModel>();
-        List<String> rawStringGenres = rawGenres.stream().map((rawGenre) -> rawGenre.getName()).toList();
+        List<GenreModel> genres;
+        List<String> rawStringGenres = rawGenres.stream().map(NamedIdElement::getName).toList();
         List<String> newRawGenres = new ArrayList<String>();
 
-        for (int i = 0; i < rawStringGenres.size(); i++) {
-            var genre = rawStringGenres.get(i);
+        for (String genre : rawStringGenres) {
             if (genre.contains("&")) {
                 for (String genreDivided : genre.split("&")) {
-                    genreDivided.replace("&", "");
+                    genreDivided = genreDivided.replace("&", "");
                     genreDivided = genreDivided.strip();
                     newRawGenres.add(genreDivided);
                 }
@@ -260,7 +257,7 @@ public class TvSeriesApiImpl implements MediaApi {
     @Override
     @Retryable(maxAttempts = 2, backoff = @Backoff(delay = 2000), retryFor = com.espacogeek.geek.exception.RequestException.class)
     public List<SeasonModel> getSeason(Integer id) {
-        List<TvSeason> rawSession = new ArrayList<>();
+        List<TvSeason> rawSession;
 
         try {
             rawSession = api.getDetails(id, "en-US").getSeasons();
@@ -280,12 +277,12 @@ public class TvSeriesApiImpl implements MediaApi {
                         rawSeason.getAirDate() == null ? null : new SimpleDateFormat("yyyy-MM-dd").parse(rawSeason.getAirDate()),
                         null,
                         rawSeason.getOverview(),
-                        rawSeason.getPosterPath() == null ? null : URL_IMAGE_TMDB + rawSeason.getPosterPath(),
+                        rawSeason.getPosterPath() == null ? null : ExternalCDN.TMDB.getUrl() + rawSeason.getPosterPath(),
                         rawSeason.getSeasonNumber(),
                         rawSeason.getEpisodeCount(),
                         null));
             } catch (java.text.ParseException e) {
-                e.printStackTrace();
+                log.error("Error parsing season air date", e);
             }
         });
 

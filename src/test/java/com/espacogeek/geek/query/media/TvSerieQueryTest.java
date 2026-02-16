@@ -47,54 +47,6 @@ class TvSerieQueryTest {
     @MockitoBean
     private MediaCategoryService mediaCategoryService;
 
-//    @SuppressWarnings("null")
-//    @Test
-//    void tvserie_ByName_ShouldReturnMediaPage() {
-//        // Given
-//        MediaModel media1 = new MediaModel();
-//        media1.setId(1);
-//        media1.setName("Breaking Bad");
-//
-//        MediaModel media2 = new MediaModel();
-//        media2.setId(2);
-//        media2.setName("Better Call Saul");
-//
-//        Page<MediaModel> page = new PageImpl<>(Arrays.asList(media1, media2));
-//
-//        MediaPage response = new MediaPage();
-//
-//        response.setTotalPages(page.getTotalPages());
-//        response.setTotalElements(page.getTotalElements());
-//        response.setNumber(page.getNumber());
-//        response.setSize(page.getSize());
-//        response.setContent(MediaSimplefied.fromMediaModelList(page.getContent()));
-//
-//        when(mediaService.findSerieByIdOrName(any(), anyString(), any())).thenReturn(response);
-//
-//        // When & Then
-//        graphQlTester.document("""
-//                query {
-//                    tvserie(name: "Breaking") {
-//                        totalPages
-//                        totalElements
-//                        number
-//                        size
-//                        content {
-//                            id
-//                            name
-//                        }
-//                    }
-//                }
-//                """)
-//                .execute()
-//                .path("tvserie")
-//                .entity(MediaPage.class)
-//                .satisfies(result -> {
-//                    assertThat(result.getContent()).hasSize(2);
-//                    assertThat(result.getTotalElements()).isEqualTo(2);
-//                });
-//    }
-
     @Test
     void tvserie_NoParameters_ShouldReturnEmptyPage() {
         // When & Then

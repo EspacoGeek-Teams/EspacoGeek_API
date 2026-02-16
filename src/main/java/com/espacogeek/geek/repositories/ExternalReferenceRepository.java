@@ -14,4 +14,6 @@ public interface ExternalReferenceRepository<T> extends JpaRepository<ExternalRe
     Optional<ExternalReferenceModel> findByReferenceAndTypeReference (String reference, TypeReferenceModel typeReference);
 
     Optional<ExternalReferenceModel> findByMedia(MediaModel media);
+
+    java.util.List<ExternalReferenceModel> findAllByMedia(MediaModel media);
 }

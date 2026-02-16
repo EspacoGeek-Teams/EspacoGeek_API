@@ -1,5 +1,6 @@
 package com.espacogeek.geek.controllers;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
@@ -10,11 +11,10 @@ import com.espacogeek.geek.services.MediaService;
 import com.espacogeek.geek.types.QuoteArtwork;
 
 @Controller
+@RequiredArgsConstructor
 public class QuoteController {
-    @Autowired
-    private QuoteApi quoteApi;
-    @Autowired
-    private MediaService mediaService;
+    private final QuoteApi quoteApi;
+    private final MediaService mediaService;
 
     /**
      * Fetches a random quote along with a random artwork URL.

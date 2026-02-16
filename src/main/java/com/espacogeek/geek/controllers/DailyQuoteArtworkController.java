@@ -1,5 +1,6 @@
 package com.espacogeek.geek.controllers;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
@@ -9,10 +10,9 @@ import com.espacogeek.geek.services.DailyQuoteArtworkService;
 import com.espacogeek.geek.types.QuoteArtwork;
 
 @Controller
+@RequiredArgsConstructor
 public class DailyQuoteArtworkController {
-
-    @Autowired
-    private DailyQuoteArtworkService dailyQuoteArtworkService;
+    private final DailyQuoteArtworkService dailyQuoteArtworkService;
 
     /**
      * Fetches the quote and artwork for today.
@@ -24,7 +24,7 @@ public class DailyQuoteArtworkController {
     @QueryMapping(name = "dailyQuoteArtwork")
     public QuoteArtwork getDailyQuoteArtwork() {
         DailyQuoteArtworkModel dailyModel = dailyQuoteArtworkService.getTodayQuoteArtwork();
-        
+
         return new QuoteArtwork(
             dailyModel.getQuote(),
             dailyModel.getAuthor(),
