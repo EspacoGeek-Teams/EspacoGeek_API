@@ -34,8 +34,8 @@ public class EmailServiceImpl implements EmailService {
     @Override
     public void sendAccountVerificationEmail(UserModel user, String token) {
         String subject = "Verify Your Account - " + appName;
-        String verificationUrl = frontendUrl + "/verify-account?token=" + token;
-        
+        String verificationUrl = frontendUrl + "/verify/account?token=" + token;
+
         String htmlContent = buildEmailTemplate(
             user.getUsername(),
             "Welcome to " + appName + "!",
@@ -44,15 +44,15 @@ public class EmailServiceImpl implements EmailService {
             "Verify Account",
             "This link will expire in 24 hours."
         );
-        
+
         sendHtmlEmail(user.getEmail(), subject, htmlContent);
     }
 
     @Override
     public void sendPasswordResetEmail(UserModel user, String token) {
         String subject = "Password Reset Request - " + appName;
-        String resetUrl = frontendUrl + "/reset-password?token=" + token;
-        
+        String resetUrl = frontendUrl + "/verify/reset-password?token=" + token;
+
         String htmlContent = buildEmailTemplate(
             user.getUsername(),
             "Password Reset Request",
@@ -61,15 +61,15 @@ public class EmailServiceImpl implements EmailService {
             "Reset Password",
             "This link will expire in 1 hour. If you didn't request this, please ignore this email."
         );
-        
+
         sendHtmlEmail(user.getEmail(), subject, htmlContent);
     }
 
     @Override
     public void sendEmailChangeVerificationEmail(UserModel user, String newEmail, String token) {
         String subject = "Email Change Verification - " + appName;
-        String verificationUrl = frontendUrl + "/verify-email-change?token=" + token;
-        
+        String verificationUrl = frontendUrl + "/verify/email-change?token=" + token;
+
         String htmlContent = buildEmailTemplate(
             user.getUsername(),
             "Verify Your New Email Address",
@@ -78,21 +78,21 @@ public class EmailServiceImpl implements EmailService {
             "Verify Email",
             "This link will expire in 24 hours. If you didn't request this change, please contact support."
         );
-        
+
         sendHtmlEmail(newEmail, subject, htmlContent);
     }
 
     @Override
     public void sendPasswordChangeConfirmationEmail(UserModel user) {
         String subject = "Password Changed Successfully - " + appName;
-        
+
         String htmlContent = buildNotificationTemplate(
             user.getUsername(),
             "Password Changed",
             "Your password has been changed successfully.",
             "If you didn't make this change, please contact support immediately."
         );
-        
+
         sendHtmlEmail(user.getEmail(), subject, htmlContent);
     }
 
@@ -100,12 +100,12 @@ public class EmailServiceImpl implements EmailService {
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-            
+
             helper.setFrom(fromEmail);
             helper.setTo(to);
             helper.setSubject(subject);
             helper.setText(htmlContent, true);
-            
+
             mailSender.send(message);
             log.info("Email sent successfully to: {}", to);
         } catch (MessagingException e) {
@@ -114,7 +114,7 @@ public class EmailServiceImpl implements EmailService {
         }
     }
 
-    private String buildEmailTemplate(String username, String title, String message, 
+    private String buildEmailTemplate(String username, String title, String message,
                                       String actionUrl, String actionText, String footer) {
         return """
             <!DOCTYPE html>
@@ -226,7 +226,7 @@ public class EmailServiceImpl implements EmailService {
                 </div>
             </body>
             </html>
-            """.formatted(title, appName, username, message, actionUrl, actionText, 
+            """.formatted(title, appName, username, message, actionUrl, actionText,
                          actionUrl, actionUrl, footer, appName);
     }
 

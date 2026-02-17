@@ -18,10 +18,6 @@ import org.springframework.web.cors.CorsConfigurationSource;
 
 import com.espacogeek.geek.services.impl.UserDetailsServiceImpl;
 
-import static org.springframework.security.config.Customizer.withDefaults;
-
-import org.springframework.beans.factory.annotation.Autowired;
-
 /**
  * Spring Security setup with JWT filter and method security.
  */
@@ -60,7 +56,6 @@ public class SecurityConfig {
                     auth.anyRequest().authenticated();
                 })
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .httpBasic(withDefaults())
                 .authenticationManager(authenticationManager)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
