@@ -117,7 +117,6 @@ public class MovieAPIImpl implements MediaApi {
      * @see MediaApi#getArtwork(Integer)
      */
     @Override
-    @Retryable(maxAttempts = 2, backoff = @Backoff(delay = 2000), retryFor = com.espacogeek.geek.exception.RequestException.class)
     public MediaModel getArtwork(Integer id) {
         Images rawArtwork = new Images();
         try {
