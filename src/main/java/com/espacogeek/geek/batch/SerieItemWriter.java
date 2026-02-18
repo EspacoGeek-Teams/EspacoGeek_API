@@ -14,6 +14,7 @@ import com.espacogeek.geek.data.api.MediaApi;
 import com.espacogeek.geek.models.ExternalReferenceModel;
 import com.espacogeek.geek.models.TypeReferenceModel;
 import com.espacogeek.geek.models.MediaModel;
+import com.espacogeek.geek.models.AlternativeTitleModel;
 import com.espacogeek.geek.services.ExternalReferenceService;
 import com.espacogeek.geek.services.MediaService;
 import com.espacogeek.geek.services.AlternativeTitlesService;
