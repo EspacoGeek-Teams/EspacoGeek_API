@@ -4,8 +4,11 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
@@ -67,13 +70,36 @@ public class JwtConfig {
      */
     public String generateToken(UserModel user) {
         Instant now = Instant.now();
+
+        // Build roles list from user.userRole (comma separated) and ensure ID_ claim is included
+        List<String> rolesList = new ArrayList<>();
+        String raw = user.getUserRole();
+        if (raw != null && !raw.isBlank()) {
+            String[] parts = raw.replaceAll("\\s", "").split(",");
+            // Normalize roles: if a role doesn't start with ROLE_ or ID_, prefix with ROLE_
+            rolesList.addAll(Arrays.stream(parts)
+                    .map(s -> s == null ? null : s.trim())
+                    .filter(s -> s != null && !s.isBlank())
+                    .map(s -> {
+                        if (s.startsWith("ROLE_") || s.startsWith("ID_")) return s;
+                        return "ROLE_" + s;
+                    })
+                    .toList());
+        }
+        // Ensure at least ROLE_user is present as a fallback
+        if (rolesList.isEmpty()) {
+            rolesList.add("ROLE_user");
+        }
+        // Add device/user identifier role (keep ID_ as-is)
+        rolesList.add("ID_" + user.getId());
+
         return Jwts.builder()
                 .issuer(issuer)
                 .subject(user.getEmail())
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(now.plusMillis(expirationMs)))
                 .claim("uid", user.getId())
-                .claim("roles", List.of("ROLE_user", "ID_" + user.getId()))
+                .claim("roles", rolesList)
                 .signWith(getSigningKey(), Jwts.SIG.HS256)
                 .compact();
     }

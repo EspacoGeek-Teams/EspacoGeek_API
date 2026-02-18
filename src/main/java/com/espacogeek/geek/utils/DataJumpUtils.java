@@ -59,7 +59,6 @@ public final class DataJumpUtils {
             request = new Request.Builder()
                     .url(MessageFormat.format("http://files.tmdb.org/p/exports/{3}_ids_{0}_{1}_{2}.json.gz", month, day, year, type.getValue()))
                     .method("GET", null)
-                    .addHeader("Content-Type", "application/json")
                     .build();
         } catch (Exception e) {
             log.error(e.getMessage(), e);

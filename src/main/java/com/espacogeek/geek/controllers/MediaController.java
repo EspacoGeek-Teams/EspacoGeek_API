@@ -1,19 +1,13 @@
 package com.espacogeek.geek.controllers;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
 
-import com.espacogeek.geek.data.MediaDataController;
-import com.espacogeek.geek.data.api.MediaApi;
 import com.espacogeek.geek.models.MediaModel;
-import com.espacogeek.geek.services.MediaCategoryService;
 import com.espacogeek.geek.services.MediaService;
-import com.espacogeek.geek.services.TypeReferenceService;
 import com.espacogeek.geek.types.MediaPage;
-import com.espacogeek.geek.types.MediaSimplefied;
 import com.espacogeek.geek.utils.MediaUtils;
 import com.espacogeek.geek.exception.GenericException;
 

@@ -49,6 +49,9 @@ public class UserModel implements Serializable {
     @Column(name = "password", nullable = false)
     private byte[] password;
 
+    @Column(name = "user_role", nullable = false)
+    private String userRole;
+
     @OneToMany(mappedBy = "user", orphanRemoval = true)
     private List<UserLibraryModel> userLibrary;
 

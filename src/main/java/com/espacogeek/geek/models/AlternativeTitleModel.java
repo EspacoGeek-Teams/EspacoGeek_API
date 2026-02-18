@@ -17,7 +17,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Table(name = "alternative_titles", indexes = { @Index(name = "idx_name_alternative_title",columnList = "name", unique = true) })
+@Table(name = "alternative_titles", indexes = { @Index(name = "idx_title", columnList = "name_title", unique = false) })
 @Entity
 @Getter
 @Setter

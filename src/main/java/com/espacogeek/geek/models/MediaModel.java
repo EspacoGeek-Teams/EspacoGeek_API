@@ -3,6 +3,7 @@ package com.espacogeek.geek.models;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
@@ -28,9 +29,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.proxy.HibernateProxy;
 
 @Entity
-@Table(name = "medias", indexes = {@Index(name = "idx_name_media", columnList = "name_media", unique = true)})
+@Table(name = "medias", indexes = {@Index(name = "idx_name", columnList = "name_media", unique = false)})
 @Getter
 @Setter
 @AllArgsConstructor
@@ -104,4 +106,20 @@ public class MediaModel implements Serializable {
     @OneToMany(mappedBy = "media")
     @Fetch(FetchMode.SUBSELECT)
     private List<SeasonModel> season;
+
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
+        if (thisEffectiveClass != oEffectiveClass) return false;
+        ExternalReferenceModel that = (ExternalReferenceModel) o;
+        return getId() != null && Objects.equals(getId(), that.getId());
+    }
+
+    @Override
+    public final int hashCode() {
+        return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
+    }
 }
