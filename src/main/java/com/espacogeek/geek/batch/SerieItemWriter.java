@@ -76,6 +76,7 @@ public class SerieItemWriter implements ItemWriter<MediaModel> {
                 if (externalId != null) {
                     var alts = tvSeriesApi.getAlternativeTitles(Integer.valueOf(externalId));
                     if (alts != null && !alts.isEmpty()) {
+                        alts.setMedia(persisted);
                         alternativeTitlesService.saveAll(alts);
                         persisted.setAlternativeTitles(alts);
                     }
