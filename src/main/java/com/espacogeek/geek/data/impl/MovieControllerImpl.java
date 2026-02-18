@@ -8,6 +8,9 @@ import java.util.concurrent.Executors;
 
 import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONObject;
+import org.springframework.batch.core.StepContribution;
+import org.springframework.batch.core.scope.context.ChunkContext;
+import org.springframework.batch.item.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -39,7 +42,6 @@ public class MovieControllerImpl extends GenericMediaDataControllerImpl {
 
     private TypeReferenceModel typeReference;
 
-    @Autowired
     public MovieControllerImpl(
             MediaApi movieAPI,
             MediaCategoryService mediaCategoryService,
@@ -67,8 +69,11 @@ public class MovieControllerImpl extends GenericMediaDataControllerImpl {
      * This method update and add title of movie.
      * <p>
      * Every day at 10:00PM this function is executed.
+     *
+     * @deprecated for removal. Use the chunk-oriented batch step `updateMoviesStep` instead.
      */
-    private void updateMovies() {
+    @Deprecated(forRemoval = true)
+    private void updateMovies(StepContribution contribution, ChunkContext chunkContext) {
         log.info("START TO UPDATE movie, AT {}", LocalDateTime.now());
 
         MediaCategoryModel mediaMovieCategory = mediaCategoryService.findById(MediaType.MOVIE.getId()).orElseThrow(() -> new GenericException("Category not found"));
@@ -76,8 +81,17 @@ public class MovieControllerImpl extends GenericMediaDataControllerImpl {
         MediaCategoryModel mediaUndefinedCategory = mediaCategoryService.findById(MediaType.UNDEFINED_MEDIA.getId()).orElseThrow(() -> new GenericException("Category not found"));
 
         try(ExecutorService executorService = Executors.newFixedThreadPool(4)) {
+            ExecutionContext stepContext = chunkContext.getStepContext().getStepExecution().getExecutionContext();
+            int lastIndex = stepContext.getInt("lastIndex", 0);
+
             var jsonArrayDailyExport = movieAPI.updateTitles();
-            for (int i = 0; i < jsonArrayDailyExport.size(); i++) {
+            for (int i = lastIndex; i < jsonArrayDailyExport.size(); i++) {
+                if (contribution.getStepExecution().getJobExecution().isStopping()) {
+                    log.warn("STOPPED: Stopping requested. Stopping threads...");
+                    executorService.shutdownNow();
+                    return;
+                }
+
                 final int index = i;
                 executorService.submit(() -> {
                     try {
@@ -130,10 +144,10 @@ public class MovieControllerImpl extends GenericMediaDataControllerImpl {
                         log.error("Error processing movie {} - {}", json.get("id").toString(), json.get("original_name").toString(), e);
                     }
                 });
+
+                stepContext.putInt("lastIndex", i + 1);
             }
             executorService.shutdown();
-
-            log.info("SUCCESS TO UPDATE movie, AT {}", LocalDateTime.now());
         } catch (Exception e) {
             log.error("FAILED TO UPDATE movie, AT {}", LocalDateTime.now(), e);
         }
@@ -144,8 +158,11 @@ public class MovieControllerImpl extends GenericMediaDataControllerImpl {
         return super.updateAllInformation(media, result, this.typeReference, this.movieAPI);
     }
 
-    // Spring Shell
-    public void updateMoviesNow() {
-        updateMovies();
+    /**
+     * @deprecated for removal. Use the chunk-oriented batch job `updateMoviesJob` instead.
+     */
+    @Deprecated(forRemoval = true)
+    public void updateMoviesNow(StepContribution contribution, ChunkContext chunkContext) {
+        updateMovies(contribution, chunkContext);
     }
 }

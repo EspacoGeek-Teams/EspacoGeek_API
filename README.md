@@ -7,12 +7,47 @@
 </div>
 
 ## Usage
-- See the GraphQL guide: [GraphQL Guide](graphql_guide.md);
-- See the license: [Licenses](LICENSE.txt)
+ See the GraphQL guide: [GraphQL Guide](graphql_guide.md)
+ See the license: [Licenses](LICENSE.txt)
 
+**Other Docs**: quick links to other markdown files in the project
+- `INDEX.md`: Project index and quick references - [INDEX.md](INDEX.md)
+- `MONITORING.md`: Monitoring & observability notes - [MONITORING.md](MONITORING.md)
+- `docker/ARCHITECTURE.md`: Docker / architecture notes - [docker/ARCHITECTURE.md](docker/ARCHITECTURE.md)
+- `docker/DEPLOYMENT.md`: Docker deployment guide - [docker/DEPLOYMENT.md](docker/DEPLOYMENT.md)
+- `docker/QUICK_REFERENCE.md`: Docker quick reference - [docker/QUICK_REFERENCE.md](docker/QUICK_REFERENCE.md)
+- `docker/SETUP.md`: Docker setup guide - [docker/SETUP.md](docker/SETUP.md)
+- `docker/TESTING.md`: Docker testing notes - [docker/TESTING.md](docker/TESTING.md)
+- `graphql_guide.md`: GraphQL guide - [graphql_guide.md](graphql_guide.md)
 ## Setup
 
 ### Run & Build Guide (JVM and Native)
+
+
+## Batch Endpoint
+
+This project exposes a simple administrative Batch API for running and controlling Spring Batch jobs at runtime. The controller is available at the path `/admin/batch` and provides three endpoints:
+
+- **Run job**: `GET /admin/batch/run/{jobName}`
+  - Description: Triggers a job bean (by Spring bean name) found in the application context.
+  - Notes: Adds a timestamp parameter to ensure a new JobParameters set for each run.
+  - Authorization: requires `admin` role (method guarded by `@PreAuthorize("hasRole('admin')")`).
+  - Response: HTTP 200 with `Job ID: <id>` when submitted, or HTTP 500 with error message on failure.
+
+- **Stop job execution**: `GET /admin/batch/stop/{executionId}`
+  - Description: Requests to stop a running job execution via `JobOperator.stop(executionId)`.
+  - Authorization: requires `admin` role.
+  - Response: HTTP 200 with `stop requested: true|false` or HTTP 500 on error.
+
+- **Abandon job execution**: `GET /admin/batch/abandon/{executionId}`
+  - Description: Marks a failed/stopped execution as abandoned using `JobOperator.abandon(executionId)`.
+  - Authorization: requires `admin` role.
+  - Response: HTTP 200 with `abandoned` or HTTP 500 on error.
+
+Implementation notes:
+- The controller locates jobs by bean name from the `ApplicationContext` and uses an asynchronous `JobLauncher` (qualified as `asyncJobLauncher`) to start the job, returning the `JobExecution` id.
+- For stop/abandon actions the controller calls the provided `JobOperator` to control executions.
+- Make sure the `admin` role is available and that requests are authenticated; adjust security configuration if necessary for your environment.
 
 #### 1. Project Overview
 Java 21 / Spring Boot 3 application with optional native image build using GraalVM.

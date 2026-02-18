@@ -46,12 +46,15 @@ public class SerieControllerImpl extends GenericMediaDataControllerImpl {
         this.typeReference = typeReferenceService.findById(ExternalReferenceType.TMDB.getId()).orElseThrow(() -> new GenericException("Type Reference not found"));
     }
 
-    /**
-     * This method update and add title of TV Series.
-     * <p>
-     * Every day at 9:00AM this function is executed.
-     */
-    private void updateTvSeries() {
+        /**
+         * This method update and add title of TV Series.
+         * <p>
+         * Every day at 9:00AM this function is executed.
+        *
+        * @deprecated for removal. Use the chunk-oriented batch step `updateSeriesStep` instead.
+        */
+        @Deprecated(forRemoval = true)
+        private void updateTvSeries() {
         log.info("START TO UPDATE TV SERIES, AT {}", LocalDateTime.now());
 
         MediaCategoryModel mediaSerieCategory = mediaCategoryService.findById(MediaType.SERIE.getId()).orElseThrow(() -> new GenericException("Category not found"));
@@ -113,7 +116,6 @@ public class SerieControllerImpl extends GenericMediaDataControllerImpl {
             }
             executorService.shutdown();
 
-            log.info("SUCCESS TO UPDATE TV SERIES, AT {}", LocalDateTime.now());
         } catch (Exception e) {
             log.error("FAILED TO UPDATE TV SERIES, AT {}", LocalDateTime.now(), e);
         }
@@ -130,6 +132,10 @@ public class SerieControllerImpl extends GenericMediaDataControllerImpl {
     }
 
     // Spring Shell
+    /**
+     * @deprecated for removal. Use the chunk-oriented batch job `updateSeriesJob` instead.
+     */
+    @Deprecated(forRemoval = true)
     public void updateTvSeriesNow() {
         updateTvSeries();
     }
