@@ -14,6 +14,7 @@ import com.espacogeek.geek.data.api.MediaApi;
 import com.espacogeek.geek.models.ExternalReferenceModel;
 import com.espacogeek.geek.models.TypeReferenceModel;
 import com.espacogeek.geek.models.MediaModel;
+import com.espacogeek.geek.models.AlternativeTitleModel;
 import com.espacogeek.geek.services.ExternalReferenceService;
 import com.espacogeek.geek.services.MediaService;
 import com.espacogeek.geek.services.AlternativeTitlesService;
@@ -74,8 +75,11 @@ public class SerieItemWriter implements ItemWriter<MediaModel> {
                     externalId = original.getExternalReference().get(0).getReference();
                 }
                 if (externalId != null) {
-                    var alts = tvSeriesApi.getAlternativeTitles(Integer.valueOf(externalId));
+                    List<AlternativeTitleModel> alts = tvSeriesApi.getAlternativeTitles(Integer.valueOf(externalId));
                     if (alts != null && !alts.isEmpty()) {
+                        for(AlternativeTitleModel alternativeTitleModel : alts) {
+                            alternativeTitleModel.setMedia(persisted);
+                        }
                         alternativeTitlesService.saveAll(alts);
                         persisted.setAlternativeTitles(alts);
                     }

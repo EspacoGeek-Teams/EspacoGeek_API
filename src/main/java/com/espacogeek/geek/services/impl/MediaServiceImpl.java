@@ -106,8 +106,8 @@ public class MediaServiceImpl implements MediaService {
     public MediaPage findSerieByIdOrName(Integer id, String name, Pageable pageable) {
         Page<MediaModel> results;
         if (id != null) {
-            var medias = new ArrayList<MediaModel>();
-            this.mediaRepository.findById(id).ifPresent(medias::add);
+            List<MediaModel> medias = new ArrayList<MediaModel>();
+            this.mediaRepository.findById(id).ifPresent(media -> medias.add((MediaModel) media));
             Pageable safePageable = pageable != null ? pageable : Pageable.unpaged();
             results = new PageImpl<>(medias, safePageable, medias.size());
         } else {
@@ -124,8 +124,8 @@ public class MediaServiceImpl implements MediaService {
     public MediaPage findSerieByIdOrName(Integer id, String name, Map<String, List<String>> requestedFields, Pageable pageable) {
         Page<MediaModel> results;
         if (id != null) {
-            var medias = new ArrayList<MediaModel>();
-            medias.add((MediaModel) this.mediaRepository.findById(id).orElse(null));
+            List<MediaModel> medias = new ArrayList<MediaModel>();
+            this.mediaRepository.findById(id).ifPresent(media -> medias.add((MediaModel) media));
             Pageable safePageable = pageable != null ? pageable : Pageable.unpaged();
             results = new PageImpl<>(medias, safePageable, medias.size());
         } else {
@@ -142,8 +142,8 @@ public class MediaServiceImpl implements MediaService {
     public MediaPage findGameByIdOrName(Integer id, String name, Pageable pageable) {
         Page<MediaModel> results;
         if (id != null) {
-            var medias = new ArrayList<MediaModel>();
-            this.mediaRepository.findById(id).ifPresent(medias::add);
+            List<MediaModel> medias = new ArrayList<MediaModel>();
+            this.mediaRepository.findById(id).ifPresent(media -> medias.add((MediaModel) media));
             Pageable safePageable = pageable != null ? pageable : Pageable.unpaged();
             results = new PageImpl<>(medias, safePageable, medias.size());
         } else {
@@ -158,8 +158,8 @@ public class MediaServiceImpl implements MediaService {
         Page<MediaModel> results;
 
         if(id != null) {
-            var medias = new ArrayList<MediaModel>();
-            this.mediaRepository.findById(id).ifPresent(medias::add);
+            List<MediaModel> medias = new ArrayList<MediaModel>();
+            this.mediaRepository.findById(id).ifPresent(media -> medias.add((MediaModel) media));
             Pageable safePageable = pageable != null ? pageable : Pageable.unpaged();
             results = new PageImpl<>(medias, safePageable, medias.size());
         } else {
@@ -279,8 +279,8 @@ public class MediaServiceImpl implements MediaService {
     public MediaPage findMovieByIdOrName(Integer id, String name, Map<String, List<String>> requestedFields, Pageable pageable) {
         Page<MediaModel> results;
         if (id != null) {
-            var medias = new ArrayList<MediaModel>();
-            medias.add((MediaModel) this.mediaRepository.findById(id).orElseGet(null));
+            List<MediaModel> medias = new ArrayList<MediaModel>();
+            this.mediaRepository.findById(id).ifPresent(media -> medias.add((MediaModel) media));
             results = new PageImpl<>(medias, pageable, medias.size());
         } else {
             results = mediaRepository.findMediaByNameOrAlternativeTitleAndMediaCategory(name, name, mediaCategoryService.findById(MediaDataController.MediaType.MOVIE.getId()).get().getId(), pageable);
@@ -293,8 +293,8 @@ public class MediaServiceImpl implements MediaService {
     public MediaPage findAnimeByIdOrName(Integer id, String name, Pageable pageable) {
         Page<MediaModel> results;
         if (id != null) {
-            var medias = new ArrayList<MediaModel>();
-            this.mediaRepository.findById(id).ifPresent(medias::add);
+            List<MediaModel> medias = new ArrayList<MediaModel>();
+            this.mediaRepository.findById(id).ifPresent(media -> medias.add((MediaModel) media));
             Pageable safePageable = pageable != null ? pageable : Pageable.unpaged();
             results = new PageImpl<>(medias, safePageable, medias.size());
         } else {
@@ -311,8 +311,8 @@ public class MediaServiceImpl implements MediaService {
     public MediaPage findMovieByIdOrName(Integer id, String name, Pageable pageable) {
         Page<MediaModel> results;
         if (id != null) {
-            var medias = new ArrayList<MediaModel>();
-            this.mediaRepository.findById(id).ifPresent(medias::add);
+            List<MediaModel> medias = new ArrayList<MediaModel>();
+            this.mediaRepository.findById(id).ifPresent(media -> medias.add((MediaModel) media));
             Pageable safePageable = pageable != null ? pageable : Pageable.unpaged();
             results = new PageImpl<>(medias, safePageable, medias.size());
         } else {

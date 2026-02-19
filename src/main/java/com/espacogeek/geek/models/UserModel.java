@@ -50,7 +50,7 @@ public class UserModel implements Serializable {
     private byte[] password;
 
     @Column(name = "user_role", nullable = false)
-    private String userRole;
+    private String userRole = "ROLE_user";
 
     @OneToMany(mappedBy = "user", orphanRemoval = true)
     private List<UserLibraryModel> userLibrary;
