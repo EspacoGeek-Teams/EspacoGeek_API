@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.io.InputStream;
 
 import info.movito.themoviedbapi.model.core.NamedIdElement;
 import lombok.RequiredArgsConstructor;
@@ -67,6 +68,12 @@ public class TvSeriesApiImpl implements MediaApi {
     @Retryable(maxAttempts = 2, backoff = @Backoff(delay = 2000), retryFor = com.espacogeek.geek.exception.RequestException.class)
     public JSONArray updateTitles() {
         return DataJumpUtils.getDataJumpTMDBArray(DataJumpTypeTMDB.SERIES);
+    }
+
+    @Override
+    @Retryable(maxAttempts = 2, backoff = @Backoff(delay = 2000), retryFor = com.espacogeek.geek.exception.RequestException.class)
+    public InputStream updateTitlesStream() {
+        return DataJumpUtils.getDataJumpTMDBStream(DataJumpTypeTMDB.SERIES);
     }
 
     /**

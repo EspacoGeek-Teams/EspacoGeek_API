@@ -2,6 +2,7 @@ package com.espacogeek.geek.data.api.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.io.InputStream;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -62,6 +63,12 @@ public class MovieAPIImpl implements MediaApi {
     @Retryable(maxAttempts = 2, backoff = @Backoff(delay = 2000), retryFor = com.espacogeek.geek.exception.RequestException.class)
     public JSONArray updateTitles() {
         return DataJumpUtils.getDataJumpTMDBArray(DataJumpTypeTMDB.MOVIE);
+    }
+
+    @Override
+    @Retryable(maxAttempts = 2, backoff = @Backoff(delay = 2000), retryFor = com.espacogeek.geek.exception.RequestException.class)
+    public InputStream updateTitlesStream() {
+        return DataJumpUtils.getDataJumpTMDBStream(DataJumpTypeTMDB.MOVIE);
     }
 
         /**

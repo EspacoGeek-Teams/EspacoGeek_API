@@ -1,11 +1,14 @@
 package com.espacogeek.geek.utils;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.util.zip.GZIPInputStream;
 
+import lombok.Getter;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -21,7 +24,8 @@ import okhttp3.Response;
 public final class DataJumpUtils {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(DataJumpUtils.class);
 
-    public static enum DataJumpTypeTMDB {
+    @Getter
+    public enum DataJumpTypeTMDB {
         MOVIE("movie"), SERIES("tv_series"), PERSON("person");
 
         private final String value;
@@ -30,22 +34,15 @@ public final class DataJumpUtils {
             this.value = value;
         }
 
-        public String getValue() {
-            return value;
-        }
     }
 
     /**
      *
-     * This function get the daily datajump available by tmdb
+     * This function get the daily datajump available by tmdb as a stream
      *
-     * @return a JSON Array with all serie titles
-     * @throws IOException
-     * @throws ParseException
+     * @return an uncompressed GZIP InputStream with all titles
      */
-    @SuppressWarnings({ "unchecked", "null" })
-    @Retryable(maxAttempts = 2, backoff = @Backoff(delay = 2000), retryFor = com.espacogeek.geek.exception.RequestException.class)
-    public static JSONArray getDataJumpTMDBArray(final @NotNull DataJumpTypeTMDB type) {
+    public static InputStream getDataJumpTMDBStream(final @NotNull DataJumpTypeTMDB type) {
         var now = LocalDateTime.now();
 
         // formatting the date to do request as tmdb pattern
@@ -54,7 +51,7 @@ public final class DataJumpUtils {
         var year = String.valueOf(now.getYear()).replace(".", "");
 
         var client = new OkHttpClient().newBuilder().build();
-        Request request = null;
+        Request request;
         try {
             request = new Request.Builder()
                     .url(MessageFormat.format("http://files.tmdb.org/p/exports/{3}_ids_{0}_{1}_{2}.json.gz", month, day, year, type.getValue()))
@@ -68,29 +65,43 @@ public final class DataJumpUtils {
         Response response = null;
         try {
             response = client.newCall(request).execute();
-        } catch (IOException e) {
-            log.error(e.getMessage(), e);
-        }
-
-        GZIPInputStream inputStream = null;
-        String[] json = null;
-        try {
-            inputStream = new GZIPInputStream(new ByteArrayInputStream(response.body().bytes()));
-            json = new String(inputStream.readAllBytes()).split("\n");
-        } catch (IOException e) {
-            log.error(e.getMessage(), e);
-        }
-
-        JSONArray jsonArray = new JSONArray();
-        for (var item : json) {
-            JSONParser parser = new JSONParser();
-            JSONObject jsonObject = null;
-            try {
-                jsonObject = (JSONObject) parser.parse(item);
-            } catch (ParseException e) {
-                log.error(e.getMessage(), e);
+            if (!response.isSuccessful()) {
+                log.error("Failed to fetch TMDB daily export: {}", response.message());
+                response.close();
+                throw new com.espacogeek.geek.exception.RequestException();
             }
-            jsonArray.add(jsonObject);
+            assert response.body() != null;
+            return new GZIPInputStream(response.body().byteStream());
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+            if (response != null) response.close();
+            throw new com.espacogeek.geek.exception.RequestException();
+        }
+    }
+
+    /**
+     *
+     * This function get the daily datajump available by tmdb
+     *
+     * @return a JSON Array with all serie titles
+     */
+    @SuppressWarnings({ "unchecked" })
+    @Retryable(maxAttempts = 2, backoff = @Backoff(delay = 2000), retryFor = com.espacogeek.geek.exception.RequestException.class)
+    public static JSONArray getDataJumpTMDBArray(final @NotNull DataJumpTypeTMDB type) {
+        JSONArray jsonArray = new JSONArray();
+        try (InputStream is = getDataJumpTMDBStream(type);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
+            String line;
+            JSONParser parser = new JSONParser();
+            while ((line = reader.readLine()) != null) {
+                try {
+                    jsonArray.add(parser.parse(line));
+                } catch (ParseException e) {
+                    log.error("Error parsing TMDB JSON line: {}", e.getMessage());
+                }
+            }
+        } catch (Exception e) {
+            log.error("Error reading TMDB array: {}", e.getMessage());
         }
         return jsonArray;
     }

@@ -1,6 +1,7 @@
 package com.espacogeek.geek.data.api;
 
 import java.util.List;
+import java.io.InputStream;
 
 import lombok.Getter;
 import org.json.simple.JSONArray;
@@ -42,6 +43,10 @@ public interface MediaApi {
     }
 
     default JSONArray updateTitles() {
+        throw new UnsupportedOperationException();
+    }
+
+    default InputStream updateTitlesStream() {
         throw new UnsupportedOperationException();
     }
 
