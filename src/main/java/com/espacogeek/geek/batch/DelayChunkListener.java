@@ -16,7 +16,7 @@ public class DelayChunkListener implements ChunkListener {
     @Override
     public void afterChunk(@NotNull ChunkContext context) {
         try {
-            log.info("Chunk completed successfully. Applying delay of {}ms...", delayInMillis);
+            log.debug("Chunk completed successfully. Applying delay of {}ms...", delayInMillis);
             Thread.sleep(delayInMillis);
         } catch (InterruptedException e) {
             log.error("Delay thread interrupted", e);
