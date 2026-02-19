@@ -106,7 +106,10 @@ public class MediaServiceImpl implements MediaService {
     public MediaPage findSerieByIdOrName(Integer id, String name, Pageable pageable) {
         Page<MediaModel> results;
         if (id != null) {
-            results = (Page<MediaModel>) this.mediaRepository.findById(id).orElseGet(null);
+            var medias = new ArrayList<MediaModel>();
+            this.mediaRepository.findById(id).ifPresent(medias::add);
+            Pageable safePageable = pageable != null ? pageable : Pageable.unpaged();
+            results = new PageImpl<>(medias, safePageable, medias.size());
         } else {
             results = this.mediaRepository.findMediaByNameOrAlternativeTitleAndMediaCategory(name, name, mediaCategoryService.findById(MediaDataController.MediaType.SERIE.getId()).get().getId(), pageable);
         }
@@ -139,7 +142,10 @@ public class MediaServiceImpl implements MediaService {
     public MediaPage findGameByIdOrName(Integer id, String name, Pageable pageable) {
         Page<MediaModel> results;
         if (id != null) {
-            results = (Page<MediaModel>) this.mediaRepository.findById(id).orElseGet(null);
+            var medias = new ArrayList<MediaModel>();
+            this.mediaRepository.findById(id).ifPresent(medias::add);
+            Pageable safePageable = pageable != null ? pageable : Pageable.unpaged();
+            results = new PageImpl<>(medias, safePageable, medias.size());
         } else {
             results = this.mediaRepository.findMediaByNameOrAlternativeTitleAndMediaCategory(name, name, mediaCategoryService.findById(MediaDataController.MediaType.GAME.getId()).get().getId(), pageable);
         }
@@ -147,11 +153,15 @@ public class MediaServiceImpl implements MediaService {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public MediaPage findVisualNovelByIdOrName(Integer id, String name, Pageable pageable) {
         Page<MediaModel> results;
 
         if(id != null) {
-            results = (Page<MediaModel>) this.mediaRepository.findById(id).orElseGet(null);
+            var medias = new ArrayList<MediaModel>();
+            this.mediaRepository.findById(id).ifPresent(medias::add);
+            Pageable safePageable = pageable != null ? pageable : Pageable.unpaged();
+            results = new PageImpl<>(medias, safePageable, medias.size());
         } else {
             results = this.mediaRepository.findMediaByNameOrAlternativeTitleAndMediaCategory(name, name, mediaCategoryService.findById(MediaDataController.MediaType.VN.getId()).get().getId(), pageable);
         }
@@ -278,15 +288,15 @@ public class MediaServiceImpl implements MediaService {
         return mountMediaPage(results);
     }
 
-    /**
-     * @see MediaService#findAnimeByIdOrName(Integer, String, Pageable)
-     */
     @Override
     @SuppressWarnings("unchecked")
     public MediaPage findAnimeByIdOrName(Integer id, String name, Pageable pageable) {
         Page<MediaModel> results;
         if (id != null) {
-            results = (Page<MediaModel>) this.mediaRepository.findById(id).orElseGet(null);
+            var medias = new ArrayList<MediaModel>();
+            this.mediaRepository.findById(id).ifPresent(medias::add);
+            Pageable safePageable = pageable != null ? pageable : Pageable.unpaged();
+            results = new PageImpl<>(medias, safePageable, medias.size());
         } else {
             results = (Page<MediaModel>) this.mediaRepository.findMediaByNameOrAlternativeTitleAndMediaCategory(name, name, mediaCategoryService.findById(MediaDataController.MediaType.ANIME_SERIE.getId()).get().getId(), pageable);
         }
@@ -301,7 +311,10 @@ public class MediaServiceImpl implements MediaService {
     public MediaPage findMovieByIdOrName(Integer id, String name, Pageable pageable) {
         Page<MediaModel> results;
         if (id != null) {
-            results = (Page<MediaModel>) this.mediaRepository.findById(id).orElseGet(null);
+            var medias = new ArrayList<MediaModel>();
+            this.mediaRepository.findById(id).ifPresent(medias::add);
+            Pageable safePageable = pageable != null ? pageable : Pageable.unpaged();
+            results = new PageImpl<>(medias, safePageable, medias.size());
         } else {
             results = (Page<MediaModel>) this.mediaRepository.findMediaByNameOrAlternativeTitleAndMediaCategory(name, name, mediaCategoryService.findById(MediaDataController.MediaType.MOVIE.getId()).get().getId(), pageable);
         }
@@ -330,16 +343,21 @@ public class MediaServiceImpl implements MediaService {
 
         var mediasList = medias.getContent();
         for (MediaModel mediaModel : mediasList) {
-            switch (mediaModel.getMediaCategory().getId()) {
-                case 5:
-                case 1:
-                    serieController.updateArtworks(mediaModel, null);
-                case 7:
-                case 4:
-                    genericMediaDataController.updateArtworks(mediaModel, null, typeReferenceService.findById(MediaDataController.ExternalReferenceType.TMDB.getId()).get(), movieAPI);
-                case 2:
-                case 3:
-                    genericMediaDataController.updateArtworks(mediaModel, null, typeReferenceService.findById(MediaDataController.ExternalReferenceType.IGDB.getId()).get(), gamesAndVNsAPI);
+            if (MediaUtils.updateMediaWhenLastTimeUpdateMoreThanOneDay(mediaModel)) {
+                switch (mediaModel.getMediaCategory().getId()) {
+                    case 5:
+                    case 1:
+                        serieController.updateArtworks(mediaModel, null);
+                        break;
+                    case 7:
+                    case 4:
+                        genericMediaDataController.updateArtworks(mediaModel, null, typeReferenceService.findById(MediaDataController.ExternalReferenceType.TMDB.getId()).get(), movieAPI);
+                        break;
+                    case 2:
+                    case 3:
+                        genericMediaDataController.updateArtworks(mediaModel, null, typeReferenceService.findById(MediaDataController.ExternalReferenceType.IGDB.getId()).get(), gamesAndVNsAPI);
+                        break;
+                }
             }
         }
 

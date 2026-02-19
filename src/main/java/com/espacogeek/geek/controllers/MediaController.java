@@ -43,7 +43,7 @@ public class MediaController {
     public MediaPage getMovie(@Argument(name = "id") Integer id, @Argument(name = "name") String name, DataFetchingEnvironment dataFetchingEnvironment) {
         name = name == null ? null : name.trim();
 
-        if (name == null & id == null || name == "" & id == null) {
+        if (name == null && id == null || name == "" && id == null) {
             return new MediaPage();
         }
 
@@ -62,7 +62,7 @@ public class MediaController {
     public MediaPage getSerie(@Argument(name = "id") Integer id, @Argument(name = "name") String name, DataFetchingEnvironment dataFetchingEnvironment) {
         name = name == null ? null : name.trim();
 
-        if (name == null & id == null || name == "" & id == null) {
+        if (name == null && id == null || name == "" && id == null) {
             return new MediaPage();
         }
 
@@ -81,7 +81,7 @@ public class MediaController {
     public MediaPage getGame(@Argument(name = "id") Integer id, @Argument(name = "name") String name, DataFetchingEnvironment dataFetchingEnvironment) {
         name = name == null ? null : name.trim();
 
-        if (name == null & id == null || name == "" & id == null) {
+        if (name == null && id == null || name == "" && id == null) {
             return new MediaPage();
         }
 
@@ -101,7 +101,7 @@ public class MediaController {
         MediaPage response = new MediaPage();
         name = name == null ? null : name.trim();
 
-        if (name == null & id == null || name == "" & id == null) {
+        if (name == null && id == null || name == "" && id == null) {
             return response;
         }
 
@@ -119,7 +119,7 @@ public class MediaController {
     public MediaPage getAnime(@Argument(name = "id") Integer id, @Argument(name = "name") String name, DataFetchingEnvironment dataFetchingEnvironment) {
         name = name == null ? null : name.trim();
 
-        if (name == null & id == null || name == "" & id == null) {
+        if (name == null && id == null || name == "" && id == null) {
             return new MediaPage();
         }
 

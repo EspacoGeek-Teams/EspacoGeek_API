@@ -34,7 +34,7 @@ public abstract class MediaUtils {
      *         update was more than one day ago
      *         or if the update date is null), <code>false</code> otherwise
      */
-    private static Boolean updateMediaWhenLastTimeUpdateMoreThanOneDay(MediaModel media) {
+    public static Boolean updateMediaWhenLastTimeUpdateMoreThanOneDay(MediaModel media) {
         if (media == null)
             return false;
 
