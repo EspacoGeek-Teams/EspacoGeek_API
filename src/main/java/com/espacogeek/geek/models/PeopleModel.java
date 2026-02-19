@@ -27,7 +27,8 @@ import lombok.Setter;
 @NoArgsConstructor
 public class PeopleModel implements Serializable {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "gen_people")
+    @SequenceGenerator(name = "gen_people", sequenceName = "seq_people", allocationSize = 50))
     @Column(name = "id_person")
     private Integer id;
 
