@@ -39,7 +39,8 @@ import org.hibernate.proxy.HibernateProxy;
 @NoArgsConstructor
 public class MediaModel implements Serializable {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "gen_medias")
+    @SequenceGenerator(name = "gen_medias", sequenceName = "seq_medias", allocationSize = 50)
     @Column(name = "id_media")
     private Integer id;
 

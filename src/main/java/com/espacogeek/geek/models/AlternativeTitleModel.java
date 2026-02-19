@@ -25,7 +25,8 @@ import lombok.Setter;
 @NoArgsConstructor
 public class AlternativeTitleModel implements Serializable {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "gen_alternative_titles")
+    @SequenceGenerator(name = "gen_alternative_titles", sequenceName = "seq_alternative_titles", allocationSize = 50)
     @Column(name = "id_alternative_title")
     private Integer id;
 

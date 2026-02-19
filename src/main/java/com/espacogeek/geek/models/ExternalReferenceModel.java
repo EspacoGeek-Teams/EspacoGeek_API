@@ -19,7 +19,8 @@ import java.util.Objects;
 @AllArgsConstructor
 public class ExternalReferenceModel implements Serializable {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "gen_externals_references")
+    @SequenceGenerator(name = "gen_externals_references", sequenceName = "seq_externals_references", allocationSize = 50)
     @Column(name = "id_external_reference")
     private Integer id;
 
