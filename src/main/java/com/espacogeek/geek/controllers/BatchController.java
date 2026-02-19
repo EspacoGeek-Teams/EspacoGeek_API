@@ -66,7 +66,7 @@ public class BatchController {
     }
 
     @GetMapping("/stop/{executionId}")
-    @PreAuthorize("hasRole('aadmin')")
+    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<String> stopJob(@PathVariable Long executionId) {
         try {
             boolean result = jobOperator.stop(executionId);
