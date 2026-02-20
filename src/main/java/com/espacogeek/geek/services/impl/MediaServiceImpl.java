@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.Map;
 
+import jakarta.validation.ValidationException;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
@@ -22,6 +23,7 @@ import com.espacogeek.geek.data.api.MediaApi;
 import com.espacogeek.geek.models.ExternalReferenceModel;
 import com.espacogeek.geek.models.MediaModel;
 import com.espacogeek.geek.models.TypeReferenceModel;
+import com.espacogeek.geek.repositories.ExternalReferenceRepository;
 import com.espacogeek.geek.repositories.MediaRepository;
 import com.espacogeek.geek.services.MediaCategoryService;
 import com.espacogeek.geek.services.MediaService;
@@ -46,6 +48,9 @@ public class MediaServiceImpl implements MediaService {
     @SuppressWarnings("rawtypes")
     private final MediaRepository mediaRepository;
 
+    @SuppressWarnings("rawtypes")
+    private final ExternalReferenceRepository externalsRepo;
+
     private final MediaCategoryService mediaCategoryService;
 
     @Qualifier("serieController")
@@ -64,6 +69,7 @@ public class MediaServiceImpl implements MediaService {
 
     public MediaServiceImpl(
             MediaRepository mediaRepository,
+            ExternalReferenceRepository externalsRepo,
             MediaCategoryService mediaCategoryService,
             @Lazy @Qualifier("serieController") MediaDataController serieController,
             @Qualifier("genericMediaDataController") MediaDataController genericMediaDataController,
@@ -72,6 +78,7 @@ public class MediaServiceImpl implements MediaService {
             @Qualifier("movieAPI") MediaApi movieAPI
     ) {
         this.mediaRepository = mediaRepository;
+        this.externalsRepo = externalsRepo;
         this.mediaCategoryService = mediaCategoryService;
         this.serieController = serieController;
         this.genericMediaDataController = genericMediaDataController;
@@ -86,6 +93,11 @@ public class MediaServiceImpl implements MediaService {
     @SuppressWarnings("unchecked")
     @Override
     public MediaModel save(MediaModel media) {
+        boolean hasInMemoryRefs = media.getExternalReference() != null && !media.getExternalReference().isEmpty();
+        boolean hasDbRefs = media.getId() != null && externalsRepo.existsByMediaId(media.getId());
+        if (!hasInMemoryRefs && !hasDbRefs) {
+            throw new ValidationException("Referência externa obrigatória");
+        }
         return (MediaModel) this.mediaRepository.save(media);
     }
 

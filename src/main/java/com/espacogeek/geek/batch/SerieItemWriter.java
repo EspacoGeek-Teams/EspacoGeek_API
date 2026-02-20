@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.annotation.PostConstruct;
+import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -47,21 +48,19 @@ public class SerieItemWriter implements ItemWriter<MediaModel> {
     public void write(List<? extends MediaModel> items) {
         if (items == null || items.isEmpty()) return;
 
-        List<MediaModel> toSave = new ArrayList<>(items);
-        List<MediaModel> saved;
-        try {
-            saved = mediaService.saveAll(toSave);
-        } catch (Exception e) {
-            log.error("Failed to save series batch: {}", e.getMessage(), e);
-            throw e;
-        }
+        for (MediaModel original : items) {
+            MediaModel persisted;
+            try {
+                persisted = mediaService.save(original);
+            } catch (ValidationException e) {
+                log.warn("Skipping series '{}' - missing external reference: {}", original.getName(), e.getMessage());
+                continue;
+            } catch (Exception e) {
+                log.error("Failed to save series '{}': {}", original.getName(), e.getMessage(), e);
+                continue;
+            }
 
-        List<ExternalReferenceModel> refsToSave = new ArrayList<>();
-        for (int i = 0; i < items.size(); i++) {
-            MediaModel original = items.get(i);
-            MediaModel persisted = saved.size() > i ? saved.get(i) : null;
-            if (persisted == null) continue;
-
+            List<ExternalReferenceModel> refsToSave = new ArrayList<>();
             if (original.getExternalReference() != null) {
                 for (ExternalReferenceModel ref : original.getExternalReference()) {
                     ref.setMedia(persisted);
@@ -87,13 +86,13 @@ public class SerieItemWriter implements ItemWriter<MediaModel> {
             } catch (Exception e) {
                 log.error("Failed to fetch/save alternative titles for series: {}", e.getMessage());
             }
-        }
 
-        if (!refsToSave.isEmpty()) {
-            try {
-                externalReferenceService.saveAll(refsToSave);
-            } catch (Exception e) {
-                log.error("Failed to save external references for series: {}", e.getMessage(), e);
+            if (!refsToSave.isEmpty()) {
+                try {
+                    externalReferenceService.saveAll(refsToSave);
+                } catch (Exception e) {
+                    log.error("Failed to save external references for series: {}", e.getMessage(), e);
+                }
             }
         }
     }
