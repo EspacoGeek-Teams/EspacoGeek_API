@@ -107,7 +107,20 @@ public class MediaServiceImpl implements MediaService {
     @SuppressWarnings("unchecked")
     @Override
     public List<MediaModel> saveAll(List<MediaModel> medias) {
-        return this.mediaRepository.saveAll(medias);
+        List<MediaModel> validToSave = new ArrayList<>();
+        for (MediaModel media : medias) {
+            boolean hasInMemoryRefs = media.getExternalReference() != null && !media.getExternalReference().isEmpty();
+            boolean hasDbRefs = media.getId() != null && externalsRepo.existsByMediaId(media.getId());
+            if (!hasInMemoryRefs && !hasDbRefs) {
+                log.warn("Skipping media '{}' - missing external reference (Referência externa obrigatória)", media.getName());
+            } else {
+                validToSave.add(media);
+            }
+        }
+        if (validToSave.isEmpty()) {
+            return List.of();
+        }
+        return this.mediaRepository.saveAll(validToSave);
     }
 
     /**

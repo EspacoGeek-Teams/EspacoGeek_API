@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.annotation.PostConstruct;
-import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -47,33 +46,36 @@ public class MovieItemWriter implements ItemWriter<MediaModel> {
     public void write(List<? extends MediaModel> items) {
         if (items == null || items.isEmpty()) return;
 
+        // Persist media objects in batch; saveAll validates and skips items without external references
+        List<MediaModel> toSave = new ArrayList<>(items);
+        List<MediaModel> saved;
+        try {
+            saved = mediaService.saveAll(toSave);
+        } catch (Exception e) {
+            log.error("Failed to save media batch: {}", e.getMessage(), e);
+            throw e;
+        }
+
+        // Collect external references to save, aligning saved results with original items
+        List<ExternalReferenceModel> refsToSave = new ArrayList<>();
+        int savedIdx = 0;
         for (MediaModel original : items) {
-            MediaModel persisted;
-            try {
-                persisted = mediaService.save(original);
-            } catch (ValidationException e) {
-                log.warn("Skipping media '{}' - missing external reference: {}", original.getName(), e.getMessage());
-                continue;
-            } catch (Exception e) {
-                log.error("Failed to save media '{}': {}", original.getName(), e.getMessage(), e);
+            if (original.getExternalReference() == null || original.getExternalReference().isEmpty()) {
+                // was skipped by saveAll validation
                 continue;
             }
+            if (savedIdx >= saved.size()) break;
+            MediaModel persisted = saved.get(savedIdx++);
+            if (persisted == null) continue;
 
-            // Collect external references to save (associate to persisted media)
-            List<ExternalReferenceModel> refsToSave = new ArrayList<>();
-            if (original.getExternalReference() != null) {
-                for (ExternalReferenceModel ref : original.getExternalReference()) {
-                    ref.setMedia(persisted);
-                    refsToSave.add(ref);
-                }
+            for (ExternalReferenceModel ref : original.getExternalReference()) {
+                ref.setMedia(persisted);
+                refsToSave.add(ref);
             }
 
             // fetch and persist alternative titles using the external API id (if present)
             try {
-                String externalId = null;
-                if (original.getExternalReference() != null && !original.getExternalReference().isEmpty()) {
-                    externalId = original.getExternalReference().get(0).getReference();
-                }
+                String externalId = original.getExternalReference().get(0).getReference();
                 if (externalId != null) {
                     var alts = movieApi.getAlternativeTitles(Integer.valueOf(externalId));
                     if (alts != null && !alts.isEmpty()) {
@@ -84,13 +86,13 @@ public class MovieItemWriter implements ItemWriter<MediaModel> {
             } catch (Exception e) {
                 log.error("Failed to fetch/save alternative titles: {}", e.getMessage());
             }
+        }
 
-            if (!refsToSave.isEmpty()) {
-                try {
-                    externalReferenceService.saveAll(refsToSave);
-                } catch (Exception e) {
-                    log.error("Failed to save external references: {}", e.getMessage(), e);
-                }
+        if (!refsToSave.isEmpty()) {
+            try {
+                externalReferenceService.saveAll(refsToSave);
+            } catch (Exception e) {
+                log.error("Failed to save external references: {}", e.getMessage(), e);
             }
         }
     }
