@@ -46,7 +46,7 @@ public class MovieItemWriter implements ItemWriter<MediaModel> {
     public void write(List<? extends MediaModel> items) {
         if (items == null || items.isEmpty()) return;
 
-        // Persist media objects in batch
+        // Persist media objects in batch; saveAll validates and skips items without external references
         List<MediaModel> toSave = new ArrayList<>(items);
         List<MediaModel> saved;
         try {
@@ -56,26 +56,26 @@ public class MovieItemWriter implements ItemWriter<MediaModel> {
             throw e;
         }
 
-        // Collect external references to save (associate to persisted media)
+        // Collect external references to save, aligning saved results with original items
         List<ExternalReferenceModel> refsToSave = new ArrayList<>();
-        for (int i = 0; i < items.size(); i++) {
-            MediaModel original = items.get(i);
-            MediaModel persisted = saved.size() > i ? saved.get(i) : null;
+        int savedIdx = 0;
+        for (MediaModel original : items) {
+            if (original.getExternalReference() == null || original.getExternalReference().isEmpty()) {
+                // was skipped by saveAll validation
+                continue;
+            }
+            if (savedIdx >= saved.size()) break;
+            MediaModel persisted = saved.get(savedIdx++);
             if (persisted == null) continue;
 
-            if (original.getExternalReference() != null) {
-                for (ExternalReferenceModel ref : original.getExternalReference()) {
-                    ref.setMedia(persisted);
-                    refsToSave.add(ref);
-                }
+            for (ExternalReferenceModel ref : original.getExternalReference()) {
+                ref.setMedia(persisted);
+                refsToSave.add(ref);
             }
 
             // fetch and persist alternative titles using the external API id (if present)
             try {
-                String externalId = null;
-                if (original.getExternalReference() != null && !original.getExternalReference().isEmpty()) {
-                    externalId = original.getExternalReference().get(0).getReference();
-                }
+                String externalId = original.getExternalReference().get(0).getReference();
                 if (externalId != null) {
                     var alts = movieApi.getAlternativeTitles(Integer.valueOf(externalId));
                     if (alts != null && !alts.isEmpty()) {
