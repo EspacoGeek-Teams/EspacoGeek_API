@@ -9,16 +9,23 @@ services:
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
-      JAVA_OPTS: "-Xms256m -Xmx512m"
+      JAVA_OPTS: "-XX:InitialRAMPercentage=75.0 -XX:MaxRAMPercentage=75.0 -XX:+UseSerialGC"
       SPRING_MVC_CORS_ALLOWED_ORIGINS: ${SPRING_MVC_CORS_ALLOWED_ORIGINS:http://localhost:3000}
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:http://localhost:3000}
       SECURITY_JWT_EXPIRATION_MS: ${SECURITY_JWT_EXPIRATION_MS:604800000}
     ports:
       - "8080:8080"
       - "5005:5005"
-    # healthcheck:
-    #   test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
-    #   interval: 10s
-    #   timeout: 5s
-    #   retries: 5
-    #   start_period: 15s
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    deploy:
+      resources:
+        limits:
+          cpus: '0.8'
+          memory: '3500M'
+        reservations:
+          memory: 2000M

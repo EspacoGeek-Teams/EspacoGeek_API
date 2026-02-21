@@ -12,7 +12,7 @@ WORKDIR /app
 COPY --from=build /workspace/build/libs/app.jar /app/app.jar
 
 EXPOSE 8080 5005
-ENV JAVA_OPTS="-Xms256m -Xmx512m"
+ENV JAVA_OPTS="-XX:InitialRAMPercentage=75.0 -XX:MaxRAMPercentage=75.0 -XX:+UseContainerSupport -XX:+UseSerialGC"
 # HEALTHCHECK --interval=10s --timeout=5s --retries=5 --start-period=15s \
 #     CMD curl -f http://localhost:8080/actuator/health || exit 1
 ENTRYPOINT ["sh", "-c", "java ${JAVA_OPTS} -jar app.jar"]
