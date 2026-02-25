@@ -10,7 +10,6 @@ import java.util.zip.GZIPInputStream;
 
 import lombok.Getter;
 import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.springframework.retry.annotation.Backoff;
@@ -44,6 +43,11 @@ public final class DataJumpUtils {
      */
     public static InputStream getDataJumpTMDBStream(final @NotNull DataJumpTypeTMDB type) {
         var now = LocalDateTime.now();
+
+        // If it's not 10 AM, use the previous day's export (TMDB provides daily dumps)
+        if (now.getHour() != 10) {
+            now = now.minusDays(1);
+        }
 
         // formatting the date to do request as tmdb pattern
         var month = String.valueOf(now.getMonth().getValue()).length() == 1 ? "0".concat(String.valueOf(now.getMonth().getValue())) : now.getMonth().getValue();
