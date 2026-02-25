@@ -12,14 +12,8 @@ import org.springframework.stereotype.Repository;
 import com.espacogeek.geek.models.MediaModel;
 import com.espacogeek.geek.models.TypeReferenceModel;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-
 @Repository
-public interface MediaRepository<T> extends JpaRepository<MediaModel, Integer>, MediaRepositoryCustom {
-
-    @PersistenceContext
-    public EntityManager entityManager = null;
+public interface MediaRepository extends JpaRepository<MediaModel, Integer>, MediaRepositoryCustom {
 
     // if at some time the queries become more complex, see https://www.jooq.org/
     // and https://persistence.blazebit.com/.
