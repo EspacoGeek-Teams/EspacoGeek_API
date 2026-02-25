@@ -79,6 +79,7 @@ public class MovieItemWriter implements ItemWriter<MediaModel> {
                 if (externalId != null) {
                     var alts = movieApi.getAlternativeTitles(Integer.valueOf(externalId));
                     if (alts != null && !alts.isEmpty()) {
+                        alts.forEach(a -> a.setMedia(persisted));
                         alternativeTitlesService.saveAll(alts);
                         persisted.setAlternativeTitles(alts);
                     }
