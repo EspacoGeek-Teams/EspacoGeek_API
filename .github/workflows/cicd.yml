@@ -300,7 +300,7 @@ jobs:
             log_success "Image pulled successfully"
 
             log_info "Starting new container..."
-            if ! docker run -d --name "$CONTAINER_NAME" -p 8080:8080 --restart unless-stopped --env-file "$ENV_FILE" "$IMAGE"; then
+            if ! docker run -d --name "$CONTAINER_NAME" --network infra_network -p 8080:8080 --restart unless-stopped --env-file "$ENV_FILE" "$IMAGE"; then
               log_error "Failed to start container"
               if container_exists "${OLD_CONTAINER_BACKUP}"; then
                 log_warn "Restoring old container..."
