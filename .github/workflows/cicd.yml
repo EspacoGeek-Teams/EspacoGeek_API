@@ -182,22 +182,6 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      # Build Docker image for the app as a Native Image (uses existing Dockerfile)
-      - name: Build Native Docker image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: docker/Dockerfile.native
-          platforms: linux/amd64
-          push: ${{ steps.vars.outputs.should_push == 'true' && github.event_name == 'push' }}
-          tags: ${{ steps.tags.outputs.native_tags }}
-          labels: |
-            org.opencontainers.image.version=${{ steps.gradle_version.outputs.version }}
-            org.opencontainers.image.revision=${{ steps.vars.outputs.short_sha }}
-            org.opencontainers.image.source=https://github.com/${{ github.repository }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
       # Deploy to Hostinger via SSH (expects secrets: HOSTINGER (private key), HOSTINGER_HOST, HOSTINGER_USER, optional HOSTINGER_PORT)
       - name: Deploy to Hostinger via SSH
         uses: appleboy/ssh-action@v0.1.9
