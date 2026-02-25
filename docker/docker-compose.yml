@@ -31,6 +31,9 @@ services:
           memory: '3500M'
         reservations:
           memory: 2000M
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
 
 infra_network:
     external: true

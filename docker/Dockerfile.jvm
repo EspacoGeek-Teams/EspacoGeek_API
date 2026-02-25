@@ -9,6 +9,11 @@ RUN set -e; shopt -s nullglob; files=(build/libs/*.[jw]ar); if [ ${#files[@]} -e
 
 FROM eclipse-temurin:21-jre AS run
 WORKDIR /app
+# Use the server timezone inside the container. At runtime mount the host files:
+#  - /etc/localtime:/etc/localtime:ro
+#  - /etc/timezone:/etc/timezone:ro
+# Alternatively set `TZ` to a specific timezone (example: America/Sao_Paulo).
+ENV TZ=America/Sao_Paulo
 COPY --from=build /workspace/build/libs/app.jar /app/app.jar
 
 EXPOSE 8080 5005
