@@ -64,7 +64,7 @@ jobs:
     if: ${{ needs.tests.result == 'success' }}
     env:
       # Base image name (adjust as needed)
-      APP_NAME: espacogeek-backend
+      APP_NAME: espacogeek-api
 
 
     steps:
