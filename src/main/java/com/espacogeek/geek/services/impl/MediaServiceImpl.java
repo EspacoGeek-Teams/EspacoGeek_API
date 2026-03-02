@@ -366,27 +366,7 @@ public class MediaServiceImpl implements MediaService {
         response.setNumber(medias.getNumber());
         response.setSize(medias.getSize());
 
-        var mediasList = medias.getContent();
-        for (MediaModel mediaModel : mediasList) {
-            if (MediaUtils.updateMediaWhenLastTimeUpdateMoreThanOneDay(mediaModel)) {
-                switch (mediaModel.getMediaCategory().getId()) {
-                    case 5:
-                    case 1:
-                        serieController.updateArtworks(mediaModel, null);
-                        break;
-                    case 7:
-                    case 4:
-                        genericMediaDataController.updateArtworks(mediaModel, null, typeReferenceService.findById(MediaDataController.ExternalReferenceType.TMDB.getId()).get(), movieAPI);
-                        break;
-                    case 2:
-                    case 3:
-                        genericMediaDataController.updateArtworks(mediaModel, null, typeReferenceService.findById(MediaDataController.ExternalReferenceType.IGDB.getId()).get(), gamesAndVNsAPI);
-                        break;
-                }
-            }
-        }
-
-        response.setContent(MediaSimplefied.fromMediaModelList(mediasList));
+        response.setContent(MediaSimplefied.fromMediaModelList(medias.getContent()));
 
         return response;
     }
