@@ -12,7 +12,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Map;
 
-import com.espacogeek.geek.config.CorsConfig;
 import com.espacogeek.geek.config.GraphQlCookieInterceptor;
 import com.espacogeek.geek.config.JwtAuthenticationFilter;
 import com.espacogeek.geek.config.JwtConfig;
@@ -64,7 +63,6 @@ class BrowserCorsRequestTest {
     @Import({
         DailyQuoteArtworkController.class,
         SecurityConfig.class,
-        CorsConfig.class,
         JwtConfig.class,
         JwtAuthenticationFilter.class,
         GraphQlCookieInterceptor.class
