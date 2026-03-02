@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
@@ -200,6 +201,7 @@ class BrowserCorsRequestTest {
 
         // Simulate a browser POST with full browser headers (Origin, Sec-Fetch-*, etc.)
         MvcResult mvcResult = mockMvc.perform(post("/")
+                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.ORIGIN, ALLOWED_ORIGIN)
                 .header(HttpHeaders.REFERER, ALLOWED_ORIGIN + "/")
@@ -247,6 +249,7 @@ class BrowserCorsRequestTest {
 
         // A request without Origin header (like Postman/curl) should work
         MvcResult mvcResult = mockMvc.perform(post("/")
+                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(graphqlPayload()))
             .andReturn();
@@ -265,6 +268,7 @@ class BrowserCorsRequestTest {
         when(dailyQuoteArtworkService.getTodayQuoteArtwork()).thenReturn(stubDailyQuote());
 
         MvcResult mvcResult = mockMvc.perform(post("/")
+                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.ORIGIN, ALLOWED_ORIGIN)
                 .content(graphqlPayload()))
