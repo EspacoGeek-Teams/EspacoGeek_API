@@ -17,9 +17,13 @@ import com.espacogeek.geek.config.JwtAuthenticationFilter;
 import com.espacogeek.geek.config.JwtConfig;
 import com.espacogeek.geek.config.SecurityConfig;
 import com.espacogeek.geek.controllers.DailyQuoteArtworkController;
+import com.espacogeek.geek.controllers.MediaController;
 import com.espacogeek.geek.models.DailyQuoteArtworkModel;
 import com.espacogeek.geek.services.DailyQuoteArtworkService;
+import com.espacogeek.geek.services.MediaService;
 import com.espacogeek.geek.services.impl.UserDetailsServiceImpl;
+import com.espacogeek.geek.types.MediaPage;
+import com.espacogeek.geek.types.MediaSimplefied;
 import com.espacogeek.geek.types.Scalars;
 import com.espacogeek.geek.utils.TokenUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -62,6 +66,7 @@ class BrowserCorsRequestTest {
     @SpringBootApplication
     @Import({
         DailyQuoteArtworkController.class,
+        MediaController.class,
         SecurityConfig.class,
         JwtConfig.class,
         JwtAuthenticationFilter.class,
@@ -79,6 +84,9 @@ class BrowserCorsRequestTest {
 
     @MockitoBean
     private DailyQuoteArtworkService dailyQuoteArtworkService;
+
+    @MockitoBean
+    private MediaService mediaService;
 
     @MockitoBean
     private UserDetailsServiceImpl userDetailsService;
@@ -119,6 +127,39 @@ class BrowserCorsRequestTest {
                         quote
                         author
                         urlArtwork
+                    }
+                }"""
+        );
+        return objectMapper.writeValueAsString(body);
+    }
+
+    private MediaPage stubTvSerieMediaPage() {
+        MediaSimplefied item = new MediaSimplefied();
+        item.setId(1);
+        item.setName("Stranger Things");
+        item.setCover("https://example.com/stranger-things.jpg");
+
+        MediaPage page = new MediaPage();
+        page.setContent(java.util.List.of(item));
+        page.setTotalElements(1);
+        page.setTotalPages(1);
+        return page;
+    }
+
+    private String tvSeriePayload() throws Exception {
+        Map<String, Object> body = Map.of(
+            "operationName", "MediaPage",
+            "variables", Map.of("name", "stranger"),
+            "query", """
+                query MediaPage($name: String) {
+                    tvserie(name: $name) {
+                        content {
+                            id
+                            name
+                            cover
+                        }
+                        totalElements
+                        totalPages
                     }
                 }"""
         );
@@ -238,5 +279,78 @@ class BrowserCorsRequestTest {
         assertThat(exposeHeaders).contains("Authorization");
         assertThat(exposeHeaders).contains("Content-Type");
         assertThat(exposeHeaders).contains("Set-Cookie");
+    }
+
+    // ---- tvserie MediaPage query tests ----
+
+    @Test
+    void tvSerieMediaPage_AllowedOrigin_ShouldReturn200WithCorsHeaders() throws Exception {
+        when(mediaService.findSerieByIdOrName(
+                org.mockito.ArgumentMatchers.isNull(),
+                org.mockito.ArgumentMatchers.eq("stranger"),
+                org.mockito.ArgumentMatchers.any()))
+            .thenReturn(stubTvSerieMediaPage());
+
+        // Reproduce the exact browser request from the issue report
+        MvcResult mvcResult = mockMvc.perform(post("/")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.ORIGIN, ALLOWED_ORIGIN)
+                .header(HttpHeaders.REFERER, ALLOWED_ORIGIN + "/")
+                .header(HttpHeaders.ACCEPT, "*/*")
+                .header("Sec-Fetch-Dest", "empty")
+                .header("Sec-Fetch-Mode", "cors")
+                .header("Sec-Fetch-Site", "same-site")
+                .content(tvSeriePayload()))
+            .andReturn();
+
+        MvcResult result = resolveResult(mvcResult);
+        assertThat(result.getResponse().getStatus()).isEqualTo(200);
+        assertThat(result.getResponse().getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN))
+            .isEqualTo(ALLOWED_ORIGIN);
+        assertThat(result.getResponse().getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS))
+            .isEqualTo("true");
+
+        String body = result.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        var json = objectMapper.readTree(body);
+        assertThat(json.path("data").path("tvserie").path("content").get(0).path("name").asText())
+            .isEqualTo("Stranger Things");
+        assertThat(json.path("data").path("tvserie").path("totalElements").asLong())
+            .isEqualTo(1);
+    }
+
+    @Test
+    void tvSerieMediaPage_NoOriginHeader_ShouldReturn200() throws Exception {
+        when(mediaService.findSerieByIdOrName(
+                org.mockito.ArgumentMatchers.isNull(),
+                org.mockito.ArgumentMatchers.eq("stranger"),
+                org.mockito.ArgumentMatchers.any()))
+            .thenReturn(stubTvSerieMediaPage());
+
+        // A request without Origin header (like Postman/curl) should work — not return 403
+        MvcResult mvcResult = mockMvc.perform(post("/")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(tvSeriePayload()))
+            .andReturn();
+
+        MvcResult result = resolveResult(mvcResult);
+        assertThat(result.getResponse().getStatus()).isEqualTo(200);
+
+        String body = result.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        var json = objectMapper.readTree(body);
+        assertThat(json.path("data").path("tvserie").path("content").get(0).path("name").asText())
+            .isEqualTo("Stranger Things");
+    }
+
+    @Test
+    void tvSerieMediaPage_DisallowedOrigin_ShouldReturn403() throws Exception {
+        // A browser request from a disallowed origin should be rejected even for tvserie
+        mockMvc.perform(post("/")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.ORIGIN, DISALLOWED_ORIGIN)
+                .header("Sec-Fetch-Dest", "empty")
+                .header("Sec-Fetch-Mode", "cors")
+                .header("Sec-Fetch-Site", "cross-site")
+                .content(tvSeriePayload()))
+            .andExpect(status().isForbidden());
     }
 }
