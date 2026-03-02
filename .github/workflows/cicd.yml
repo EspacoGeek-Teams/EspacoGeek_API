@@ -362,7 +362,6 @@ jobs:
             SECURITY_JWT_EXPIRATION_MS=${{ secrets.SECURITY_JWT_EXPIRATION_MS }}
             SECURITY_JWT_SECRET=${{ secrets.SECURITY_JWT_SECRET }}
             SAMESITE_WHEN_SAME_SITE=${{ secrets.SAMESITE_WHEN_SAME_SITE }}
-            ALLOWED_ORIGINS=${{ secrets.ALLOWED_ORIGINS }}
             MAIL_HOST=${{ secrets.MAIL_HOST }}
             MAIL_PORT=${{ secrets.MAIL_PORT }}
             MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}

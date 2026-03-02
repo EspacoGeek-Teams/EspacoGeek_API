@@ -132,7 +132,6 @@ The deployment uses these environment variables from GitHub Secrets:
 - `SECURITY_JWT_EXPIRATION_MS` - JWT expiration time
 - `SECURITY_JWT_SECRET` - JWT secret key
 - `SAMESITE_WHEN_SAME_SITE` - SameSite cookie setting
-- `ALLOWED_ORIGINS` - Allowed origins for API
 - `MAIL_HOST` - Email server host
 - `MAIL_PORT` - Email server port
 - `MAIL_USERNAME` - Email server username
