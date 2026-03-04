@@ -297,6 +297,7 @@ class BrowserCorsRequestTest {
 
         // Reproduce the exact browser request from the issue report
         MvcResult mvcResult = mockMvc.perform(post("/")
+                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.ORIGIN, ALLOWED_ORIGIN)
                 .header(HttpHeaders.REFERER, ALLOWED_ORIGIN + "/")
@@ -332,6 +333,7 @@ class BrowserCorsRequestTest {
 
         // A request without Origin header (like Postman/curl) should work — not return 403
         MvcResult mvcResult = mockMvc.perform(post("/")
+                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(tvSeriePayload()))
             .andReturn();
