@@ -178,4 +178,39 @@ class CsrfProtectionTest {
         assertThat(result.getResponse().getCookie("XSRF-TOKEN")).isNotNull();
         assertThat(result.getResponse().getCookie("XSRF-TOKEN").isHttpOnly()).isFalse();
     }
+
+    @Test
+    void post_SpaCsrfCookieFlow_ShouldReturn200() throws Exception {
+        when(dailyQuoteArtworkService.getTodayQuoteArtwork()).thenReturn(stubDailyQuote());
+
+        // Step 1: SPA makes first POST without any CSRF token.
+        // Server rejects with 403 and sets the XSRF-TOKEN cookie so the SPA can read it.
+        MvcResult firstResult = mockMvc.perform(post("/")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.ORIGIN, ALLOWED_ORIGIN)
+                .content(graphqlPayload()))
+            .andExpect(status().isForbidden())
+            .andReturn();
+
+        // SPA reads the raw XSRF-TOKEN cookie value from the 403 response
+        jakarta.servlet.http.Cookie xsrfCookie = firstResult.getResponse().getCookie("XSRF-TOKEN");
+        assertThat(xsrfCookie).isNotNull();
+        String csrfTokenValue = xsrfCookie.getValue();
+        assertThat(csrfTokenValue).isNotBlank();
+
+        // Step 2: SPA retries the POST, sending the raw cookie value as the X-XSRF-TOKEN header.
+        // The browser also automatically includes the XSRF-TOKEN cookie in the request.
+        // With CsrfTokenRequestAttributeHandler (plain), the raw value is compared directly
+        // to the stored cookie — no XOR decoding — so the request is accepted.
+        MvcResult mvcResult = mockMvc.perform(post("/")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.ORIGIN, ALLOWED_ORIGIN)
+                .header("X-XSRF-TOKEN", csrfTokenValue)
+                .cookie(new jakarta.servlet.http.Cookie("XSRF-TOKEN", csrfTokenValue))
+                .content(graphqlPayload()))
+            .andReturn();
+
+        MvcResult result = resolveResult(mvcResult);
+        assertThat(result.getResponse().getStatus()).isEqualTo(200);
+    }
 }
