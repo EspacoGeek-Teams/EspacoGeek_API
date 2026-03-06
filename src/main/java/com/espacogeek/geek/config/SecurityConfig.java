@@ -14,6 +14,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.CorsConfigurer;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -44,6 +45,12 @@ public class SecurityConfig {
     @Value("${security.jwt.expiration-ms:604800000}")
     private long expirationMs;
 
+    @Value("${security.csrf.cookie-domain:}")
+    private String csrfCookieDomain;
+
+    @Value("${security.csrf.cookie-same-site:}")
+    private String csrfCookieSameSite;
+
     @PostConstruct
     public void logCorsConfig() {
         log.info("CORS Configuration loaded:");
@@ -71,9 +78,19 @@ public class SecurityConfig {
         authenticationManagerBuilder.userDetailsService(userDetailsService).passwordEncoder(bCryptPasswordEncoder());
         var authenticationManager = authenticationManagerBuilder.build();
 
+        var csrfRepo = CookieCsrfTokenRepository.withHttpOnlyFalse();
+        if (!csrfCookieDomain.isBlank()) {
+            csrfRepo.setCookieDomain(csrfCookieDomain);
+        }
+        if (!csrfCookieSameSite.isBlank()) {
+            csrfRepo.setCookieCustomizer(builder -> builder.sameSite(csrfCookieSameSite));
+        }
+
         return http
                 .cors(this::corsSettings)
-                .csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
+                .csrf(csrf -> csrf
+                        .csrfTokenRepository(csrfRepo)
+                        .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler()))
                 .authorizeHttpRequests(auth -> {
                     auth.requestMatchers("/", "/graphiql", "/graphiql/**", "/favicon.ico").permitAll();
                     auth.requestMatchers("/actuator/**").permitAll();
