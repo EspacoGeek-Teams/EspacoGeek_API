@@ -12,6 +12,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.config.annotation.web.configurers.CorsConfigurer;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
@@ -90,7 +91,14 @@ public class SecurityConfig {
                 .cors(this::corsSettings)
                 .csrf(csrf -> csrf
                         .csrfTokenRepository(csrfRepo)
-                        .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler()))
+                        .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
+                        // Bearer-token clients (mobile/Postman/Flutter) are exempt from CSRF:
+                        // they cannot be victims of CSRF because browsers never automatically
+                        // add Authorization headers to cross-origin requests.
+                        .ignoringRequestMatchers(request -> {
+                            String auth = request.getHeader(HttpHeaders.AUTHORIZATION);
+                            return auth != null && auth.startsWith("Bearer ");
+                        }))
                 .authorizeHttpRequests(auth -> {
                     auth.requestMatchers("/", "/graphiql", "/graphiql/**", "/favicon.ico").permitAll();
                     auth.requestMatchers("/actuator/**").permitAll();
