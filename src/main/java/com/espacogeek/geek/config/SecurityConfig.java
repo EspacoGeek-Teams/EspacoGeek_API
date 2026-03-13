@@ -23,7 +23,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 
 import com.espacogeek.geek.services.impl.UserDetailsServiceImpl;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
 import java.util.List;
@@ -80,6 +79,7 @@ public class SecurityConfig {
         var authenticationManager = authenticationManagerBuilder.build();
 
         var csrfRepo = CookieCsrfTokenRepository.withHttpOnlyFalse();
+        csrfRepo.setCookiePath("/");
         if (!csrfCookieDomain.isBlank()) {
             csrfRepo.setCookieDomain(csrfCookieDomain);
         }
