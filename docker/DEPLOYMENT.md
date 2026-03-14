@@ -127,15 +127,20 @@ The deployment uses these environment variables from GitHub Secrets:
 - `SPRING_DATASOURCE_URL` - Database connection URL
 - `SPRING_DATASOURCE_USERNAME` - Database user
 - `SPRING_DATASOURCE_PASSWORD` - Database password
+- `SPRING_AUTO_DDL` - Hibernate DDL strategy (`none`, `update`, etc.)
 - `SPRING_MVC_CORS_ALLOWED_ORIGINS` - CORS origins
 - `SECURITY_JWT_ISSUER` - JWT issuer
 - `SECURITY_JWT_EXPIRATION_MS` - JWT expiration time
+- `JWT_EXPIRATION_MS` - Alternative JWT expiration variable used by current app config
 - `SECURITY_JWT_SECRET` - JWT secret key
 - `SAMESITE_WHEN_SAME_SITE` - SameSite cookie setting
+- `SECURITY_CSRF_COOKIE_DOMAIN` - CSRF cookie domain (ex: `.espacogeek.com`)
+- `SECURITY_CSRF_COOKIE_SAME_SITE` - CSRF cookie SameSite value (`None`, `Lax`, `Strict`)
 - `MAIL_HOST` - Email server host
 - `MAIL_PORT` - Email server port
 - `MAIL_USERNAME` - Email server username
 - `MAIL_PASSWORD` - Email server password
+- `APP_NAME` - Application display name
 - `FRONTEND_URL` - Frontend URL
 
 ## GitHub Actions Integration

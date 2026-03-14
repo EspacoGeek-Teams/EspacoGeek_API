@@ -362,6 +362,8 @@ jobs:
             SECURITY_JWT_EXPIRATION_MS=${{ secrets.SECURITY_JWT_EXPIRATION_MS }}
             SECURITY_JWT_SECRET=${{ secrets.SECURITY_JWT_SECRET }}
             SAMESITE_WHEN_SAME_SITE=${{ secrets.SAMESITE_WHEN_SAME_SITE }}
+            SECURITY_CSRF_COOKIE_DOMAIN=${{ secrets.SECURITY_CSRF_COOKIE_DOMAIN }}
+            SECURITY_CSRF_COOKIE_SAME_SITE=${{ secrets.SECURITY_CSRF_COOKIE_SAME_SITE }}
             MAIL_HOST=${{ secrets.MAIL_HOST }}
             MAIL_PORT=${{ secrets.MAIL_PORT }}
             MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}

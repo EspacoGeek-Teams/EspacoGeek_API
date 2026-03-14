@@ -245,16 +245,46 @@ Production suggestions:
 ---
 Short path: JVM dev = `./gradlew bootRun` | Docker all = `cd docker && docker compose up --build` | Native docker = `docker compose build app-native`.
 
-### Email Server Settings
+### Environment Variables (`.env`)
 
-Add the following environment variables to your `.env` file:
+Main variables consumed by the backend:
 
 ```properties
-# Email Configuration
+# App
+APP_NAME=EspacoGeek
+FRONTEND_URL=http://localhost:3000
+
+# Database
+SPRING_DATASOURCE_URL=jdbc:mysql://localhost:3306/espacogeekdb
+SPRING_DATASOURCE_USERNAME=root
+SPRING_DATASOURCE_PASSWORD=root
+SPRING_AUTO_DDL=update
+
+# CORS
+SPRING_MVC_CORS_ALLOWED_ORIGINS=http://localhost:3000,http://localhost:5173
+
+# JWT / Auth
+SECURITY_JWT_ISSUER=espacogeek
+SECURITY_JWT_EXPIRATION_MS=604800000
+JWT_EXPIRATION_MS=604800000
+SECURITY_JWT_SECRET=your_jwt_secret_key_here
+SAMESITE_WHEN_SAME_SITE=Lax
+
+# CSRF cookie
+SECURITY_CSRF_COOKIE_DOMAIN=
+SECURITY_CSRF_COOKIE_SAME_SITE=
+
+# Optional/legacy JWT cookie-domain mapping (line is commented in application.properties)
+# SPRING_COOKIE_DOMAIN=.espacogeek.com
+
+# Email
 MAIL_HOST=smtp.gmail.com
 MAIL_PORT=587
 MAIL_USERNAME=your-email@gmail.com
 MAIL_PASSWORD=your-app-password
-APP_NAME=EspacoGeek
-FRONTEND_URL=http://localhost:3000
 ```
+
+Notes:
+- `SECURITY_CSRF_COOKIE_DOMAIN`: in production, use `.espacogeek.com` to share CSRF cookie between subdomains.
+- `SECURITY_CSRF_COOKIE_SAME_SITE`: use `None` for cross-site frontend/backend, or `Lax` for same-site flows.
+- `JWT_EXPIRATION_MS` and `SECURITY_JWT_EXPIRATION_MS` are kept for compatibility with current configuration and environment binding.
