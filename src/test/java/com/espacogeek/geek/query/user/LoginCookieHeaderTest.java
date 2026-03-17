@@ -2,7 +2,6 @@ package com.espacogeek.geek.query.user;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch;
@@ -18,7 +17,6 @@ import com.espacogeek.geek.config.JwtConfig;
 import com.espacogeek.geek.models.UserModel;
 import com.espacogeek.geek.services.JwtTokenService;
 import com.espacogeek.geek.services.UserService;
-import com.espacogeek.geek.utils.TokenUtils;
 import com.espacogeek.geek.services.EmailService;
 import com.espacogeek.geek.services.EmailVerificationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -44,18 +42,23 @@ import com.espacogeek.geek.controllers.UserController;
 import com.espacogeek.geek.config.GraphQlCookieInterceptor;
 import com.espacogeek.geek.types.Scalars;
 
-// Use a minimal Spring Boot context importing only the required beans
+/**
+ * Integration test verifying that a successful {@code login} mutation:
+ * <ul>
+ *   <li>Returns an {@code accessToken} in the JSON payload.</li>
+ *   <li>Sets an HttpOnly {@code refreshToken} cookie in the response.</li>
+ *   <li>The cookie has the correct security attributes (HttpOnly, Path=/).</li>
+ * </ul>
+ */
 @SpringBootTest(classes = LoginCookieHeaderTest.TestConfig.class, webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc(addFilters = false)
 @ActiveProfiles("test")
 @SuppressWarnings("null")
 class LoginCookieHeaderTest {
 
-    // Minimal configuration for this test: import only required beans
     @SpringBootApplication
     @Import({UserController.class, JwtConfig.class, GraphQlCookieInterceptor.class})
     static class TestConfig {
-        // Register custom GraphQL scalars used by the schema (e.g., Date)
         @Bean
         RuntimeWiringConfigurer dateScalarConfigurer() {
             return builder -> builder.scalar(Scalars.dateType());
@@ -66,7 +69,7 @@ class LoginCookieHeaderTest {
     private MockMvc mockMvc;
 
     @Autowired
-    private JwtConfig jwtConfig; // use real JwtConfig to build cookie
+    private JwtConfig jwtConfig;
 
     @MockitoBean
     private UserService userService;
@@ -74,9 +77,6 @@ class LoginCookieHeaderTest {
     @MockitoBean
     private JwtTokenService jwtTokenService;
 
-    // Necessário para satisfazer a dependência do UserController
-    @MockitoBean
-    private TokenUtils tokenUtils;
     @MockitoBean
     private EmailService emailService;
 
@@ -86,7 +86,7 @@ class LoginCookieHeaderTest {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
-    void login_ShouldSetAuthCookie_MatchingBodyToken() throws Exception {
+    void login_ShouldReturnAccessTokenInBody_AndSetRefreshTokenCookie() throws Exception {
         // Given
         String email = "user@example.com";
         String password = "ValidPassword123!";
@@ -99,17 +99,23 @@ class LoginCookieHeaderTest {
         user.setPassword(hashedPassword.getBytes(StandardCharsets.UTF_8));
 
         when(userService.findUserByEmail(email)).thenReturn(Optional.of(user));
-        when(jwtTokenService.saveToken(anyString(), any(UserModel.class), anyString())).thenReturn(null);
+        when(jwtTokenService.saveToken(any(), any(UserModel.class), any())).thenReturn(null);
 
-        // Build GraphQL request with variables to avoid escaping issues
-        String query = "query($email: String!, $password: String!) { login(email: $email, password: $password) }";
+        String mutation = """
+                mutation($email: String!, $password: String!) {
+                    login(email: $email, password: $password) {
+                        accessToken
+                        user { id username email }
+                    }
+                }
+                """;
         Map<String, Object> requestBody = Map.of(
-                "query", query,
+                "query", mutation,
                 "variables", Map.of("email", email, "password", password)
         );
         String json = objectMapper.writeValueAsString(requestBody);
 
-        String origin = "http://client.example"; // cross-site to trigger SameSite=None; Secure
+        String origin = "http://client.example"; // cross-site origin to trigger SameSite=None; Secure
 
         // When
         MvcResult mvcResult = mockMvc.perform(post("/")
@@ -123,33 +129,29 @@ class LoginCookieHeaderTest {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        // Then: body contains token
+        // Then: body contains a non-blank accessToken
         String body = result.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        String tokenFromBody = objectMapper.readTree(body)
-                .path("data").path("login").asText();
-        assertThat(tokenFromBody).isNotBlank();
+        String accessToken = objectMapper.readTree(body)
+                .path("data").path("login").path("accessToken").asText();
+        assertThat(accessToken).as("accessToken in JSON payload").isNotBlank();
 
-        // Then: Set-Cookie header exists and contains the same token
+        // Then: the refreshToken HttpOnly cookie must be present in Set-Cookie headers
         List<String> setCookies = result.getResponse().getHeaders(HttpHeaders.SET_COOKIE);
-        assertThat(setCookies).isNotNull();
-        assertThat(setCookies).isNotEmpty();
+        assertThat(setCookies).as("Set-Cookie headers").isNotNull().isNotEmpty();
 
-        String cookieName = jwtConfig.cookieName();
-        String authCookie = setCookies.stream()
-                .filter(c -> c.startsWith(cookieName + "="))
+        String refreshTokenCookieName = jwtConfig.refreshTokenCookieName();
+        String refreshCookieHeader = setCookies.stream()
+                .filter(c -> c.startsWith(refreshTokenCookieName + "="))
                 .findFirst()
                 .orElse(null);
-        assertThat(authCookie).as("Auth cookie should be present").isNotNull();
+        assertThat(refreshCookieHeader).as("refreshToken cookie should be present").isNotNull();
 
-        // cookie format: NAME=VALUE; Path=/; HttpOnly; SameSite=...; Secure?
-        String cookieValue = authCookie.substring((cookieName + "=").length(), authCookie.indexOf(';'));
-        assertThat(cookieValue).isEqualTo(tokenFromBody);
-
-        // Basic attributes
-        assertThat(authCookie).contains("HttpOnly");
-        assertThat(authCookie).contains("Path=/");
-        // Cross-site -> SameSite=None; Secure
-        assertThat(authCookie).contains("SameSite=None");
-        assertThat(authCookie).contains("Secure");
+        // Cookie must be HttpOnly and Path=/
+        assertThat(refreshCookieHeader).contains("HttpOnly");
+        assertThat(refreshCookieHeader).contains("Path=/");
+        // Cross-site origin -> SameSite=None; Secure
+        assertThat(refreshCookieHeader).contains("SameSite=None");
+        assertThat(refreshCookieHeader).contains("Secure");
     }
 }
+

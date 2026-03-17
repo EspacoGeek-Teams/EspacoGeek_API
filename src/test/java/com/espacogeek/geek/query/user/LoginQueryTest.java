@@ -19,12 +19,16 @@ import com.espacogeek.geek.controllers.UserController;
 import com.espacogeek.geek.models.UserModel;
 import com.espacogeek.geek.services.JwtTokenService;
 import com.espacogeek.geek.services.UserService;
-import com.espacogeek.geek.utils.TokenUtils;
 import com.espacogeek.geek.services.EmailService;
 import com.espacogeek.geek.services.EmailVerificationService;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
 
+/**
+ * Tests for the login GraphQL mutation.
+ * The mutation returns an AuthPayload { accessToken, user { id, username, email } }.
+ * The refresh token is delivered via an HttpOnly cookie (not tested in @GraphQlTest scope).
+ */
 @GraphQlTest(UserController.class)
 @ActiveProfiles("test")
 @SuppressWarnings("null")
@@ -42,9 +46,6 @@ class LoginQueryTest {
     @MockitoBean
     private JwtTokenService jwtTokenService;
 
-    // Necessário para satisfazer a dependência do UserController
-    @MockitoBean
-    private TokenUtils tokenUtils;
     @MockitoBean
     private EmailService emailService;
 
@@ -52,12 +53,12 @@ class LoginQueryTest {
     private EmailVerificationService emailVerificationService;
 
     @Test
-    void login_ValidCredentials_ShouldReturnToken() {
+    void login_ValidCredentials_ShouldReturnAccessToken() {
         // Given
         String email = "user@example.com";
         String password = "ValidPassword123!";
         String hashedPassword = new String(BCrypt.withDefaults().hash(12, password.toCharArray()));
-        String expectedToken = "jwt.token.here";
+        String expectedAccessToken = "access.jwt.token.here";
 
         UserModel user = new UserModel();
         user.setId(1);
@@ -66,20 +67,67 @@ class LoginQueryTest {
         user.setPassword(hashedPassword.getBytes());
 
         when(userService.findUserByEmail(email)).thenReturn(Optional.of(user));
-        when(jwtConfig.generateToken(any(UserModel.class))).thenReturn(expectedToken);
-        when(jwtTokenService.saveToken(anyString(), any(UserModel.class), anyString())).thenReturn(null);
+        when(jwtConfig.generateAccessToken(any(UserModel.class))).thenReturn(expectedAccessToken);
+        when(jwtConfig.generateRefreshToken(any(UserModel.class))).thenReturn("refresh.jwt.token.here");
+        when(jwtTokenService.saveToken(anyString(), any(UserModel.class), any())).thenReturn(null);
 
         // When & Then
         graphQlTester.document("""
-                query {
-                    login(email: "%s", password: "%s")
+                mutation {
+                    login(email: "%s", password: "%s") {
+                        accessToken
+                        user {
+                            id
+                            username
+                            email
+                        }
+                    }
                 }
                 """.formatted(email, password))
                 .execute()
-                .path("login")
+                .path("login.accessToken")
                 .entity(String.class)
                 .satisfies(token -> {
-                    assertThat(token).isEqualTo(expectedToken);
+                    assertThat(token).isEqualTo(expectedAccessToken);
+                });
+    }
+
+    @Test
+    void login_ValidCredentials_ShouldReturnUserData() {
+        // Given
+        String email = "user@example.com";
+        String password = "ValidPassword123!";
+        String hashedPassword = new String(BCrypt.withDefaults().hash(12, password.toCharArray()));
+
+        UserModel user = new UserModel();
+        user.setId(1);
+        user.setUsername("testuser");
+        user.setEmail(email);
+        user.setPassword(hashedPassword.getBytes());
+
+        when(userService.findUserByEmail(email)).thenReturn(Optional.of(user));
+        when(jwtConfig.generateAccessToken(any(UserModel.class))).thenReturn("access.token");
+        when(jwtConfig.generateRefreshToken(any(UserModel.class))).thenReturn("refresh.token");
+        when(jwtTokenService.saveToken(anyString(), any(UserModel.class), any())).thenReturn(null);
+
+        // When & Then
+        graphQlTester.document("""
+                mutation {
+                    login(email: "%s", password: "%s") {
+                        accessToken
+                        user {
+                            id
+                            username
+                            email
+                        }
+                    }
+                }
+                """.formatted(email, password))
+                .execute()
+                .path("login.user.email")
+                .entity(String.class)
+                .satisfies(returnedEmail -> {
+                    assertThat(returnedEmail).isEqualTo(email);
                 });
     }
 
@@ -93,8 +141,10 @@ class LoginQueryTest {
 
         // When & Then
         graphQlTester.document("""
-                query {
-                    login(email: "%s", password: "%s")
+                mutation {
+                    login(email: "%s", password: "%s") {
+                        accessToken
+                    }
                 }
                 """.formatted(email, password))
                 .execute()
@@ -122,8 +172,10 @@ class LoginQueryTest {
 
         // When & Then
         graphQlTester.document("""
-                query {
-                    login(email: "%s", password: "%s")
+                mutation {
+                    login(email: "%s", password: "%s") {
+                        accessToken
+                    }
                 }
                 """.formatted(email, wrongPassword))
                 .execute()

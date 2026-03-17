@@ -33,13 +33,18 @@ public class JwtConfig {
     @Value("${security.jwt.secret:ZmFrZS1zZWNyZXQtZmFrZS1zZWNyZXQtZmFrZS1zZWNyZXQtMTIzNDU2}")
     private String secret;
 
+    /** Long-lived refresh token expiry (default 7 days). Used for the refreshToken cookie. */
     @Value("${security.jwt.expiration-ms:604800000}")
     private long expirationMs;
+
+    /** Short-lived access token expiry (default 15 minutes). Returned in the JSON payload. */
+    @Value("${security.jwt.access-token-expiration-ms:900000}")
+    private long accessTokenExpirationMs;
 
     @Value("${security.jwt.issuer:espaco-geek}")
     private String issuer;
 
-    // Cookie settings
+    // Auth cookie settings (legacy – kept for backward compatibility)
     @Value("${security.jwt.cookie-name:EG_AUTH}")
     private String cookieName;
 
@@ -48,6 +53,10 @@ public class JwtConfig {
 
     @Value("${security.jwt.cookie-domain:}")
     private String cookieDomain;
+
+    // Refresh token cookie settings
+    @Value("${security.jwt.refresh-token-cookie-name:refreshToken}")
+    private String refreshTokenCookieName;
 
     // When request is same-site, which SameSite to use (Lax or Strict). Default Lax.
     @Value("${security.jwt.same-site-when-same-site:Lax}")
@@ -64,19 +73,13 @@ public class JwtConfig {
     }
 
     /**
-     * Generate a signed JWT for the given user.
-     * @param user the authenticated user
-     * @return compact JWT string
+     * Build the normalized roles list for a user.
      */
-    public String generateToken(UserModel user) {
-        Instant now = Instant.now();
-
-        // Build roles list from user.userRole (comma separated) and ensure ID_ claim is included
+    private List<String> buildRolesList(UserModel user) {
         List<String> rolesList = new ArrayList<>();
         String raw = user.getUserRole();
         if (raw != null && !raw.isBlank()) {
             String[] parts = raw.replaceAll("\\s", "").split(",");
-            // Normalize roles: if a role doesn't start with ROLE_ or ID_, prefix with ROLE_
             rolesList.addAll(Arrays.stream(parts)
                     .map(s -> s == null ? null : s.trim())
                     .filter(s -> s != null && !s.isBlank())
@@ -86,22 +89,63 @@ public class JwtConfig {
                     })
                     .toList());
         }
-        // Ensure at least ROLE_user is present as a fallback
         if (rolesList.isEmpty()) {
             rolesList.add("ROLE_user");
         }
-        // Add device/user identifier role (keep ID_ as-is)
         rolesList.add("ID_" + user.getId());
+        return rolesList;
+    }
 
+    /**
+     * Generate a short-lived access token (15 min by default) for the given user.
+     * The token carries {@code type=access} and is intended to be returned in the JSON payload.
+     *
+     * @param user the authenticated user
+     * @return compact JWT string
+     */
+    public String generateAccessToken(UserModel user) {
+        Instant now = Instant.now();
+        return Jwts.builder()
+                .issuer(issuer)
+                .subject(user.getEmail())
+                .issuedAt(Date.from(now))
+                .expiration(Date.from(now.plusMillis(accessTokenExpirationMs)))
+                .claim("uid", user.getId())
+                .claim("roles", buildRolesList(user))
+                .claim("type", "access")
+                .signWith(getSigningKey(), Jwts.SIG.HS256)
+                .compact();
+    }
+
+    /**
+     * Generate a long-lived refresh token (7 days by default) for the given user.
+     * The token carries {@code type=refresh} and is stored in the database; it is
+     * delivered to the client via an HttpOnly cookie named {@code refreshToken}.
+     *
+     * @param user the authenticated user
+     * @return compact JWT string
+     */
+    public String generateRefreshToken(UserModel user) {
+        Instant now = Instant.now();
         return Jwts.builder()
                 .issuer(issuer)
                 .subject(user.getEmail())
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(now.plusMillis(expirationMs)))
                 .claim("uid", user.getId())
-                .claim("roles", rolesList)
+                .claim("roles", buildRolesList(user))
+                .claim("type", "refresh")
                 .signWith(getSigningKey(), Jwts.SIG.HS256)
                 .compact();
+    }
+
+    /**
+     * Generate a signed JWT for the given user (access token, backward-compatible).
+     * @param user the authenticated user
+     * @return compact JWT string
+     */
+    public String generateToken(UserModel user) {
+        return generateAccessToken(user);
     }
 
     /**
@@ -134,6 +178,97 @@ public class JwtConfig {
      */
     public String cookieName() {
         return cookieName;
+    }
+
+    /**
+     * Get the name of the refresh token HttpOnly cookie.
+     */
+    public String refreshTokenCookieName() {
+        return refreshTokenCookieName;
+    }
+
+    /**
+     * Build the HttpOnly {@code refreshToken} Set-Cookie using the request for SameSite/Secure detection.
+     * The cookie is scoped to Path=/ so it is sent to the server on every request,
+     * but since only the {@code refreshToken} mutation reads it, it is safe.
+     */
+    public ResponseCookie buildRefreshTokenCookie(String token, HttpServletRequest request) {
+        boolean crossSite = isCrossSite(request);
+        String sameSite = crossSite ? "None" : normalizeSameSite(sameSiteWhenSameSite);
+        boolean secure = crossSite || request.isSecure();
+
+        ResponseCookie.ResponseCookieBuilder builder = ResponseCookie.from(refreshTokenCookieName, token)
+                .httpOnly(true)
+                .secure(secure)
+                .path(cookiePath)
+                .maxAge(Duration.ofMillis(expirationMs))
+                .sameSite(sameSite);
+        if (cookieDomain != null && !cookieDomain.isBlank()) {
+            builder.domain(cookieDomain);
+        }
+        return builder.build();
+    }
+
+    /**
+     * Clear the HttpOnly {@code refreshToken} cookie.
+     */
+    public ResponseCookie clearRefreshTokenCookie(HttpServletRequest request) {
+        boolean crossSite = isCrossSite(request);
+        String sameSite = crossSite ? "None" : normalizeSameSite(sameSiteWhenSameSite);
+        boolean secure = crossSite || request.isSecure();
+
+        ResponseCookie.ResponseCookieBuilder builder = ResponseCookie.from(refreshTokenCookieName, "")
+                .httpOnly(true)
+                .secure(secure)
+                .path(cookiePath)
+                .maxAge(Duration.ZERO)
+                .sameSite(sameSite);
+        if (cookieDomain != null && !cookieDomain.isBlank()) {
+            builder.domain(cookieDomain);
+        }
+        return builder.build();
+    }
+
+    /**
+     * Build the HttpOnly {@code refreshToken} Set-Cookie using Origin/server URI for SameSite/Secure detection.
+     * Used by {@link com.espacogeek.geek.config.GraphQlCookieInterceptor} which has access to
+     * the {@code WebGraphQlRequest} headers and URI but not to the raw {@code HttpServletRequest}.
+     */
+    public ResponseCookie buildRefreshTokenCookie(String token, String originHeader, URI serverUri) {
+        boolean crossSite = isCrossSite(originHeader, serverUri);
+        String sameSite = crossSite ? "None" : normalizeSameSite(sameSiteWhenSameSite);
+        boolean secure = crossSite || "https".equalsIgnoreCase(serverUri.getScheme());
+
+        ResponseCookie.ResponseCookieBuilder builder = ResponseCookie.from(refreshTokenCookieName, token)
+                .httpOnly(true)
+                .secure(secure)
+                .path(cookiePath)
+                .maxAge(Duration.ofMillis(expirationMs))
+                .sameSite(sameSite);
+        if (cookieDomain != null && !cookieDomain.isBlank()) {
+            builder.domain(cookieDomain);
+        }
+        return builder.build();
+    }
+
+    /**
+     * Clear the HttpOnly {@code refreshToken} cookie using Origin/server URI for SameSite/Secure detection.
+     */
+    public ResponseCookie clearRefreshTokenCookie(String originHeader, URI serverUri) {
+        boolean crossSite = isCrossSite(originHeader, serverUri);
+        String sameSite = crossSite ? "None" : normalizeSameSite(sameSiteWhenSameSite);
+        boolean secure = crossSite || "https".equalsIgnoreCase(serverUri.getScheme());
+
+        ResponseCookie.ResponseCookieBuilder builder = ResponseCookie.from(refreshTokenCookieName, "")
+                .httpOnly(true)
+                .secure(secure)
+                .path(cookiePath)
+                .maxAge(Duration.ZERO)
+                .sameSite(sameSite);
+        if (cookieDomain != null && !cookieDomain.isBlank()) {
+            builder.domain(cookieDomain);
+        }
+        return builder.build();
     }
 
     /**
