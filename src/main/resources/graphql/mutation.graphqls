@@ -1,9 +1,26 @@
 """
 Mutation operations for the EspacoGeek API.
-All mutations require authentication via JWT token (except createUser, requestPasswordReset, and resetPassword).
-Include the token in the Authorization header: "Bearer <token>"
+All mutations that require authentication must include the access token in the
+Authorization header: "Bearer <accessToken>"
 """
 type Mutation {
+    """
+    Authenticate with email and password.
+    Returns an AuthPayload containing a short-lived access token (15 min) in the JSON
+    payload and sets a long-lived refresh token (7 days) as an HttpOnly cookie named
+    'refreshToken'. Use the access token as: Authorization: Bearer <accessToken>
+    Example: login(email: "user@example.com", password: "password123", deviceInfo: "Chrome/Linux")
+    """
+    login(email: String, password: String, deviceInfo: String): AuthPayload!
+
+    """
+    Obtain a new access token using the refresh token stored in the 'refreshToken' cookie.
+    The refresh token cookie is rotated on every call (old token invalidated, new token set).
+    No arguments needed — the refresh token is read automatically from the HttpOnly cookie.
+    Returns a new AuthPayload with a fresh access token.
+    """
+    refreshToken: AuthPayload!
+
     """
     Change user password. Requires authentication.
     Example: editPassword(actualPassword: "oldpass", newPassword: "newpass")

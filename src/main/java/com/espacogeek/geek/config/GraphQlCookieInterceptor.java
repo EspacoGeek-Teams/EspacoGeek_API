@@ -1,7 +1,8 @@
 package com.espacogeek.geek.config;
 
 import java.net.URI;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.graphql.server.WebGraphQlInterceptor;
@@ -10,12 +11,25 @@ import org.springframework.graphql.server.WebGraphQlResponse;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.lang.NonNull;
-import org.springframework.util.StringUtils;
 
 import reactor.core.publisher.Mono;
 
 /**
- * Interceptor to set/clear HttpOnly auth cookie after login/logout GraphQL operations.
+ * Interceptor that manages {@code refreshToken} HttpOnly cookie operations for login,
+ * refreshToken, and logout GraphQL mutations.
+ *
+ * <p>Before execution begins, this interceptor injects two shared containers into the
+ * {@link graphql.GraphQLContext}:</p>
+ * <ul>
+ *   <li>{@code "pendingRefreshTokens"} – controller methods add a refresh token here when
+ *       one should be set as an HttpOnly cookie on the response.</li>
+ *   <li>{@code "clearRefreshCookieHolder"} – a {@code boolean[1]} array; controller methods
+ *       set index {@code [0]} to {@code true} to signal that the refresh token cookie should
+ *       be cleared (e.g., on logout).</li>
+ * </ul>
+ * <p>After execution completes, this interceptor reads the containers and writes the
+ * appropriate {@code Set-Cookie} header to the HTTP response via
+ * {@link WebGraphQlResponse#getResponseHeaders()}.</p>
  */
 @Configuration
 public class GraphQlCookieInterceptor implements WebGraphQlInterceptor {
@@ -26,54 +40,34 @@ public class GraphQlCookieInterceptor implements WebGraphQlInterceptor {
         this.jwtConfig = jwtConfig;
     }
 
-    @SuppressWarnings("null")
     @Override
     public @NonNull Mono<WebGraphQlResponse> intercept(@NonNull WebGraphQlRequest request, @NonNull Chain chain) {
+        // Shared containers — populated by controller methods via GraphQLContext during execution
+        List<String> pendingRefreshTokens = new ArrayList<>();
+        boolean[] clearRefreshCookieHolder = {false};
+
+        request.configureExecutionInput((input, builder) ->
+                builder.graphQLContext(ctx -> {
+                    ctx.put("pendingRefreshTokens", pendingRefreshTokens);
+                    ctx.put("clearRefreshCookieHolder", clearRefreshCookieHolder);
+                }).build());
+
         return chain.next(request).map(response -> {
-            String operationName = request.getOperationName();
-            if (!StringUtils.hasText(operationName)) {
-                operationName = extractTopFieldName(request.getDocument());
+            String origin = request.getHeaders().getFirst(HttpHeaders.ORIGIN);
+            URI serverUri = request.getUri().toUri();
+
+            if (!pendingRefreshTokens.isEmpty()) {
+                ResponseCookie cookie = jwtConfig.buildRefreshTokenCookie(
+                        pendingRefreshTokens.get(0), origin, serverUri);
+                response.getResponseHeaders().add(HttpHeaders.SET_COOKIE, cookie.toString());
             }
 
-            if (operationName != null) {
-                URI serverUri = request.getUri().toUri();
-                String origin = request.getHeaders().getFirst(HttpHeaders.ORIGIN);
-
-                Map<String, Object> data = response.getData();
-                if ("login".equals(operationName.toLowerCase())) {
-                    if (data != null) {
-                        Object val = data.get("login");
-                        if (val instanceof String token && !token.isBlank()) {
-                            ResponseCookie cookie = jwtConfig.buildAuthCookie(token, origin, serverUri);
-                            response.getResponseHeaders().add(HttpHeaders.SET_COOKIE, cookie.toString());
-                        }
-                    }
-                } else if ("logout".equals(operationName.toLowerCase())) {
-                    ResponseCookie clear = jwtConfig.clearAuthCookie(origin, serverUri);
-                    response.getResponseHeaders().add(HttpHeaders.SET_COOKIE, clear.toString());
-                }
+            if (clearRefreshCookieHolder[0]) {
+                ResponseCookie clear = jwtConfig.clearRefreshTokenCookie(origin, serverUri);
+                response.getResponseHeaders().add(HttpHeaders.SET_COOKIE, clear.toString());
             }
+
             return response;
         });
-    }
-
-    private String extractTopFieldName(String document) {
-        if (document == null) return null;
-        String s = document.stripLeading();
-        int idx = s.indexOf('{');
-        if (idx >= 0) {
-            String after = s.substring(idx + 1).trim();
-            int end = after.indexOf('(');
-            int space = after.indexOf(' ');
-            int brace = after.indexOf('}');
-            int cut = Integer.MAX_VALUE;
-            if (end >= 0) cut = Math.min(cut, end);
-            if (space >= 0) cut = Math.min(cut, space);
-            if (brace >= 0) cut = Math.min(cut, brace);
-            if (cut != Integer.MAX_VALUE) {
-                return after.substring(0, cut).trim();
-            }
-        }
-        return null;
     }
 }

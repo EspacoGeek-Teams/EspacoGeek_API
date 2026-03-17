@@ -11,6 +11,18 @@ type User {
 }
 
 """
+Response payload returned after a successful login or token refresh.
+The refresh token is NOT included here; it is delivered via an HttpOnly
+cookie named 'refreshToken' and managed automatically by the browser.
+"""
+type AuthPayload {
+    "Short-lived JWT access token (15 min). Include as: Authorization: Bearer <token>"
+    accessToken: String!
+    "Authenticated user data"
+    user: User!
+}
+
+"""
 Input type for creating a new user account
 """
 input NewUser {
