@@ -39,14 +39,14 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 /**
- * Integration tests verifying the hybrid JWT authentication architecture:
+ * Integration tests verifying the stateless JWT authentication architecture:
  * <ul>
- *   <li>Mobile/Postman/Flutter clients using {@code Authorization: Bearer} are exempt from
- *       CSRF checks — they can POST without a CSRF token.</li>
- *   <li>Browser (cookie-based) clients without a Bearer header still require a CSRF token.</li>
+ *   <li>API clients using {@code Authorization: Bearer} are authenticated and can access protected resources.</li>
+ *   <li>CSRF is fully disabled — any POST (with or without a Bearer header) to public endpoints returns 200.</li>
+ *   <li>Protected resources require a valid JWT access token in the Bearer header.</li>
  * </ul>
  * Both code paths share the same {@link SecurityConfig} and
- * {@link JwtAuthenticationFilter}, so the security context is unified for REST and GraphQL.
+ * {@link JwtAuthenticationFilter}, so the security context is unified for all GraphQL operations.
  */
 @SpringBootTest(
     classes = BearerTokenAuthTest.TestConfig.class,
@@ -184,20 +184,21 @@ class BearerTokenAuthTest {
     }
 
     /**
-     * Browser / cookie client from an allowed origin without a CSRF token.
-     * No Bearer header is present — this simulates a browser making an unauthenticated
-     * (or cookie-authenticated) POST without a CSRF token.
-     * Expected: 403 — CSRF protection remains active for any request that does not carry
-     * an {@code Authorization: Bearer} header, regardless of which origin it comes from.
+     * Any POST from any origin without a Bearer token now succeeds for public endpoints
+     * because CSRF is disabled. Authentication for protected endpoints is enforced
+     * at the GraphQL field level via @PreAuthorize, returning a GraphQL error — not HTTP 403.
      */
     @Test
-    void noBearerToken_WithoutCsrf_ShouldReturn403() throws Exception {
+    void noBearerToken_WithoutCsrf_ShouldReturn200_ForPublicEndpoint() throws Exception {
         when(dailyQuoteArtworkService.getTodayQuoteArtwork()).thenReturn(stubDailyQuote());
 
-        mockMvc.perform(post("/")
+        MvcResult mvcResult = mockMvc.perform(post("/")
                 .contentType(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.ORIGIN, "http://localhost:3000")
                 .content(graphqlPayload()))
-            .andExpect(status().isForbidden());
+            .andReturn();
+
+        MvcResult result = resolveResult(mvcResult);
+        assertThat(result.getResponse().getStatus()).isEqualTo(200);
     }
 }

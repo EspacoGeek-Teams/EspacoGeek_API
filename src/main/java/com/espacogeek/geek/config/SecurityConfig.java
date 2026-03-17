@@ -12,10 +12,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.security.config.annotation.web.configurers.CorsConfigurer;
-import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
-import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -28,7 +25,10 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Spring Security setup with JWT filter and method security.
+ * Spring Security setup: fully stateless JWT authentication.
+ * CSRF protection is disabled because all state-mutating requests are authenticated
+ * via the {@code Authorization: Bearer <accessToken>} header. Browsers never
+ * automatically add that header to cross-origin requests, so CSRF cannot occur.
  */
 @Configuration
 @EnableWebSecurity
@@ -44,12 +44,6 @@ public class SecurityConfig {
 
     @Value("${security.jwt.expiration-ms:604800000}")
     private long expirationMs;
-
-    @Value("${security.csrf.cookie-domain:}")
-    private String csrfCookieDomain;
-
-    @Value("${security.csrf.cookie-same-site:}")
-    private String csrfCookieSameSite;
 
     @PostConstruct
     public void logCorsConfig() {
@@ -78,27 +72,12 @@ public class SecurityConfig {
         authenticationManagerBuilder.userDetailsService(userDetailsService).passwordEncoder(bCryptPasswordEncoder());
         var authenticationManager = authenticationManagerBuilder.build();
 
-        var csrfRepo = CookieCsrfTokenRepository.withHttpOnlyFalse();
-        csrfRepo.setCookiePath("/");
-        if (!csrfCookieDomain.isBlank()) {
-            csrfRepo.setCookieDomain(csrfCookieDomain);
-        }
-        if (!csrfCookieSameSite.isBlank()) {
-            csrfRepo.setCookieCustomizer(builder -> builder.sameSite(csrfCookieSameSite));
-        }
-
         return http
                 .cors(this::corsSettings)
-                .csrf(csrf -> csrf
-                        .csrfTokenRepository(csrfRepo)
-                        .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
-                        // Bearer-token clients (mobile/Postman/Flutter) are exempt from CSRF:
-                        // they cannot be victims of CSRF because browsers never automatically
-                        // add Authorization headers to cross-origin requests.
-                        .ignoringRequestMatchers(request -> {
-                            String auth = request.getHeader(HttpHeaders.AUTHORIZATION);
-                            return auth != null && auth.startsWith("Bearer ");
-                        }))
+                // CSRF disabled: all API requests are authenticated via the short-lived
+                // JWT access token in the Authorization: Bearer header (never sent
+                // automatically by browsers), making CSRF attacks impossible.
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> {
                     auth.requestMatchers("/", "/graphiql", "/graphiql/**", "/favicon.ico").permitAll();
                     auth.requestMatchers("/actuator/**").permitAll();

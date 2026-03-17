@@ -2,8 +2,8 @@ package com.espacogeek.geek.controllers;
 
 import java.util.List;
 
+import graphql.schema.DataFetchingEnvironment;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CookieValue;
 
 import com.espacogeek.geek.config.JwtConfig;
 import com.espacogeek.geek.exception.GenericException;
@@ -20,8 +21,8 @@ import com.espacogeek.geek.services.EmailService;
 import com.espacogeek.geek.services.EmailVerificationService;
 import com.espacogeek.geek.services.JwtTokenService;
 import com.espacogeek.geek.services.UserService;
+import com.espacogeek.geek.types.AuthPayload;
 import com.espacogeek.geek.types.NewUser;
-import com.espacogeek.geek.utils.TokenUtils;
 import com.espacogeek.geek.utils.UserUtils;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
@@ -35,7 +36,6 @@ public class UserController {
     private final UserService userService;
     private final JwtConfig jwtConfig;
     private final JwtTokenService jwtTokenService;
-    private final TokenUtils tokenUtils;
     private final EmailService emailService;
     private final EmailVerificationService emailVerificationService;
 
@@ -48,56 +48,104 @@ public class UserController {
 
     @QueryMapping(name = "logout")
     @PreAuthorize("hasRole('user')")
-    public String doLogoutUser(Authentication authentication) {
-        String token = tokenUtils.resolveToken();
-
-        if (token != null && !token.isBlank()) {
-            // Remove only the current token (current device/session)
-            jwtTokenService.deleteToken(token);
-
-            // Cookie clearing is handled by GraphQlCookieInterceptor
-            return HttpStatus.OK.toString();
+    public String doLogoutUser(
+            @CookieValue(name = "refreshToken", required = false) String refreshTokenCookie,
+            DataFetchingEnvironment environment) {
+        // Invalidate the refresh token stored in the database
+        if (refreshTokenCookie != null && !refreshTokenCookie.isBlank()) {
+            jwtTokenService.deleteToken(refreshTokenCookie);
         }
 
-        throw new GenericException(HttpStatus.UNAUTHORIZED.toString());
+        // Signal the interceptor to clear the refreshToken cookie
+        boolean[] clearHolder = environment.getGraphQlContext().get("clearRefreshCookieHolder");
+        if (clearHolder != null) {
+            clearHolder[0] = true;
+        }
+
+        return HttpStatus.OK.toString();
     }
 
     @QueryMapping(name = "isLogged")
     @PreAuthorize("hasRole('user')")
     public String isUserLogged(Authentication authentication) {
-        String token = tokenUtils.resolveToken();
-
-        if (token != null && !token.isBlank()) {
-            try {
-                boolean structureValid = jwtConfig.isValid(token);
-                boolean storedValid = jwtTokenService.isTokenValid(token);
-                if (structureValid && storedValid) {
-                    return HttpStatus.OK.toString();
-                }
-            } catch (Exception e) {
-                log.warn("isLogged validation threw exception: {}", e.toString());
-                throw new GenericException(HttpStatus.INTERNAL_SERVER_ERROR.toString());
-            }
-        }
-
-        throw new GenericException(HttpStatus.UNAUTHORIZED.toString());
+        // @PreAuthorize already ensures the access token is valid; just confirm.
+        return HttpStatus.OK.toString();
     }
 
     /**
-     * Authenticate with email and password and return a JWT token.
+     * Authenticate with email and password.
+     * Returns a short-lived access token in the JSON payload and sets a long-lived
+     * refresh token as an HttpOnly cookie named {@code refreshToken}.
      */
-    @QueryMapping(name = "login")
-    public String doLoginUser(@Argument(name = "email") String email, @Argument(name = "password") String password, @Argument(name = "deviceInfo") String deviceInfo) {
-        UserModel user = userService.findUserByEmail(email).orElseThrow(() -> new GenericException(HttpStatus.UNAUTHORIZED.toString()));
+    @MutationMapping(name = "login")
+    public AuthPayload doLoginUser(
+            @Argument(name = "email") String email,
+            @Argument(name = "password") String password,
+            @Argument(name = "deviceInfo") String deviceInfo,
+            DataFetchingEnvironment environment) {
+
+        UserModel user = userService.findUserByEmail(email)
+                .orElseThrow(() -> new GenericException(HttpStatus.UNAUTHORIZED.toString()));
 
         boolean verified = BCrypt.verifyer().verify(password.toCharArray(), user.getPassword()).verified;
         if (!verified) {
             throw new GenericException(HttpStatus.UNAUTHORIZED.toString());
         }
 
-        String token = jwtConfig.generateToken(user);
-        jwtTokenService.saveToken(token, user, deviceInfo);
-        return token;
+        // Short-lived access token — returned in the JSON payload
+        String accessToken = jwtConfig.generateAccessToken(user);
+
+        // Long-lived refresh token — stored in DB and delivered via HttpOnly cookie
+        String refreshToken = jwtConfig.generateRefreshToken(user);
+        jwtTokenService.saveToken(refreshToken, user, deviceInfo);
+
+        // Queue the refresh token cookie via the shared GraphQL context container
+        queueRefreshTokenCookie(environment, refreshToken);
+
+        return new AuthPayload(accessToken, user);
+    }
+
+    /**
+     * Obtain a new access token using the refresh token from the {@code refreshToken} cookie.
+     * Implements token rotation: the old refresh token is invalidated and a new one is issued.
+     */
+    @MutationMapping(name = "refreshToken")
+    public AuthPayload doRefreshToken(
+            @CookieValue(name = "refreshToken", required = false) String refreshTokenCookie,
+            DataFetchingEnvironment environment) {
+
+        if (refreshTokenCookie == null || refreshTokenCookie.isBlank()) {
+            throw new GenericException(HttpStatus.UNAUTHORIZED.toString());
+        }
+
+        // Validate JWT signature and type claim
+        var claims = jwtConfig.validate(refreshTokenCookie);
+        if (claims == null) {
+            throw new GenericException(HttpStatus.UNAUTHORIZED.toString());
+        }
+        Object tokenType = claims.get("type");
+        if (!"refresh".equals(tokenType)) {
+            throw new GenericException(HttpStatus.UNAUTHORIZED.toString());
+        }
+
+        // Validate that the token is still present and not expired in the database
+        if (!jwtTokenService.isTokenValid(refreshTokenCookie)) {
+            throw new GenericException(HttpStatus.UNAUTHORIZED.toString());
+        }
+
+        String email = claims.getSubject();
+        UserModel user = userService.findUserByEmail(email)
+                .orElseThrow(() -> new GenericException(HttpStatus.UNAUTHORIZED.toString()));
+
+        // Token rotation: invalidate the used refresh token and issue a new one
+        jwtTokenService.deleteToken(refreshTokenCookie);
+        String newRefreshToken = jwtConfig.generateRefreshToken(user);
+        jwtTokenService.saveToken(newRefreshToken, user, null);
+        queueRefreshTokenCookie(environment, newRefreshToken);
+
+        // Issue a new short-lived access token
+        String newAccessToken = jwtConfig.generateAccessToken(user);
+        return new AuthPayload(newAccessToken, user);
     }
 
     @MutationMapping(name = "createUser")
@@ -252,5 +300,23 @@ public class UserController {
         emailVerificationService.markTokenAsUsed(verificationToken);
 
         return HttpStatus.OK.toString();
+    }
+
+    // ---------- Helpers
+
+    /**
+     * Queue the refresh token to be delivered as an HttpOnly cookie via
+     * {@link GraphQlCookieInterceptor}. The interceptor injects a shared
+     * {@code "pendingRefreshTokens"} list into the {@link graphql.GraphQLContext}
+     * before execution; this method adds the token to that list.
+     * If no list is present (e.g., in {@code @GraphQlTest} unit tests that don't
+     * wire the full interceptor chain), this is a no-op.
+     */
+    @SuppressWarnings("unchecked")
+    private void queueRefreshTokenCookie(DataFetchingEnvironment environment, String refreshToken) {
+        List<String> pending = environment.getGraphQlContext().get("pendingRefreshTokens");
+        if (pending != null) {
+            pending.add(refreshToken);
+        }
     }
 }

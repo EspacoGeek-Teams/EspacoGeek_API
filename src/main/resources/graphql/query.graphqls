@@ -46,20 +46,14 @@ type Query {
     media(id: ID): Media
 
     """
-    Authenticate and get JWT token.
-    Example: login(email: "user@example.com", password: "password123", deviceInfo: "user's device info")
-    Returns: JWT token string
-    """
-    login(email: String, password: String, deviceInfo: String): String
-
-    """
-    Logout current user.
+    Logout current user. Requires authentication via Authorization: Bearer header.
+    Invalidates the refresh token stored in the refreshToken cookie.
     """
     logout: String
 
     """
-    Check if the user is logged in.
-    Example: isLogged
+    Check if the user is logged in (access token is valid).
+    Requires authentication via Authorization: Bearer header.
     """
     isLogged: String
 

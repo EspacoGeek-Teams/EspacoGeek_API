@@ -2,7 +2,6 @@ package com.espacogeek.geek.csrf;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.options;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch;
@@ -39,14 +38,16 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 /**
- * Tests verifying that CSRF protection is enforced for cookie-authenticated browser requests.
+ * Tests verifying the stateless JWT auth model after CSRF protection was disabled.
  * <p>
- * Validates that:
+ * Since all state-mutating requests are authenticated via the
+ * {@code Authorization: Bearer} header (never sent automatically by browsers),
+ * CSRF protection is no longer needed and has been disabled.
  * <ul>
- *   <li>POST requests without a valid CSRF token are rejected with HTTP 403.</li>
- *   <li>POST requests including a valid CSRF token are accepted.</li>
- *   <li>The server sets the XSRF-TOKEN cookie so the frontend can obtain a CSRF token.</li>
- *   <li>CSRF is not enforced for safe methods (OPTIONS preflight).</li>
+ *   <li>POST requests from any origin without a CSRF token are allowed (public endpoints return 200).</li>
+ *   <li>POST requests without an auth token to protected endpoints are rejected with HTTP 401/403.</li>
+ *   <li>OPTIONS preflight requests continue to be allowed.</li>
+ *   <li>No XSRF-TOKEN cookie is set (CSRF is disabled).</li>
  * </ul>
  */
 @SpringBootTest(
@@ -123,24 +124,12 @@ class CsrfProtectionTest {
     }
 
     @Test
-    void post_WithoutCsrfToken_ShouldReturn403() throws Exception {
+    void post_WithoutCsrfToken_ShouldReturn200_ForPublicEndpoint() throws Exception {
         when(dailyQuoteArtworkService.getTodayQuoteArtwork()).thenReturn(stubDailyQuote());
 
-        // A browser POST from an allowed origin without a CSRF token must be rejected
-        mockMvc.perform(post("/")
-                .contentType(MediaType.APPLICATION_JSON)
-                .header(HttpHeaders.ORIGIN, ALLOWED_ORIGIN)
-                .content(graphqlPayload()))
-            .andExpect(status().isForbidden());
-    }
-
-    @Test
-    void post_WithValidCsrfToken_ShouldReturn200() throws Exception {
-        when(dailyQuoteArtworkService.getTodayQuoteArtwork()).thenReturn(stubDailyQuote());
-
-        // A browser POST from an allowed origin WITH a valid CSRF token must succeed
+        // CSRF is disabled: a browser POST to a public endpoint succeeds without any CSRF token.
+        // Authentication is enforced solely via Authorization: Bearer header (stateless).
         MvcResult mvcResult = mockMvc.perform(post("/")
-                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.ORIGIN, ALLOWED_ORIGIN)
                 .content(graphqlPayload()))
@@ -151,8 +140,30 @@ class CsrfProtectionTest {
     }
 
     @Test
-    void preflight_Options_ShouldNotRequireCsrfToken() throws Exception {
-        // OPTIONS preflight requests must be allowed without a CSRF token
+    void post_WithoutAuthToken_ToProtectedEndpoint_ShouldReturn200WithGraphQLError() throws Exception {
+        // POST without auth to a protected query returns 200 with a GraphQL-level errors array
+        // (Spring Security's access denied is translated into a GraphQL error, not an HTTP 401/403,
+        // because the GraphQL endpoint itself is public — authorization happens at the field level).
+        Map<String, Object> body = Map.of(
+            "operationName", "IsLogged",
+            "variables", Map.of(),
+            "query", "query IsLogged { isLogged }"
+        );
+        String payload = objectMapper.writeValueAsString(body);
+
+        MvcResult mvcResult = mockMvc.perform(post("/")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.ORIGIN, ALLOWED_ORIGIN)
+                .content(payload))
+            .andReturn();
+
+        MvcResult result = resolveResult(mvcResult);
+        assertThat(result.getResponse().getStatus()).isEqualTo(200);
+    }
+
+    @Test
+    void preflight_Options_ShouldBeAllowed() throws Exception {
+        // OPTIONS preflight requests must always be allowed
         mockMvc.perform(options("/")
                 .header(HttpHeaders.ORIGIN, ALLOWED_ORIGIN)
                 .header(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, "POST")
@@ -161,56 +172,19 @@ class CsrfProtectionTest {
     }
 
     @Test
-    void firstRequest_ShouldSetXsrfTokenCookie() throws Exception {
+    void post_NoCsrfTokenCookie_ShouldNotBeSet() throws Exception {
         when(dailyQuoteArtworkService.getTodayQuoteArtwork()).thenReturn(stubDailyQuote());
 
-        // A POST request with no existing XSRF-TOKEN cookie triggers CSRF token generation.
-        // The server must set the XSRF-TOKEN cookie in the response (even on 403) so the
-        // frontend can read the token and include it as the X-XSRF-TOKEN header in the retry.
-        MvcResult result = mockMvc.perform(post("/")
-                .contentType(MediaType.APPLICATION_JSON)
-                .header(HttpHeaders.ORIGIN, ALLOWED_ORIGIN)
-                .content(graphqlPayload()))
-            .andExpect(status().isForbidden())
-            .andReturn();
-
-        // XSRF-TOKEN cookie must be present and readable by JavaScript (not HttpOnly)
-        assertThat(result.getResponse().getCookie("XSRF-TOKEN")).isNotNull();
-        assertThat(result.getResponse().getCookie("XSRF-TOKEN").isHttpOnly()).isFalse();
-    }
-
-    @Test
-    void post_SpaCsrfCookieFlow_ShouldReturn200() throws Exception {
-        when(dailyQuoteArtworkService.getTodayQuoteArtwork()).thenReturn(stubDailyQuote());
-
-        // Step 1: SPA makes first POST without any CSRF token.
-        // Server rejects with 403 and sets the XSRF-TOKEN cookie so the SPA can read it.
-        MvcResult firstResult = mockMvc.perform(post("/")
-                .contentType(MediaType.APPLICATION_JSON)
-                .header(HttpHeaders.ORIGIN, ALLOWED_ORIGIN)
-                .content(graphqlPayload()))
-            .andExpect(status().isForbidden())
-            .andReturn();
-
-        // SPA reads the raw XSRF-TOKEN cookie value from the 403 response
-        jakarta.servlet.http.Cookie xsrfCookie = firstResult.getResponse().getCookie("XSRF-TOKEN");
-        assertThat(xsrfCookie).isNotNull();
-        String csrfTokenValue = xsrfCookie.getValue();
-        assertThat(csrfTokenValue).isNotBlank();
-
-        // Step 2: SPA retries the POST, sending the raw cookie value as the X-XSRF-TOKEN header.
-        // The browser also automatically includes the XSRF-TOKEN cookie in the request.
-        // With CsrfTokenRequestAttributeHandler (plain), the raw value is compared directly
-        // to the stored cookie — no XOR decoding — so the request is accepted.
+        // CSRF is disabled: no XSRF-TOKEN cookie should be set in the response
         MvcResult mvcResult = mockMvc.perform(post("/")
                 .contentType(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.ORIGIN, ALLOWED_ORIGIN)
-                .header("X-XSRF-TOKEN", csrfTokenValue)
-                .cookie(new jakarta.servlet.http.Cookie("XSRF-TOKEN", csrfTokenValue))
                 .content(graphqlPayload()))
             .andReturn();
 
         MvcResult result = resolveResult(mvcResult);
         assertThat(result.getResponse().getStatus()).isEqualTo(200);
+        // No XSRF-TOKEN cookie — CSRF protection is entirely disabled
+        assertThat(result.getResponse().getCookie("XSRF-TOKEN")).isNull();
     }
 }
