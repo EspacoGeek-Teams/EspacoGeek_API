@@ -2,7 +2,7 @@ package com.espacogeek.geek.exception;
 
 public class EmailAlreadyExistsException extends RuntimeException {
     public EmailAlreadyExistsException() {
-        super("E-mail já cadastrado");
+        super("Email already registered");
     }
 
     public EmailAlreadyExistsException(String message) {

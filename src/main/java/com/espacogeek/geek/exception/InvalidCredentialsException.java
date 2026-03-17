@@ -2,7 +2,7 @@ package com.espacogeek.geek.exception;
 
 public class InvalidCredentialsException extends RuntimeException {
     public InvalidCredentialsException() {
-        super("Credenciais inválidas");
+        super("Invalid credentials");
     }
 
     public InvalidCredentialsException(String message) {

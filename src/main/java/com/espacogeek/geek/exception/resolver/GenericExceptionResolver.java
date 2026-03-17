@@ -22,21 +22,33 @@ import java.util.Map;
 /**
  * Centralized GraphQL exception resolver that maps domain exceptions to
  * standardized error codes injected into the GraphQL {@code extensions} block
- * under the key {@code customNumber}.
+ * under the key {@code errorCode}.
  *
- * <p>Error code dictionary:
+ * <p>Error code categories:
  * <ul>
- *   <li>1001 – Credenciais inválidas</li>
- *   <li>1002 – Token expirado/inválido</li>
- *   <li>2001 – E-mail já cadastrado</li>
- *   <li>2003 – Mídia já existe</li>
- *   <li>2004 – Validação de input falhou</li>
- *   <li>5000 – Erro inesperado do servidor</li>
- *   <li>5001 – Erro de banco de dados</li>
+ *   <li><b>1xxx – Authentication errors</b>
+ *     <ul>
+ *       <li>1001 – Invalid credentials</li>
+ *       <li>1002 – Token expired/invalid</li>
+ *     </ul>
+ *   </li>
+ *   <li><b>2xxx – Business rule errors</b>
+ *     <ul>
+ *       <li>2001 – Email already registered</li>
+ *       <li>2003 – Media already exists</li>
+ *       <li>2004 – Input validation failed</li>
+ *     </ul>
+ *   </li>
+ *   <li><b>5xxx – Internal errors</b>
+ *     <ul>
+ *       <li>5000 – Unexpected server error</li>
+ *       <li>5001 – Database error</li>
+ *     </ul>
+ *   </li>
  * </ul>
  *
  * <p>Business exceptions never expose a stack trace to the client – only the
- * message and {@code customNumber} are returned. Any unmapped exception is
+ * message and {@code errorCode} are returned. Any unmapped exception is
  * logged as a server error and returned to the client as code {@code 5000}.
  */
 @Component
@@ -45,31 +57,30 @@ public class GenericExceptionResolver extends DataFetcherExceptionResolverAdapte
 
     @Override
     protected GraphQLError resolveToSingleError(@NonNull Throwable exception, @NonNull DataFetchingEnvironment env) {
-        if (exception instanceof InvalidCredentialsException) {
-            return buildError(env, "Credenciais inválidas", 1001);
-        } else if (exception instanceof TokenExpiredException) {
-            return buildError(env, "Token expirado/inválido", 1002);
-        } else if (exception instanceof EmailAlreadyExistsException) {
-            return buildError(env, "E-mail já cadastrado", 2001);
-        } else if (exception instanceof MediaAlreadyExist) {
-            return buildError(env, "Mídia já existe", 2003);
-        } else if (exception instanceof InputValidationException || exception instanceof ValidationException) {
-            return buildError(env, "Validação de input falhou", 2004);
-        } else if (exception instanceof DataAccessException) {
-            log.error("Database error during GraphQL execution: {}", exception.getMessage(), exception);
-            return buildError(env, "Erro de banco de dados", 5001);
-        } else if (exception instanceof GenericException) {
-            return buildError(env, exception.getMessage(), 5000);
-        } else {
-            log.error("Unexpected error during GraphQL execution: {}", exception.getMessage(), exception);
-            return buildError(env, "Erro inesperado do servidor", 5000);
-        }
+        return switch (exception) {
+            case InvalidCredentialsException e  -> buildError(env, "Invalid credentials", 1001);
+            case TokenExpiredException e        -> buildError(env, "Token expired/invalid", 1002);
+            case EmailAlreadyExistsException e  -> buildError(env, "Email already registered", 2001);
+            case MediaAlreadyExist e            -> buildError(env, "Media already exists", 2003);
+            case InputValidationException e     -> buildError(env, "Input validation failed", 2004);
+            case ValidationException e          -> buildError(env, "Input validation failed", 2004);
+            case DataAccessException e          -> {
+                log.error("Database error during GraphQL execution: {}", exception.getMessage(), exception);
+                yield buildError(env, "Database error", 5001);
+            }
+            case GenericException e             -> buildError(env, e.getMessage(), 5000);
+            default                            -> {
+                log.error("Unexpected error during GraphQL execution: {}", exception.getMessage(), exception);
+                yield buildError(env, "Unexpected server error", 5000);
+            }
+        };
     }
 
-    private GraphQLError buildError(DataFetchingEnvironment env, String message, int customNumber) {
+    private GraphQLError buildError(DataFetchingEnvironment env, String message, int errorCode) {
         return GraphqlErrorBuilder.newError(env)
                 .message(message)
-                .extensions(Map.of("customNumber", customNumber))
+                .extensions(Map.of("errorCode", errorCode))
                 .build();
     }
 }
+

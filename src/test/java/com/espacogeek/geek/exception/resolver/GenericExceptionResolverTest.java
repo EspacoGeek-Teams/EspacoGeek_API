@@ -26,7 +26,7 @@ import java.util.List;
  * Unit tests for {@link GenericExceptionResolver}.
  *
  * <p>Verifies that each domain exception is mapped to the correct
- * {@code customNumber} in the GraphQL {@code extensions} block and that
+ * {@code errorCode} in the GraphQL {@code extensions} block and that
  * unmapped exceptions fall back to code {@code 5000}.
  */
 class GenericExceptionResolverTest {
@@ -56,8 +56,8 @@ class GenericExceptionResolverTest {
         GraphQLError error = resolver.resolveToSingleError(new InvalidCredentialsException(), env);
 
         assertThat(error).isNotNull();
-        assertThat(error.getExtensions()).containsEntry("customNumber", 1001);
-        assertThat(error.getMessage()).isEqualTo("Credenciais inválidas");
+        assertThat(error.getExtensions()).containsEntry("errorCode", 1001);
+        assertThat(error.getMessage()).isEqualTo("Invalid credentials");
     }
 
     @Test
@@ -65,8 +65,8 @@ class GenericExceptionResolverTest {
         GraphQLError error = resolver.resolveToSingleError(new TokenExpiredException(), env);
 
         assertThat(error).isNotNull();
-        assertThat(error.getExtensions()).containsEntry("customNumber", 1002);
-        assertThat(error.getMessage()).isEqualTo("Token expirado/inválido");
+        assertThat(error.getExtensions()).containsEntry("errorCode", 1002);
+        assertThat(error.getMessage()).isEqualTo("Token expired/invalid");
     }
 
     @Test
@@ -74,8 +74,8 @@ class GenericExceptionResolverTest {
         GraphQLError error = resolver.resolveToSingleError(new EmailAlreadyExistsException(), env);
 
         assertThat(error).isNotNull();
-        assertThat(error.getExtensions()).containsEntry("customNumber", 2001);
-        assertThat(error.getMessage()).isEqualTo("E-mail já cadastrado");
+        assertThat(error.getExtensions()).containsEntry("errorCode", 2001);
+        assertThat(error.getMessage()).isEqualTo("Email already registered");
     }
 
     @Test
@@ -83,8 +83,8 @@ class GenericExceptionResolverTest {
         GraphQLError error = resolver.resolveToSingleError(new MediaAlreadyExist("media"), env);
 
         assertThat(error).isNotNull();
-        assertThat(error.getExtensions()).containsEntry("customNumber", 2003);
-        assertThat(error.getMessage()).isEqualTo("Mídia já existe");
+        assertThat(error.getExtensions()).containsEntry("errorCode", 2003);
+        assertThat(error.getMessage()).isEqualTo("Media already exists");
     }
 
     @Test
@@ -92,8 +92,8 @@ class GenericExceptionResolverTest {
         GraphQLError error = resolver.resolveToSingleError(new InputValidationException(), env);
 
         assertThat(error).isNotNull();
-        assertThat(error.getExtensions()).containsEntry("customNumber", 2004);
-        assertThat(error.getMessage()).isEqualTo("Validação de input falhou");
+        assertThat(error.getExtensions()).containsEntry("errorCode", 2004);
+        assertThat(error.getMessage()).isEqualTo("Input validation failed");
     }
 
     @Test
@@ -101,8 +101,8 @@ class GenericExceptionResolverTest {
         GraphQLError error = resolver.resolveToSingleError(new ValidationException("invalid"), env);
 
         assertThat(error).isNotNull();
-        assertThat(error.getExtensions()).containsEntry("customNumber", 2004);
-        assertThat(error.getMessage()).isEqualTo("Validação de input falhou");
+        assertThat(error.getExtensions()).containsEntry("errorCode", 2004);
+        assertThat(error.getMessage()).isEqualTo("Input validation failed");
     }
 
     @Test
@@ -110,7 +110,7 @@ class GenericExceptionResolverTest {
         GraphQLError error = resolver.resolveToSingleError(new GenericException("Media not found"), env);
 
         assertThat(error).isNotNull();
-        assertThat(error.getExtensions()).containsEntry("customNumber", 5000);
+        assertThat(error.getExtensions()).containsEntry("errorCode", 5000);
         assertThat(error.getMessage()).isEqualTo("Media not found");
     }
 
@@ -120,8 +120,8 @@ class GenericExceptionResolverTest {
                 new org.springframework.dao.DataIntegrityViolationException("DB error"), env);
 
         assertThat(error).isNotNull();
-        assertThat(error.getExtensions()).containsEntry("customNumber", 5001);
-        assertThat(error.getMessage()).isEqualTo("Erro de banco de dados");
+        assertThat(error.getExtensions()).containsEntry("errorCode", 5001);
+        assertThat(error.getMessage()).isEqualTo("Database error");
     }
 
     @Test
@@ -129,8 +129,8 @@ class GenericExceptionResolverTest {
         GraphQLError error = resolver.resolveToSingleError(new RuntimeException("unexpected"), env);
 
         assertThat(error).isNotNull();
-        assertThat(error.getExtensions()).containsEntry("customNumber", 5000);
-        assertThat(error.getMessage()).isEqualTo("Erro inesperado do servidor");
+        assertThat(error.getExtensions()).containsEntry("errorCode", 5000);
+        assertThat(error.getMessage()).isEqualTo("Unexpected server error");
     }
 
     @Test
@@ -138,12 +138,12 @@ class GenericExceptionResolverTest {
         GraphQLError error = resolver.resolveToSingleError(new NullPointerException(), env);
 
         assertThat(error).isNotNull();
-        assertThat(error.getExtensions()).containsEntry("customNumber", 5000);
+        assertThat(error.getExtensions()).containsEntry("errorCode", 5000);
     }
 
     @Test
     void allBusinessErrors_ShouldNotContainStacktrace() {
-        // Business exceptions must never expose a stack trace – only message + customNumber
+        // Business exceptions must never expose a stack trace – only message + errorCode
         GraphQLError error1001 = resolver.resolveToSingleError(new InvalidCredentialsException(), env);
         GraphQLError error1002 = resolver.resolveToSingleError(new TokenExpiredException(), env);
         GraphQLError error2001 = resolver.resolveToSingleError(new EmailAlreadyExistsException(), env);
