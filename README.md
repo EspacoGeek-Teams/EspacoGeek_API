@@ -6,6 +6,43 @@
   </a>
 </div>
 
+## Error Handling
+
+The API uses a standardized error format via the `GenericExceptionResolver`. Every GraphQL error response includes a `customNumber` field inside the `extensions` block identifying the error type.
+
+### Error Code Dictionary
+
+| Code | Description                    | Exception class                  | Typical scenario                                |
+|------|--------------------------------|----------------------------------|-------------------------------------------------|
+| 1001 | Credenciais inválidas          | `InvalidCredentialsException`    | Wrong email or password at login                |
+| 1002 | Token expirado/inválido        | `TokenExpiredException`          | Expired or malformed refresh/verification token |
+| 2001 | E-mail já cadastrado           | `EmailAlreadyExistsException`    | Duplicate email on user registration            |
+| 2003 | Mídia já existe                | `MediaAlreadyExist`              | Attempt to add an already-registered media item |
+| 2004 | Validação de input falhou      | `InputValidationException`       | Invalid field value (short password, etc.)      |
+| 5000 | Erro inesperado do servidor    | (unmapped exceptions)            | Any error without a specific code               |
+
+### Response shape
+
+```json
+{
+  "errors": [
+    {
+      "message": "Credenciais inválidas",
+      "locations": [...],
+      "path": [...],
+      "extensions": {
+        "customNumber": 1001
+      }
+    }
+  ]
+}
+```
+
+### Rules
+
+- **Business exceptions** (`1001`–`2xxx`) return only `message` + `customNumber`; the stack trace is never sent to the client.
+- **Unmapped exceptions** are logged at `ERROR` level on the server and return `customNumber: 5000` with the generic message `"Erro inesperado do servidor"`.
+
 ## Usage
  See the GraphQL guide: [GraphQL Guide](graphql_guide.md)
  See the license: [Licenses](LICENSE.txt)
