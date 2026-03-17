@@ -49,7 +49,6 @@ public class UserController {
     @QueryMapping(name = "logout")
     @PreAuthorize("hasRole('user')")
     public String doLogoutUser(
-            Authentication authentication,
             @CookieValue(name = "refreshToken", required = false) String refreshTokenCookie,
             DataFetchingEnvironment environment) {
         // Invalidate the refresh token stored in the database

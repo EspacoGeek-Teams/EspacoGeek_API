@@ -44,10 +44,8 @@ public class JwtConfig {
     @Value("${security.jwt.issuer:espaco-geek}")
     private String issuer;
 
-    // Auth cookie settings (legacy – kept for backward compatibility)
-    @Value("${security.jwt.cookie-name:EG_AUTH}")
-    private String cookieName;
-
+    // Cookie shared settings (path, domain, SameSite) used for both the refresh token cookie
+    // and any other cookie-related operations. The legacy EG_AUTH cookie is no longer used.
     @Value("${security.jwt.cookie-path:/}")
     private String cookiePath;
 
@@ -140,7 +138,10 @@ public class JwtConfig {
     }
 
     /**
-     * Generate a signed JWT for the given user (access token, backward-compatible).
+     * Generate a signed JWT access token for the given user.
+     * Delegates to {@link #generateAccessToken(UserModel)}.
+     * Retained for backward compatibility with test code that calls this method directly.
+     *
      * @param user the authenticated user
      * @return compact JWT string
      */
@@ -171,13 +172,6 @@ public class JwtConfig {
      */
     public boolean isValid(String token) {
         return validate(token) != null;
-    }
-
-    /**
-     * Get the name of the auth cookie for clients.
-     */
-    public String cookieName() {
-        return cookieName;
     }
 
     /**
@@ -260,85 +254,6 @@ public class JwtConfig {
         boolean secure = crossSite || "https".equalsIgnoreCase(serverUri.getScheme());
 
         ResponseCookie.ResponseCookieBuilder builder = ResponseCookie.from(refreshTokenCookieName, "")
-                .httpOnly(true)
-                .secure(secure)
-                .path(cookiePath)
-                .maxAge(Duration.ZERO)
-                .sameSite(sameSite);
-        if (cookieDomain != null && !cookieDomain.isBlank()) {
-            builder.domain(cookieDomain);
-        }
-        return builder.build();
-    }
-
-    /**
-     * Build the Set-Cookie for the auth token with HttpOnly; Secure; Path=/ and appropriate SameSite.
-     * - If different site (domain/port/scheme) from backend: SameSite=None; Secure
-     * - If same site: SameSite=Lax/Strict based on configuration
-     */
-    public ResponseCookie buildAuthCookie(String token, HttpServletRequest request) {
-        boolean crossSite = isCrossSite(request);
-        String sameSite = crossSite ? "None" : normalizeSameSite(sameSiteWhenSameSite);
-        boolean secure = crossSite || request.isSecure();
-
-        ResponseCookie.ResponseCookieBuilder builder = ResponseCookie.from(cookieName, token)
-                .httpOnly(true)
-                .secure(secure)
-                .path(cookiePath)
-                .maxAge(Duration.ofMillis(expirationMs))
-                .sameSite(sameSite);
-
-        if (cookieDomain != null && !cookieDomain.isBlank()) {
-            builder.domain(cookieDomain);
-        }
-        return builder.build();
-    }
-
-    /** Build auth cookie using Origin header and server URI (for GraphQL interceptor). */
-    public ResponseCookie buildAuthCookie(String token, String originHeader, URI serverUri) {
-        boolean crossSite = isCrossSite(originHeader, serverUri);
-        String sameSite = crossSite ? "None" : normalizeSameSite(sameSiteWhenSameSite);
-        boolean secure = crossSite || "https".equalsIgnoreCase(serverUri.getScheme());
-
-        ResponseCookie.ResponseCookieBuilder builder = ResponseCookie.from(cookieName, token)
-                .httpOnly(true)
-                .secure(secure)
-                .path(cookiePath)
-                .maxAge(Duration.ofMillis(expirationMs))
-                .sameSite(sameSite);
-        if (cookieDomain != null && !cookieDomain.isBlank()) {
-            builder.domain(cookieDomain);
-        }
-        return builder.build();
-    }
-
-    /**
-     * Build a Set-Cookie header that clears the auth cookie.
-     */
-    public ResponseCookie clearAuthCookie(HttpServletRequest request) {
-        boolean crossSite = isCrossSite(request);
-        String sameSite = crossSite ? "None" : normalizeSameSite(sameSiteWhenSameSite);
-        boolean secure = crossSite || request.isSecure();
-
-        ResponseCookie.ResponseCookieBuilder builder = ResponseCookie.from(cookieName, "")
-                .httpOnly(true)
-                .secure(secure)
-                .path(cookiePath)
-                .maxAge(Duration.ZERO)
-                .sameSite(sameSite);
-        if (cookieDomain != null && !cookieDomain.isBlank()) {
-            builder.domain(cookieDomain);
-        }
-        return builder.build();
-    }
-
-    /** Clear auth cookie using Origin header and server URI (for GraphQL interceptor). */
-    public ResponseCookie clearAuthCookie(String originHeader, URI serverUri) {
-        boolean crossSite = isCrossSite(originHeader, serverUri);
-        String sameSite = crossSite ? "None" : normalizeSameSite(sameSiteWhenSameSite);
-        boolean secure = crossSite || "https".equalsIgnoreCase(serverUri.getScheme());
-
-        ResponseCookie.ResponseCookieBuilder builder = ResponseCookie.from(cookieName, "")
                 .httpOnly(true)
                 .secure(secure)
                 .path(cookiePath)
