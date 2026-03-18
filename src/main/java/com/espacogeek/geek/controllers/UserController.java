@@ -15,6 +15,9 @@ import org.springframework.web.bind.annotation.CookieValue;
 
 import com.espacogeek.geek.config.JwtConfig;
 import com.espacogeek.geek.exception.GenericException;
+import com.espacogeek.geek.exception.InputValidationException;
+import com.espacogeek.geek.exception.InvalidCredentialsException;
+import com.espacogeek.geek.exception.TokenExpiredException;
 import com.espacogeek.geek.models.EmailVerificationTokenModel;
 import com.espacogeek.geek.models.UserModel;
 import com.espacogeek.geek.services.EmailService;
@@ -85,11 +88,11 @@ public class UserController {
             DataFetchingEnvironment environment) {
 
         UserModel user = userService.findUserByEmail(email)
-                .orElseThrow(() -> new GenericException(HttpStatus.UNAUTHORIZED.toString()));
+                .orElseThrow(() -> new InvalidCredentialsException());
 
         boolean verified = BCrypt.verifyer().verify(password.toCharArray(), user.getPassword()).verified;
         if (!verified) {
-            throw new GenericException(HttpStatus.UNAUTHORIZED.toString());
+            throw new InvalidCredentialsException();
         }
 
         // Short-lived access token — returned in the JSON payload
@@ -115,27 +118,27 @@ public class UserController {
             DataFetchingEnvironment environment) {
 
         if (refreshTokenCookie == null || refreshTokenCookie.isBlank()) {
-            throw new GenericException(HttpStatus.UNAUTHORIZED.toString());
+            throw new TokenExpiredException();
         }
 
         // Validate JWT signature and type claim
         var claims = jwtConfig.validate(refreshTokenCookie);
         if (claims == null) {
-            throw new GenericException(HttpStatus.UNAUTHORIZED.toString());
+            throw new TokenExpiredException();
         }
         Object tokenType = claims.get("type");
         if (!"refresh".equals(tokenType)) {
-            throw new GenericException(HttpStatus.UNAUTHORIZED.toString());
+            throw new TokenExpiredException();
         }
 
         // Validate that the token is still present and not expired in the database
         if (!jwtTokenService.isTokenValid(refreshTokenCookie)) {
-            throw new GenericException(HttpStatus.UNAUTHORIZED.toString());
+            throw new TokenExpiredException();
         }
 
         String email = claims.getSubject();
         UserModel user = userService.findUserByEmail(email)
-                .orElseThrow(() -> new GenericException(HttpStatus.UNAUTHORIZED.toString()));
+                .orElseThrow(() -> new TokenExpiredException());
 
         // Token rotation: invalidate the used refresh token and issue a new one
         jwtTokenService.deleteToken(refreshTokenCookie);
@@ -152,11 +155,11 @@ public class UserController {
     public String createUser(@Argument(name = "credentials") NewUser newUser) {
 
         if (!UserUtils.isValidPassword(newUser.password())) {
-            throw new GenericException(HttpStatus.BAD_REQUEST.toString());
+            throw new InputValidationException();
         }
 
         if (newUser.username().trim().length() < 3 || newUser.username().trim().length() > 21) {
-            throw new GenericException(HttpStatus.BAD_REQUEST.toString());
+            throw new InputValidationException();
         }
 
         byte[] passwordCrypt = BCrypt.withDefaults().hash(12, newUser.password().toCharArray());
@@ -193,7 +196,7 @@ public class UserController {
             return HttpStatus.OK.toString();
         }
 
-        throw new GenericException(HttpStatus.UNAUTHORIZED.toString());
+        throw new InvalidCredentialsException();
     }
 
     @MutationMapping(name = "deleteUser")
@@ -210,7 +213,7 @@ public class UserController {
             return HttpStatus.OK.toString();
         }
 
-        throw new GenericException(HttpStatus.UNAUTHORIZED.toString());
+        throw new InvalidCredentialsException();
     }
 
     @MutationMapping(name = "editUsername")
@@ -228,7 +231,7 @@ public class UserController {
             return HttpStatus.OK.toString();
         }
 
-        throw new GenericException(HttpStatus.UNAUTHORIZED.toString());
+        throw new InvalidCredentialsException();
     }
 
     @MutationMapping(name = "editEmail")
@@ -248,7 +251,7 @@ public class UserController {
             return HttpStatus.OK.toString();
         }
 
-        throw new GenericException(HttpStatus.UNAUTHORIZED.toString());
+        throw new InvalidCredentialsException();
     }
 
     @MutationMapping(name = "requestPasswordReset")
@@ -265,11 +268,11 @@ public class UserController {
     @MutationMapping(name = "resetPassword")
     public String resetPassword(@Argument(name = "token") String token, @Argument(name = "newPassword") String newPassword) {
         if (!UserUtils.isValidPassword(newPassword)) {
-            throw new GenericException(HttpStatus.BAD_REQUEST.toString());
+            throw new InputValidationException();
         }
 
         EmailVerificationTokenModel verificationToken = emailVerificationService.validateToken(token, "PASSWORD_RESET")
-            .orElseThrow(() -> new GenericException(HttpStatus.UNAUTHORIZED.toString()));
+            .orElseThrow(() -> new TokenExpiredException());
 
         UserModel user = verificationToken.getUser();
         user.setPassword(BCrypt.withDefaults().hash(12, newPassword.toCharArray()));
@@ -287,7 +290,7 @@ public class UserController {
         Integer userId = UserUtils.getUserID(authentication);
 
         EmailVerificationTokenModel verificationToken = emailVerificationService.validateToken(token, "EMAIL_CHANGE")
-            .orElseThrow(() -> new GenericException(HttpStatus.UNAUTHORIZED.toString()));
+            .orElseThrow(() -> new TokenExpiredException());
 
         if (!verificationToken.getUser().getId().equals(userId)) {
             throw new GenericException(HttpStatus.FORBIDDEN.toString());

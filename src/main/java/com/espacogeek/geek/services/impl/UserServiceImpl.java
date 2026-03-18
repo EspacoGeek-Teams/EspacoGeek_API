@@ -2,11 +2,11 @@ package com.espacogeek.geek.services.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionSystemException;
 
-import com.espacogeek.geek.exception.GenericException;
+import com.espacogeek.geek.exception.EmailAlreadyExistsException;
+import com.espacogeek.geek.exception.InputValidationException;
 import com.espacogeek.geek.models.UserModel;
 import com.espacogeek.geek.repositories.UserRepository;
 import com.espacogeek.geek.services.UserService;
@@ -56,9 +56,9 @@ public class UserServiceImpl implements UserService {
         try {
             return userRepository.save(user);
         } catch (DataIntegrityViolationException e) {
-            throw new GenericException(HttpStatus.CONFLICT.toString());
+            throw new EmailAlreadyExistsException();
         } catch (ConstraintViolationException | TransactionSystemException e) {
-            throw new GenericException(HttpStatus.BAD_REQUEST.toString());
+            throw new InputValidationException();
         }
     }
 

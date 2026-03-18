@@ -6,6 +6,44 @@
   </a>
 </div>
 
+## Error Handling
+
+The API uses a standardized error format via the `GenericExceptionResolver`. Every GraphQL error response includes an `errorCode` field inside the `extensions` block identifying the error type.
+
+### Error Code Dictionary
+
+| Category | Code | Description                  | Exception class                  | Typical scenario                                |
+|----------|------|------------------------------|----------------------------------|-------------------------------------------------|
+| 1xxx Auth | 1001 | Invalid credentials          | `InvalidCredentialsException`    | Wrong email or password at login                |
+| 1xxx Auth | 1002 | Token expired/invalid        | `TokenExpiredException`          | Expired or malformed refresh/verification token |
+| 2xxx Business | 2001 | Email already registered | `EmailAlreadyExistsException`    | Duplicate email on user registration            |
+| 2xxx Business | 2003 | Media already exists     | `MediaAlreadyExist`              | Attempt to add an already-registered media item |
+| 2xxx Business | 2004 | Input validation failed  | `InputValidationException`       | Invalid field value (short password, etc.)      |
+| 5xxx Internal | 5000 | Unexpected server error  | (unmapped exceptions)            | Any error without a specific code               |
+| 5xxx Internal | 5001 | Database error           | `DataAccessException`            | Low-level database failure                      |
+
+### Response shape
+
+```json
+{
+  "errors": [
+    {
+      "message": "Invalid credentials",
+      "locations": [...],
+      "path": [...],
+      "extensions": {
+        "errorCode": 1001
+      }
+    }
+  ]
+}
+```
+
+### Rules
+
+- **Business exceptions** (`1xxx`–`2xxx`) return only `message` + `errorCode`; the stack trace is never sent to the client.
+- **Internal errors** (`5xxx`) are logged at `ERROR` level on the server; unmapped exceptions return `errorCode: 5000` with the generic message `"Unexpected server error"`.
+
 ## Usage
  See the GraphQL guide: [GraphQL Guide](graphql_guide.md)
  See the license: [Licenses](LICENSE.txt)
