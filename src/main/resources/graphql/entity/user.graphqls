@@ -8,6 +8,8 @@ type User {
     username: String
     "User email address"
     email: String
+    "List of roles assigned to the user (e.g. ROLE_user, ROLE_admin)"
+    roles: [String]
 }
 
 """

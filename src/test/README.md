@@ -10,8 +10,8 @@ Tests are organized by query/mutation type and entity:
 src/test/java/com/espacogeek/geek/
 ├── query/
 │   ├── user/
-│   │   ├── FindUserQueryTest.java       (4 tests)
-│   │   └── LoginQueryTest.java          (3 tests)
+│   │   ├── FindUserQueryTest.java       (6 tests)
+│   │   └── LoginQueryTest.java          (5 tests)
 │   ├── media/
 │   │   ├── MediaQueryTest.java          (2 tests)
 │   │   ├── TvSerieQueryTest.java        (3 tests)
@@ -28,7 +28,7 @@ src/test/java/com/espacogeek/geek/
         └── DeleteUserMutationTest.java   (2 tests)
 ```
 
-**Total: 31 tests**
+**Total: 34 tests**
 
 ## Running Tests
 
