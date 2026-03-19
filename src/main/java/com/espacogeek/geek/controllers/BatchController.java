@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Controller
 @RestController
-@RequestMapping("/api/batch")
+@RequestMapping("/api/v1/batch")
 @RequiredArgsConstructor
 @Slf4j
 public class BatchController {
