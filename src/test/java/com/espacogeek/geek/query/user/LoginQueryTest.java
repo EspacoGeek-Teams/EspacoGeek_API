@@ -184,4 +184,42 @@ class LoginQueryTest {
                     assertThat(errors).isNotEmpty();
                 });
     }
+
+    @Test
+    void login_ValidCredentials_ShouldReturnUserRoles() {
+        // Given
+        String email = "user@example.com";
+        String password = "ValidPassword123!";
+        String hashedPassword = new String(BCrypt.withDefaults().hash(12, password.toCharArray()));
+
+        UserModel user = new UserModel();
+        user.setId(1);
+        user.setUsername("testuser");
+        user.setEmail(email);
+        user.setPassword(hashedPassword.getBytes());
+        user.setUserRole("ROLE_user");
+
+        when(userService.findUserByEmail(email)).thenReturn(Optional.of(user));
+        when(jwtConfig.generateAccessToken(any(UserModel.class))).thenReturn("access.token");
+        when(jwtConfig.generateRefreshToken(any(UserModel.class))).thenReturn("refresh.token");
+        when(jwtTokenService.saveToken(anyString(), any(UserModel.class), any())).thenReturn(null);
+
+        // When & Then
+        graphQlTester.document("""
+                mutation {
+                    login(email: "%s", password: "%s") {
+                        accessToken
+                        user {
+                            roles
+                        }
+                    }
+                }
+                """.formatted(email, password))
+                .execute()
+                .path("login.user.roles")
+                .entityList(String.class)
+                .satisfies(roles -> {
+                    assertThat(roles).containsExactly("ROLE_user");
+                });
+    }
 }

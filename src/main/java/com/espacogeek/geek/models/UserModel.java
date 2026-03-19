@@ -1,6 +1,7 @@
 package com.espacogeek.geek.models;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.List;
 
 import jakarta.persistence.Column;
@@ -57,4 +58,22 @@ public class UserModel implements Serializable {
 
     @OneToMany(mappedBy = "user", orphanRemoval = true, fetch = FetchType.LAZY)
     private List<JwtTokenModel> jwtTokens;
+
+    /**
+     * Returns the user's roles as a normalized list for the GraphQL API.
+     * Parses the comma-separated {@code userRole} string, normalizing each entry
+     * to ensure it is prefixed with {@code ROLE_}. The internal {@code ID_} claim
+     * used in JWT tokens is not exposed here.
+     *
+     * @return list of role strings (e.g. {@code ["ROLE_user", "ROLE_admin"]})
+     */
+    public List<String> getRoles() {
+        if (userRole == null || userRole.isBlank()) {
+            return List.of("ROLE_user");
+        }
+        return Arrays.stream(userRole.replaceAll("\\s", "").split(","))
+                .filter(s -> !s.isBlank())
+                .map(s -> s.startsWith("ROLE_") ? s : "ROLE_" + s)
+                .toList();
+    }
 }

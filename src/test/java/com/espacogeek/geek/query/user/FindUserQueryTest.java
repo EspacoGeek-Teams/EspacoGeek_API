@@ -163,4 +163,62 @@ class FindUserQueryTest {
                 .entityList(UserModel.class)
                 .hasSize(0);
     }
+
+    @Test
+    void findUserById_ShouldReturnUserWithRoles() {
+        // Given
+        UserModel user = new UserModel();
+        user.setId(1);
+        user.setUsername("testuser");
+        user.setEmail("test@example.com");
+        user.setUserRole("ROLE_user");
+
+        when(userService.findByIdOrUsernameContainsOrEmail(anyInt(), any(), any()))
+                .thenReturn(Arrays.asList(user));
+
+        // When & Then
+        graphQlTester.document("""
+                query {
+                    findUser(id: 1) {
+                        id
+                        roles
+                    }
+                }
+                """)
+                .execute()
+                .path("findUser[0].roles")
+                .entityList(String.class)
+                .satisfies(roles -> {
+                    assertThat(roles).containsExactly("ROLE_user");
+                });
+    }
+
+    @Test
+    void findUserById_WithMultipleRoles_ShouldReturnAllRoles() {
+        // Given
+        UserModel user = new UserModel();
+        user.setId(1);
+        user.setUsername("adminuser");
+        user.setEmail("admin@example.com");
+        user.setUserRole("ROLE_user,ROLE_admin");
+
+        when(userService.findByIdOrUsernameContainsOrEmail(anyInt(), any(), any()))
+                .thenReturn(Arrays.asList(user));
+
+        // When & Then
+        graphQlTester.document("""
+                query {
+                    findUser(id: 1) {
+                        id
+                        roles
+                    }
+                }
+                """)
+                .execute()
+                .path("findUser[0].roles")
+                .entityList(String.class)
+                .satisfies(roles -> {
+                    assertThat(roles).containsExactlyInAnyOrder("ROLE_user", "ROLE_admin");
+                });
+    }
 }
