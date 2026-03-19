@@ -18,8 +18,9 @@ import lombok.Setter;
 import org.hibernate.proxy.HibernateProxy;
 
 @Entity
-@Table(name = "medias")
-// indexes = {@Index(name = "idx_name", columnList = "name_media", unique = false)}
+@Table(name = "medias", indexes = {
+    @Index(name = "idx_name_media", columnList = "name_media")
+})
 @Getter
 @Setter
 @AllArgsConstructor
