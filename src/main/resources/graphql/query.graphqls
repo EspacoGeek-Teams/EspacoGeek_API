@@ -68,4 +68,11 @@ type Query {
     Example: quote
     """
     quote: QuoteArtwork
+
+    """
+    Get paginated Spring Batch job executions. Requires admin role.
+    Optionally filter by status (e.g. COMPLETED, FAILED, STARTED).
+    Example: getBatchJobs(page: 0, size: 10, status: "FAILED")
+    """
+    getBatchJobs(page: Int!, size: Int!, status: String): BatchJobPage!
 }
