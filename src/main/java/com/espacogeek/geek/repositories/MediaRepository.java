@@ -33,12 +33,17 @@ public interface MediaRepository extends JpaRepository<MediaModel, Integer>, Med
      * @param pageable         Pagination information.
      * @return A list of MediaModel objects that match the search criteria.
      */
-    @Query("SELECT DISTINCT m FROM MediaModel m " +
-            "LEFT JOIN AlternativeTitleModel a ON a MEMBER OF m.alternativeTitles " +
-            "WHERE m.mediaCategory.id = :category " +
-            "AND (m.name LIKE CONCAT('%',:name,'%') " +
-            "OR a.name LIKE CONCAT('%',:alternativeTitle,'%'))")
-    public Page<MediaModel> findMediaByNameOrAlternativeTitleAndMediaCategory(
+@Query("SELECT m FROM MediaModel m " +
+           "WHERE m.mediaCategory.id = :category " +
+           "AND (" +
+           "   m.name LIKE CONCAT('%', :name, '%') " +
+           "   OR EXISTS (" +
+           "       SELECT 1 FROM AlternativeTitleModel a " +
+           "       WHERE a.media = m " +
+           "       AND a.name LIKE CONCAT('%', :alternativeTitle, '%')" +
+           "   )" +
+           ")")
+    Page<MediaModel> findMediaByNameOrAlternativeTitleAndMediaCategory(
             @Param("name") String name,
             @Param("alternativeTitle") String alternativeTitle,
             @Param("category") Integer category,
