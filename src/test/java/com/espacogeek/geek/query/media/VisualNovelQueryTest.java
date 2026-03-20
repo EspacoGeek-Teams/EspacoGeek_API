@@ -21,6 +21,10 @@ import com.espacogeek.geek.data.api.MediaApi;
 import com.espacogeek.geek.models.MediaCategoryModel;
 import com.espacogeek.geek.models.MediaModel;
 import com.espacogeek.geek.models.TypeReferenceModel;
+import com.espacogeek.geek.repositories.AlternativeTitlesRepository;
+import com.espacogeek.geek.repositories.ExternalReferenceRepository;
+import com.espacogeek.geek.repositories.MediaRepository;
+import com.espacogeek.geek.repositories.SeasonRepository;
 import com.espacogeek.geek.services.MediaCategoryService;
 import com.espacogeek.geek.services.MediaService;
 import com.espacogeek.geek.services.TypeReferenceService;
@@ -50,6 +54,19 @@ class VisualNovelQueryTest {
 
     @MockitoBean
     private MediaCategoryService mediaCategoryService;
+
+    @MockitoBean
+    private SeasonRepository seasonRepository;
+
+    @MockitoBean
+    private AlternativeTitlesRepository alternativeTitlesRepository;
+
+    @SuppressWarnings("rawtypes")
+    @MockitoBean
+    private ExternalReferenceRepository externalReferenceRepository;
+
+    @MockitoBean
+    private MediaRepository mediaRepository;
 
     @Test
     void vn_NoParameters_ShouldReturnEmptyPage() {

@@ -99,12 +99,12 @@ public class MovieAPIImpl implements MediaApi {
                 movieDb.getPosterPath() == null ? null : ExternalCDN.TMDB.getUrl() + movieDb.getPosterPath(),
                 movieDb.getBackdropPath() == null ? null : ExternalCDN.TMDB.getUrl() + movieDb.getBackdropPath(),
                 mediaCategoryService.findById(MediaDataController.MediaType.MOVIE.getId()).get(),
-                externalReferences,
+                new java.util.LinkedHashSet<>(externalReferences),
                 null,
                 null,
-                formatGenre(movieDb.getGenres()),
+                new java.util.LinkedHashSet<>(formatGenre(movieDb.getGenres())),
                 null,
-                formatAlternativeTitles(movieDb.getAlternativeTitles().getTitles()),
+                new java.util.LinkedHashSet<>(formatAlternativeTitles(movieDb.getAlternativeTitles().getTitles())),
                 null);
 
         return serie;

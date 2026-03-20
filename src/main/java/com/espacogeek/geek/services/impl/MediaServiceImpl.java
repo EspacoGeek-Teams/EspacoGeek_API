@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
@@ -228,8 +229,8 @@ public class MediaServiceImpl implements MediaService {
                 String getterName = "get" + capitalize(field.getName());
                 Method getter = media.getClass().getMethod(getterName);
                 var fieldValue = getter.invoke(media);
-                if (fieldValue instanceof List) {
-                    ((List<?>) fieldValue).size(); // This will initialize the collection
+                if (fieldValue instanceof Collection) {
+                    ((Collection<?>) fieldValue).size(); // This will initialize the collection
                 }
             } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
                 log.error("Failed to initialize field {} for media id={}: {}", field.getName(), media.getId(), e.getMessage());

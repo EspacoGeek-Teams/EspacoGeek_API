@@ -19,6 +19,10 @@ import com.espacogeek.geek.config.SecurityConfig;
 import com.espacogeek.geek.controllers.DailyQuoteArtworkController;
 import com.espacogeek.geek.controllers.MediaController;
 import com.espacogeek.geek.models.DailyQuoteArtworkModel;
+import com.espacogeek.geek.repositories.AlternativeTitlesRepository;
+import com.espacogeek.geek.repositories.ExternalReferenceRepository;
+import com.espacogeek.geek.repositories.MediaRepository;
+import com.espacogeek.geek.repositories.SeasonRepository;
 import com.espacogeek.geek.services.DailyQuoteArtworkService;
 import com.espacogeek.geek.services.MediaService;
 import com.espacogeek.geek.services.impl.UserDetailsServiceImpl;
@@ -87,6 +91,19 @@ class BrowserCorsRequestTest {
 
     @MockitoBean
     private MediaService mediaService;
+
+    @MockitoBean
+    private SeasonRepository seasonRepository;
+
+    @MockitoBean
+    private AlternativeTitlesRepository alternativeTitlesRepository;
+
+    @SuppressWarnings("rawtypes")
+    @MockitoBean
+    private ExternalReferenceRepository externalReferenceRepository;
+
+    @MockitoBean
+    private MediaRepository mediaRepository;
 
     @MockitoBean
     private UserDetailsServiceImpl userDetailsService;

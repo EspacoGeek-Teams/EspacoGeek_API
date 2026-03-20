@@ -20,6 +20,10 @@ type Media {
     mediaCategory: MediaCategory
     "List of genres"
     genre: [Genre]
+    "Companies involved in production"
+    company: [Company]
+    "People involved (cast, crew, etc.)"
+    people: [People]
     "External references (IMDB, IGDB, VNDB, etc.)"
     externalReference: [ExternalReference]
     "Alternative titles in different languages"

@@ -102,11 +102,11 @@ public class SerieControllerImpl extends GenericMediaDataControllerImpl {
 
                             externalReference.setMedia(mediaSaved);
                             var referenceSaved = externalReferenceService.save(externalReference);
-                            List<ExternalReferenceModel> referenceListSaved = new ArrayList<>();
+                            java.util.LinkedHashSet<ExternalReferenceModel> referenceListSaved = new java.util.LinkedHashSet<>();
                             referenceListSaved.add(referenceSaved);
                             mediaSaved.setExternalReference(referenceListSaved);
 
-                            media.setAlternativeTitles(updateAlternativeTitles(mediaSaved, null, typeReference, tvSeriesApi));
+                            media.setAlternativeTitles(new java.util.LinkedHashSet<>(updateAlternativeTitles(mediaSaved, null, typeReference, tvSeriesApi)));
                         }
                     } catch (Exception e) {
                         var json = (JSONObject) jsonArrayDailyExport.get(index);

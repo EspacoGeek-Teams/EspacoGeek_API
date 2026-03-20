@@ -9,7 +9,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import jakarta.validation.ValidationException;
 import org.junit.jupiter.api.Test;
@@ -63,7 +65,7 @@ class MediaServiceImplTest {
         MediaModel media = new MediaModel();
         media.setName("Inception");
         ExternalReferenceModel ref = new ExternalReferenceModel();
-        media.setExternalReference(List.of(ref));
+        media.setExternalReference(new HashSet<>(List.of(ref)));
         when(mediaRepository.save(media)).thenReturn(media);
 
         // When
@@ -94,7 +96,7 @@ class MediaServiceImplTest {
         // Given
         MediaModel media = new MediaModel();
         media.setName("Unknown");
-        media.setExternalReference(new ArrayList<>());
+        media.setExternalReference(new HashSet<>());
 
         // When & Then
         assertThatThrownBy(() -> mediaService.save(media))
@@ -146,11 +148,11 @@ class MediaServiceImplTest {
         // Given
         MediaModel media1 = new MediaModel();
         media1.setName("Movie A");
-        media1.setExternalReference(List.of(new ExternalReferenceModel()));
+        media1.setExternalReference(new HashSet<>(List.of(new ExternalReferenceModel())));
 
         MediaModel media2 = new MediaModel();
         media2.setName("Movie B");
-        media2.setExternalReference(List.of(new ExternalReferenceModel()));
+        media2.setExternalReference(new HashSet<>(List.of(new ExternalReferenceModel())));
 
         List<MediaModel> input = List.of(media1, media2);
         when(mediaRepository.saveAll(input)).thenReturn(input);
@@ -168,7 +170,7 @@ class MediaServiceImplTest {
         // Given
         MediaModel valid = new MediaModel();
         valid.setName("Valid Movie");
-        valid.setExternalReference(List.of(new ExternalReferenceModel()));
+        valid.setExternalReference(new HashSet<>(List.of(new ExternalReferenceModel())));
 
         MediaModel invalid = new MediaModel();
         invalid.setName("No Ref Movie");
@@ -194,7 +196,7 @@ class MediaServiceImplTest {
 
         MediaModel media2 = new MediaModel();
         media2.setName("No Ref B");
-        media2.setExternalReference(new ArrayList<>());
+        media2.setExternalReference(new HashSet<>());
 
         // When
         List<MediaModel> result = mediaService.saveAll(List.of(media1, media2));

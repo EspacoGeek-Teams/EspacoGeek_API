@@ -75,13 +75,13 @@ public class MovieItemWriter implements ItemWriter<MediaModel> {
 
             // fetch and persist alternative titles using the external API id (if present)
             try {
-                String externalId = original.getExternalReference().get(0).getReference();
+                String externalId = original.getExternalReference().iterator().next().getReference();
                 if (externalId != null) {
                     var alts = movieApi.getAlternativeTitles(Integer.valueOf(externalId));
                     if (alts != null && !alts.isEmpty()) {
                         alts.forEach(a -> a.setMedia(persisted));
                         alternativeTitlesService.saveAll(alts);
-                        persisted.setAlternativeTitles(alts);
+                        persisted.setAlternativeTitles(new java.util.LinkedHashSet<>(alts));
                     }
                 }
             } catch (Exception e) {

@@ -75,7 +75,7 @@ public class SerieItemWriter implements ItemWriter<MediaModel> {
             }
 
             try {
-                String externalId = original.getExternalReference().get(0).getReference();
+                String externalId = original.getExternalReference().iterator().next().getReference();
                 if (externalId != null) {
                     List<AlternativeTitleModel> alts = tvSeriesApi.getAlternativeTitles(Integer.valueOf(externalId));
                     if (alts != null && !alts.isEmpty()) {
@@ -83,7 +83,7 @@ public class SerieItemWriter implements ItemWriter<MediaModel> {
                             alternativeTitleModel.setMedia(persisted);
                         }
                         alternativeTitlesService.saveAll(alts);
-                        persisted.setAlternativeTitles(alts);
+                        persisted.setAlternativeTitles(new java.util.LinkedHashSet<>(alts));
                     }
                 }
             } catch (Exception e) {

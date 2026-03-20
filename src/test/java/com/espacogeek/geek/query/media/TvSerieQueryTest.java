@@ -18,6 +18,10 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import com.espacogeek.geek.controllers.MediaController;
 import com.espacogeek.geek.data.MediaDataController;
+import com.espacogeek.geek.repositories.AlternativeTitlesRepository;
+import com.espacogeek.geek.repositories.ExternalReferenceRepository;
+import com.espacogeek.geek.repositories.MediaRepository;
+import com.espacogeek.geek.repositories.SeasonRepository;
 import com.espacogeek.geek.services.MediaCategoryService;
 import com.espacogeek.geek.services.MediaService;
 import com.espacogeek.geek.services.TypeReferenceService;
@@ -45,6 +49,19 @@ class TvSerieQueryTest {
 
     @MockitoBean
     private MediaCategoryService mediaCategoryService;
+
+    @MockitoBean
+    private SeasonRepository seasonRepository;
+
+    @MockitoBean
+    private AlternativeTitlesRepository alternativeTitlesRepository;
+
+    @SuppressWarnings("rawtypes")
+    @MockitoBean
+    private ExternalReferenceRepository externalReferenceRepository;
+
+    @MockitoBean
+    private MediaRepository mediaRepository;
 
     private MediaPage stubMediaPage() {
         MediaSimplefied item = new MediaSimplefied();

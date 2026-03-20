@@ -105,13 +105,13 @@ public class TvSeriesApiImpl implements MediaApi {
                 rawSerieDetails.getPosterPath() == null ? null : ExternalCDN.TMDB.getUrl() + rawSerieDetails.getPosterPath(),
                 rawSerieDetails.getBackdropPath() == null ? null : ExternalCDN.TMDB.getUrl() + rawSerieDetails.getBackdropPath(),
                 mediaCategoryService.findById(MediaDataController.MediaType.SERIE.getId()).get(),
-                externalReferences,
+                new java.util.LinkedHashSet<>(externalReferences),
                 null,
                 null,
-                formatGenre(rawSerieDetails.getGenres()),
+                new java.util.LinkedHashSet<>(formatGenre(rawSerieDetails.getGenres())),
                 null,
-                formatAlternativeTitles(rawSerieDetails.getAlternativeTitles().getResults()),
-                season);
+                new java.util.LinkedHashSet<>(formatAlternativeTitles(rawSerieDetails.getAlternativeTitles().getResults())),
+                new java.util.LinkedHashSet<>(season));
 
         return serie;
     }

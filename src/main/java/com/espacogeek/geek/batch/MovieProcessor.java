@@ -87,7 +87,7 @@ public class MovieProcessor implements ItemProcessor<JSONObject, MediaModel> {
         externalReference.setTypeReference(typeReference);
         externalReference.setReference(idStr);
 
-        List<ExternalReferenceModel> refs = new ArrayList<>();
+        java.util.LinkedHashSet<ExternalReferenceModel> refs = new java.util.LinkedHashSet<>();
         refs.add(externalReference);
         media.setExternalReference(refs);
 

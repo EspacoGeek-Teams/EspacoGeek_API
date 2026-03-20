@@ -2,11 +2,9 @@ package com.espacogeek.geek.models;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import jakarta.persistence.*;
@@ -56,32 +54,28 @@ public class MediaModel implements Serializable {
     private MediaCategoryModel mediaCategory;
 
     @OneToMany(mappedBy = "media", fetch = FetchType.LAZY)
-    @Fetch(FetchMode.SUBSELECT)
-    private List<ExternalReferenceModel> externalReference;
+    private Set<ExternalReferenceModel> externalReference;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
         name = "medias_has_companies",
         joinColumns = @JoinColumn(name = "medias_id_media"),
         inverseJoinColumns = @JoinColumn(name = "companies_id_company"))
-    @Fetch(FetchMode.SUBSELECT)
-    private List<CompanyModel> company;
+    private Set<CompanyModel> company;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
         name = "medias_has_people",
         joinColumns = @JoinColumn(name = "medias_id_media"),
         inverseJoinColumns = @JoinColumn(name = "people_id_person"))
-    @Fetch(FetchMode.SUBSELECT)
-    private List<PeopleModel> people;
+    private Set<PeopleModel> people;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
         name = "medias_has_genres",
         joinColumns = @JoinColumn(name = "medias_id_media"),
         inverseJoinColumns = @JoinColumn(name = "genres_id_genre"))
-    @Fetch(FetchMode.SUBSELECT)
-    private List<GenreModel> genre;
+    private Set<GenreModel> genre;
 
     @Column(name = "update_at")
     @UpdateTimestamp
@@ -89,12 +83,10 @@ public class MediaModel implements Serializable {
     private Date updateAt;
 
     @OneToMany(mappedBy = "media", fetch = FetchType.LAZY)
-    @Fetch(FetchMode.SUBSELECT)
-    private List<AlternativeTitleModel> alternativeTitles;
+    private Set<AlternativeTitleModel> alternativeTitles;
 
-    @OneToMany(mappedBy = "media")
-    @Fetch(FetchMode.SUBSELECT)
-    private List<SeasonModel> season;
+    @OneToMany(mappedBy = "media", fetch = FetchType.LAZY)
+    private Set<SeasonModel> season;
 
     @Override
     public final boolean equals(Object o) {
@@ -103,7 +95,7 @@ public class MediaModel implements Serializable {
         Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
         Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
         if (thisEffectiveClass != oEffectiveClass) return false;
-        ExternalReferenceModel that = (ExternalReferenceModel) o;
+        MediaModel that = (MediaModel) o;
         return getId() != null && Objects.equals(getId(), that.getId());
     }
 
