@@ -15,7 +15,7 @@ import com.espacogeek.geek.models.MediaModel;
 import com.espacogeek.geek.models.TypeReferenceModel;
 
 @Repository
-public interface MediaRepository extends JpaRepository<MediaModel, Integer>, MediaRepositoryCustom {
+public interface MediaRepository extends JpaRepository<MediaModel, Integer> {
 
     // if at some time the queries become more complex, see https://www.jooq.org/
     // and https://persistence.blazebit.com/.
