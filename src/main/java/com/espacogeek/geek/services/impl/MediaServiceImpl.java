@@ -46,10 +46,8 @@ import static com.espacogeek.geek.utils.TextUtils.capitalize;
 public class MediaServiceImpl implements MediaService {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(MediaServiceImpl.class);
 
-    @SuppressWarnings("rawtypes")
     private final MediaRepository mediaRepository;
 
-    @SuppressWarnings("rawtypes")
     private final ExternalReferenceRepository externalsRepo;
 
     private final MediaCategoryService mediaCategoryService;

@@ -12,7 +12,7 @@ import com.espacogeek.geek.models.MediaModel;
 import com.espacogeek.geek.models.TypeReferenceModel;
 
 @Repository
-public interface ExternalReferenceRepository<T> extends JpaRepository<ExternalReferenceModel, Integer> {
+public interface ExternalReferenceRepository extends JpaRepository<ExternalReferenceModel, Integer> {
     Optional<ExternalReferenceModel> findByReferenceAndTypeReference (String reference, TypeReferenceModel typeReference);
 
     Optional<ExternalReferenceModel> findByMedia(MediaModel media);

@@ -34,7 +34,7 @@ public class MediaController {
     private final MediaService mediaService;
     private final SeasonRepository seasonRepository;
     private final AlternativeTitlesRepository alternativeTitlesRepository;
-    private final ExternalReferenceRepository<?> externalReferenceRepository;
+    private final ExternalReferenceRepository externalReferenceRepository;
     private final MediaRepository mediaRepository;
 
     /**
@@ -237,7 +237,6 @@ public class MediaController {
      * Batch-loads external references for a list of MediaModel sources, resolving the N+1 problem.
      */
     @BatchMapping
-    @SuppressWarnings("unchecked")
     public Map<MediaModel, Set<ExternalReferenceModel>> externalReference(List<MediaModel> medias) {
         Map<Integer, MediaModel> sourceById = new java.util.LinkedHashMap<>();
         for (MediaModel m : medias) {

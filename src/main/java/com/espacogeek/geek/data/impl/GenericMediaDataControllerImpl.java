@@ -219,6 +219,10 @@ public class GenericMediaDataControllerImpl implements MediaDataController {
 
         if (CollectionUtils.isEmpty(rawGenres)) return media.getGenre() != null ? new ArrayList<>(media.getGenre()) : new ArrayList<>();
 
+        if (media.getGenre() == null) {
+            media.setGenre(new LinkedHashSet<>());
+        }
+
         rawGenres.forEach((rawGenre) -> {
             if (media.getGenre().stream().noneMatch((genre) -> genre.getId().equals(rawGenre.getId()))) {
                 rawGenre.setMedias(new ArrayList<>(List.of(media)));
@@ -246,6 +250,10 @@ public class GenericMediaDataControllerImpl implements MediaDataController {
         }
 
         if (CollectionUtils.isEmpty(rawSeasons)) return media.getSeason() != null ? new ArrayList<>(media.getSeason()) : new ArrayList<>();
+
+        if (media.getSeason() == null) {
+            media.setSeason(new LinkedHashSet<>());
+        }
 
         rawSeasons.forEach((rawSeason) -> {
             if (media.getSeason().stream().noneMatch((season) -> season.getName().equals(rawSeason.getName()))) {
