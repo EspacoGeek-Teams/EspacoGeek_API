@@ -28,7 +28,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 @Controller
 @RequiredArgsConstructor
 public class MediaController {
@@ -151,10 +150,14 @@ public class MediaController {
      */
     @BatchMapping
     public Map<MediaModel, Set<SeasonModel>> season(List<MediaModel> medias) {
-        Map<Integer, MediaModel> sourceById = medias.stream()
-                .collect(Collectors.toMap(MediaModel::getId, m -> m));
-        Map<MediaModel, Set<SeasonModel>> result = medias.stream()
-                .collect(Collectors.toMap(m -> m, m -> new HashSet<>()));
+        Map<Integer, MediaModel> sourceById = new java.util.LinkedHashMap<>();
+        for (MediaModel m : medias) {
+            sourceById.putIfAbsent(m.getId(), m);
+        }
+        Map<MediaModel, Set<SeasonModel>> result = new java.util.LinkedHashMap<>();
+        for (MediaModel m : medias) {
+            result.putIfAbsent(m, new HashSet<>());
+        }
         for (SeasonModel season : seasonRepository.findByMediaIn(medias)) {
             MediaModel source = sourceById.get(season.getMedia().getId());
             if (source != null) {
@@ -169,10 +172,14 @@ public class MediaController {
      */
     @BatchMapping
     public Map<MediaModel, Set<GenreModel>> genre(List<MediaModel> medias) {
-        Map<Integer, MediaModel> sourceById = medias.stream()
-                .collect(Collectors.toMap(MediaModel::getId, m -> m));
-        Map<MediaModel, Set<GenreModel>> result = medias.stream()
-                .collect(Collectors.toMap(m -> m, m -> new HashSet<>()));
+        Map<Integer, MediaModel> sourceById = new java.util.LinkedHashMap<>();
+        for (MediaModel m : medias) {
+            sourceById.putIfAbsent(m.getId(), m);
+        }
+        Map<MediaModel, Set<GenreModel>> result = new java.util.LinkedHashMap<>();
+        for (MediaModel m : medias) {
+            result.putIfAbsent(m, new HashSet<>());
+        }
         for (MediaModel loaded : mediaRepository.findAllWithGenreByMediaIn(medias)) {
             MediaModel source = sourceById.get(loaded.getId());
             if (source != null && loaded.getGenre() != null) {
@@ -187,10 +194,14 @@ public class MediaController {
      */
     @BatchMapping
     public Map<MediaModel, Set<CompanyModel>> company(List<MediaModel> medias) {
-        Map<Integer, MediaModel> sourceById = medias.stream()
-                .collect(Collectors.toMap(MediaModel::getId, m -> m));
-        Map<MediaModel, Set<CompanyModel>> result = medias.stream()
-                .collect(Collectors.toMap(m -> m, m -> new HashSet<>()));
+        Map<Integer, MediaModel> sourceById = new java.util.LinkedHashMap<>();
+        for (MediaModel m : medias) {
+            sourceById.putIfAbsent(m.getId(), m);
+        }
+        Map<MediaModel, Set<CompanyModel>> result = new java.util.LinkedHashMap<>();
+        for (MediaModel m : medias) {
+            result.putIfAbsent(m, new HashSet<>());
+        }
         for (MediaModel loaded : mediaRepository.findAllWithCompanyByMediaIn(medias)) {
             MediaModel source = sourceById.get(loaded.getId());
             if (source != null && loaded.getCompany() != null) {
@@ -205,10 +216,14 @@ public class MediaController {
      */
     @BatchMapping
     public Map<MediaModel, Set<PeopleModel>> people(List<MediaModel> medias) {
-        Map<Integer, MediaModel> sourceById = medias.stream()
-                .collect(Collectors.toMap(MediaModel::getId, m -> m));
-        Map<MediaModel, Set<PeopleModel>> result = medias.stream()
-                .collect(Collectors.toMap(m -> m, m -> new HashSet<>()));
+        Map<Integer, MediaModel> sourceById = new java.util.LinkedHashMap<>();
+        for (MediaModel m : medias) {
+            sourceById.putIfAbsent(m.getId(), m);
+        }
+        Map<MediaModel, Set<PeopleModel>> result = new java.util.LinkedHashMap<>();
+        for (MediaModel m : medias) {
+            result.putIfAbsent(m, new HashSet<>());
+        }
         for (MediaModel loaded : mediaRepository.findAllWithPeopleByMediaIn(medias)) {
             MediaModel source = sourceById.get(loaded.getId());
             if (source != null && loaded.getPeople() != null) {
@@ -224,10 +239,14 @@ public class MediaController {
     @BatchMapping
     @SuppressWarnings("unchecked")
     public Map<MediaModel, Set<ExternalReferenceModel>> externalReference(List<MediaModel> medias) {
-        Map<Integer, MediaModel> sourceById = medias.stream()
-                .collect(Collectors.toMap(MediaModel::getId, m -> m));
-        Map<MediaModel, Set<ExternalReferenceModel>> result = medias.stream()
-                .collect(Collectors.toMap(m -> m, m -> new HashSet<>()));
+        Map<Integer, MediaModel> sourceById = new java.util.LinkedHashMap<>();
+        for (MediaModel m : medias) {
+            sourceById.putIfAbsent(m.getId(), m);
+        }
+        Map<MediaModel, Set<ExternalReferenceModel>> result = new java.util.LinkedHashMap<>();
+        for (MediaModel m : medias) {
+            result.putIfAbsent(m, new HashSet<>());
+        }
         List<ExternalReferenceModel> refs = externalReferenceRepository.findAllByMediaIn(medias);
         for (ExternalReferenceModel ref : refs) {
             MediaModel source = sourceById.get(ref.getMedia().getId());
@@ -243,10 +262,14 @@ public class MediaController {
      */
     @BatchMapping
     public Map<MediaModel, Set<AlternativeTitleModel>> alternativeTitles(List<MediaModel> medias) {
-        Map<Integer, MediaModel> sourceById = medias.stream()
-                .collect(Collectors.toMap(MediaModel::getId, m -> m));
-        Map<MediaModel, Set<AlternativeTitleModel>> result = medias.stream()
-                .collect(Collectors.toMap(m -> m, m -> new HashSet<>()));
+        Map<Integer, MediaModel> sourceById = new java.util.LinkedHashMap<>();
+        for (MediaModel m : medias) {
+            sourceById.putIfAbsent(m.getId(), m);
+        }
+        Map<MediaModel, Set<AlternativeTitleModel>> result = new java.util.LinkedHashMap<>();
+        for (MediaModel m : medias) {
+            result.putIfAbsent(m, new HashSet<>());
+        }
         for (AlternativeTitleModel alt : alternativeTitlesRepository.findByMediaIn(medias)) {
             MediaModel source = sourceById.get(alt.getMedia().getId());
             if (source != null) {
