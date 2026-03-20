@@ -1,0 +1,96 @@
+name: Post-Deploy Health Check
+
+on:
+  # Triggered automatically after the CI/CD workflow completes on master
+  workflow_run:
+    workflows: [ "CI/CD" ]
+    branches: [ "master" ]
+    types: [ completed ]
+  # Also allow manual execution (e.g., to re-check after an incident)
+  workflow_dispatch:
+    inputs:
+      health_url:
+        description: 'Full URL to check (overrides the default HEALTH_CHECK_URL secret)'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  health-check:
+    name: Health Check
+    # Only run when the triggering workflow succeeded (skip on failures / PRs)
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    env:
+      # Use the manually provided URL (workflow_dispatch) or fall back to the secret
+      CHECK_URL: ${{ inputs.health_url || secrets.HEALTH_CHECK_URL }}
+      # Maximum time to wait for the service to become healthy (in seconds)
+      TIMEOUT: '60'
+      # Interval between retries (in seconds)
+      RETRY_INTERVAL: '10'
+      # Number of retries before declaring the service down
+      MAX_RETRIES: '6'
+
+    steps:
+      - name: Validate health-check URL
+        shell: bash
+        run: |
+          if [ -z "${CHECK_URL}" ]; then
+            echo "::error::Health-check URL is not configured."
+            echo "::error::Set the HEALTH_CHECK_URL repository secret or pass health_url when dispatching manually."
+            exit 1
+          fi
+          echo "Health-check target: ${CHECK_URL}"
+
+      - name: Wait for service to become healthy
+        id: health
+        shell: bash
+        run: |
+          echo "Checking ${CHECK_URL} (up to ${MAX_RETRIES} retries, ${RETRY_INTERVAL}s apart)..."
+          attempt=0
+          while [ "$attempt" -lt "$MAX_RETRIES" ]; do
+            attempt=$((attempt + 1))
+            HTTP_STATUS=$(curl --silent --output /dev/null \
+              --write-out "%{http_code}" \
+              --max-time 15 \
+              --connect-timeout 5 \
+              "${CHECK_URL}" || echo "000")
+
+            if [ "$HTTP_STATUS" -ge 200 ] && [ "$HTTP_STATUS" -lt 400 ]; then
+              echo "✅ Service is healthy! (HTTP ${HTTP_STATUS} on attempt ${attempt})"
+              echo "status=healthy" >> "$GITHUB_OUTPUT"
+              echo "http_code=${HTTP_STATUS}" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+
+            echo "⏳ Attempt ${attempt}/${MAX_RETRIES}: received HTTP ${HTTP_STATUS}. Retrying in ${RETRY_INTERVAL}s..."
+            sleep "${RETRY_INTERVAL}"
+          done
+
+          echo "::error::Service did NOT become healthy after $((MAX_RETRIES * RETRY_INTERVAL))s (last HTTP status: ${HTTP_STATUS})."
+          echo "status=unhealthy" >> "$GITHUB_OUTPUT"
+          echo "http_code=${HTTP_STATUS}" >> "$GITHUB_OUTPUT"
+          exit 1
+
+      - name: Report healthy status
+        if: steps.health.outputs.status == 'healthy'
+        run: |
+          echo "🟢 Deployment health check PASSED"
+          echo "  URL     : ${CHECK_URL}"
+          echo "  HTTP    : ${{ steps.health.outputs.http_code }}"
+          echo "  Workflow: ${{ github.workflow }}"
+          echo "  Run     : ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+      - name: Report unhealthy status
+        if: failure()
+        run: |
+          echo "🔴 Deployment health check FAILED"
+          echo "  URL     : ${CHECK_URL}"
+          echo "  HTTP    : ${{ steps.health.outputs.http_code }}"
+          echo ""
+          echo "Please check the application logs and verify the deployment."
+          echo "  Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"

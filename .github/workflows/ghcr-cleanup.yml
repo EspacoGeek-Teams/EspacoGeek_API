@@ -1,0 +1,68 @@
+name: GHCR Image Cleanup
+
+on:
+  schedule:
+    # Run every Sunday at 02:00 UTC (weekly cleanup)
+    - cron: '0 2 * * 0'
+  workflow_dispatch:
+    inputs:
+      keep_last:
+        description: 'Number of most-recent tagged versions to keep per package'
+        required: false
+        default: '5'
+        type: string
+
+permissions:
+  contents: read
+  packages: write  # Required to delete packages from GHCR
+
+jobs:
+  cleanup:
+    name: Clean up untagged & old GHCR images
+    runs-on: ubuntu-latest
+    env:
+      # Keep this many of the latest tagged versions; delete the rest
+      KEEP_LAST: ${{ inputs.keep_last || '5' }}
+
+    steps:
+      - name: Delete untagged image versions
+        uses: actions/delete-package-versions@v5
+        with:
+          package-name: 'espacogeek-api'
+          package-type: 'container'
+          delete-only-untagged-versions: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Delete untagged native image versions
+        uses: actions/delete-package-versions@v5
+        with:
+          package-name: 'espacogeek-api-native'
+          package-type: 'container'
+          delete-only-untagged-versions: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Keep only the latest N tagged versions (espacogeek-api)
+        uses: actions/delete-package-versions@v5
+        with:
+          package-name: 'espacogeek-api'
+          package-type: 'container'
+          # Keep the N most-recent versions; delete the rest
+          min-versions-to-keep: ${{ env.KEEP_LAST }}
+          # Ignore untagged (already deleted above) and the special persistent tags
+          ignore-versions: '^(latest|last-release)$'
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Keep only the latest N tagged versions (espacogeek-api-native)
+        uses: actions/delete-package-versions@v5
+        with:
+          package-name: 'espacogeek-api-native'
+          package-type: 'container'
+          min-versions-to-keep: ${{ env.KEEP_LAST }}
+          ignore-versions: '^(latest|last-release)$'
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Cleanup summary
+        run: |
+          echo "✅ GHCR cleanup complete."
+          echo "  Packages: espacogeek-api, espacogeek-api-native"
+          echo "  Latest tagged versions kept per package: $KEEP_LAST"

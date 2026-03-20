@@ -1,0 +1,146 @@
+name: Security & Linting
+
+on:
+  pull_request:
+    branches: [ "master" ]
+  push:
+    branches: [ "master" ]
+  schedule:
+    # Run every Monday at 07:00 UTC
+    - cron: '0 7 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write  # Required to upload SARIF results to GitHub Security tab
+
+concurrency:
+  group: security-lint-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  hadolint:
+    name: Lint Dockerfile (Hadolint)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Lint Dockerfile.jvm
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: docker/Dockerfile.jvm
+          format: sarif
+          output-file: hadolint-jvm.sarif
+          no-fail: true
+
+      - name: Upload Hadolint SARIF (Dockerfile.jvm)
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: hadolint-jvm.sarif
+          category: hadolint-jvm
+
+      - name: Lint Dockerfile.native
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: docker/Dockerfile.native
+          format: sarif
+          output-file: hadolint-native.sarif
+          no-fail: true
+
+      - name: Upload Hadolint SARIF (Dockerfile.native)
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: hadolint-native.sarif
+          category: hadolint-native
+
+  owasp-dependency-check:
+    name: OWASP Dependency-Check (Gradle)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Java 21 (Temurin)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Setup Gradle (with caching)
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Make Gradle wrapper executable
+        run: chmod +x gradlew
+
+      # Run OWASP Dependency-Check via the official CLI wrapper (no Maven required)
+      # Note: dependency-check/Dependency-Check_Action does not publish versioned tags;
+      # @main is the only supported reference per upstream documentation.
+      - name: Run OWASP Dependency-Check
+        uses: dependency-check/Dependency-Check_Action@main
+        with:
+          project: 'EspacoGeek-API'
+          path: '.'
+          format: 'SARIF'
+          out: 'reports/dependency-check'
+          args: >-
+            --enableRetired
+            --scan build.gradle
+            --scan gradle.properties
+        env:
+          # NVD API key is optional but avoids rate-limiting; set as a secret if available
+          NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
+
+      - name: Upload OWASP Dependency-Check SARIF
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: reports/dependency-check/dependency-check-report.sarif
+          category: owasp-dependency-check
+
+      - name: Upload full Dependency-Check report (HTML)
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dependency-check-report
+          path: reports/dependency-check/
+
+  trivy:
+    name: Trivy Docker Image Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Build the JVM image locally (no push) so Trivy can scan it
+      - name: Build JVM Docker image (for scanning)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/Dockerfile.jvm
+          platforms: linux/amd64
+          push: false
+          tags: espacogeek-api:scan
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Run Trivy vulnerability scan
+        uses: aquasecurity/trivy-action@0.30.0
+        with:
+          image-ref: 'espacogeek-api:scan'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH'
+          exit-code: '0'  # Do not fail the build; report only
+
+      - name: Upload Trivy SARIF results
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: trivy-results.sarif
+          category: trivy

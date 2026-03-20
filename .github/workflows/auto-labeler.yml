@@ -1,0 +1,22 @@
+name: Auto-Labeler
+
+on:
+  pull_request_target:
+    types: [ opened, synchronize, reopened ]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  label:
+    name: Label PR by changed files
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/labeler@v5
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          # Path to the labeler configuration file (relative to repo root)
+          configuration-path: .github/labeler.yml
+          # Apply all matching labels (not just the first match)
+          sync-labels: true
