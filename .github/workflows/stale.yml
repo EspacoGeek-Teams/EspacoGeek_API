@@ -1,0 +1,80 @@
+name: Stale Issues & PRs
+
+on:
+  schedule:
+    # Run every day at 01:00 UTC
+    - cron: '0 1 * * *'
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  stale:
+    name: Mark and close stale issues & PRs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/stale@v9
+        with:
+          # ── Timing ──────────────────────────────────────────────────────────
+          # Mark as stale after 60 days (≈ 2 months) of inactivity
+          days-before-stale: 60
+          # Close 14 days after being marked stale (no activity)
+          days-before-close: 14
+
+          # ── Issues ──────────────────────────────────────────────────────────
+          stale-issue-label: 'stale'
+          stale-issue-message: >
+            👋 Hey there! This issue has been inactive for **60 days** and has been
+            automatically marked as **stale**.
+
+            If this issue is still relevant, please leave a comment or update it —
+            we'd love to keep the conversation going! 😊
+
+            If no further activity occurs within **14 days**, it will be closed
+            automatically. You can always reopen it if needed.
+
+            Thank you for contributing to EspaçoGeek! 🚀
+          close-issue-message: >
+            🔒 This issue has been automatically closed after 14 days without any
+            activity following the stale notice.
+
+            Feel free to reopen it if the problem persists or if you have new
+            information to share. We appreciate your patience! 🙌
+
+          # ── Pull Requests ────────────────────────────────────────────────────
+          stale-pr-label: 'stale'
+          stale-pr-message: >
+            👋 Hey! This pull request has been inactive for **60 days** and has been
+            automatically marked as **stale**.
+
+            If this PR is still intended to be merged, please rebase it on the
+            latest `master`, resolve any conflicts, and leave a comment so we know
+            it's still active. 😊
+
+            If no further activity occurs within **14 days**, it will be closed
+            automatically. It can always be reopened and merged later.
+
+            Thank you for your contribution to EspaçoGeek! 🚀
+          close-pr-message: >
+            🔒 This pull request has been automatically closed after 14 days without
+            any activity following the stale notice.
+
+            If you'd like to continue with this change, feel free to reopen the PR
+            or open a new one. We appreciate your effort! 🙌
+
+          # ── Exemptions ──────────────────────────────────────────────────────
+          # Issues/PRs with these labels will never be marked stale
+          exempt-issue-labels: 'pinned,security,bug,in-progress,blocked'
+          exempt-pr-labels: 'pinned,security,in-progress,blocked,do-not-close'
+
+          # ── Operational ─────────────────────────────────────────────────────
+          # Maximum number of issues/PRs to process per run (avoids rate limits)
+          operations-per-run: 100
+          # Remove the stale label if the issue/PR gets a new comment/update
+          remove-stale-when-updated: true
+          # Ascending order so oldest items are processed first
+          ascending: true
+          # Do not mark draft PRs as stale
+          exempt-draft-pr: true

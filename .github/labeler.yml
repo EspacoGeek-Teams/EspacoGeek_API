@@ -1,0 +1,73 @@
+# .github/labeler.yml
+# Defines which labels to apply based on file paths modified in a Pull Request.
+# Used by the auto-labeler.yml workflow (actions/labeler@v5).
+# Docs: https://github.com/actions/labeler
+
+# ── Application source ───────────────────────────────────────────────────────
+
+backend:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'src/main/**'
+
+tests:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'src/test/**'
+
+# ── Infrastructure & Docker ───────────────────────────────────────────────────
+
+docker:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'docker/**'
+      - '**/Dockerfile*'
+      - '**/docker-compose*.yml'
+
+# ── CI/CD & automation ───────────────────────────────────────────────────────
+
+ci/cd:
+  - changed-files:
+    - any-glob-to-any-file:
+      - '.github/**'
+
+# ── Build configuration ───────────────────────────────────────────────────────
+
+build:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'build.gradle'
+      - 'settings.gradle'
+      - 'gradle.properties'
+      - 'gradlew'
+      - 'gradlew.bat'
+      - 'gradle/**'
+
+# ── Database / migrations ─────────────────────────────────────────────────────
+
+database:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'src/main/resources/db/**'
+
+# ── Configuration ─────────────────────────────────────────────────────────────
+
+configuration:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'src/main/resources/**'
+      - '*.properties'
+      - '*.yaml'
+      - '*.yml'
+      - '.editorconfig'
+      - 'qodana.yaml'
+      - 'lombok.config'
+
+# ── Documentation ─────────────────────────────────────────────────────────────
+
+documentation:
+  - changed-files:
+    - any-glob-to-any-file:
+      - '**/*.md'
+      - 'LICENSE*'
+      - 'INDEX.md'
