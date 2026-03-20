@@ -35,8 +35,8 @@ public class MediaController {
     private final MediaService mediaService;
     private final SeasonRepository seasonRepository;
     private final AlternativeTitlesRepository alternativeTitlesRepository;
-    @SuppressWarnings("rawtypes")
-    private final ExternalReferenceRepository externalReferenceRepository;    private final MediaRepository mediaRepository;
+    private final ExternalReferenceRepository<?> externalReferenceRepository;
+    private final MediaRepository mediaRepository;
 
     /**
      * Finds a MediaModel object by its ID.
