@@ -1,0 +1,33 @@
+"""
+Spring Batch job execution information
+"""
+type BatchJobExecution {
+    "Unique job execution identifier"
+    id: ID!
+    "Name of the batch job"
+    jobName: String!
+    "Execution status (STARTING, STARTED, STOPPING, STOPPED, FAILED, COMPLETED, ABANDONED)"
+    status: String!
+    "Job execution start time (ISO-8601)"
+    startTime: String
+    "Job execution end time (ISO-8601)"
+    endTime: String
+    "Exit code after job completion"
+    exitCode: String
+}
+
+"""
+Paginated batch job execution results
+"""
+type BatchJobPage {
+    "List of job executions in the current page"
+    content: [BatchJobExecution]
+    "Total number of pages"
+    totalPages: Int!
+    "Total number of elements across all pages"
+    totalElements: Int!
+    "Current page number (0-indexed)"
+    number: Int!
+    "Page size"
+    size: Int!
+}
