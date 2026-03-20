@@ -36,8 +36,7 @@ public class MediaController {
     private final SeasonRepository seasonRepository;
     private final AlternativeTitlesRepository alternativeTitlesRepository;
     @SuppressWarnings("rawtypes")
-    private final ExternalReferenceRepository externalReferenceRepository;
-    private final MediaRepository mediaRepository;
+    private final ExternalReferenceRepository externalReferenceRepository;    private final MediaRepository mediaRepository;
 
     /**
      * Finds a MediaModel object by its ID.
@@ -229,7 +228,8 @@ public class MediaController {
                 .collect(Collectors.toMap(MediaModel::getId, m -> m));
         Map<MediaModel, Set<ExternalReferenceModel>> result = medias.stream()
                 .collect(Collectors.toMap(m -> m, m -> new HashSet<>()));
-        for (ExternalReferenceModel ref : (List<ExternalReferenceModel>) externalReferenceRepository.findAllByMediaIn(medias)) {
+        List<ExternalReferenceModel> refs = externalReferenceRepository.findAllByMediaIn(medias);
+        for (ExternalReferenceModel ref : refs) {
             MediaModel source = sourceById.get(ref.getMedia().getId());
             if (source != null) {
                 result.get(source).add(ref);
