@@ -146,32 +146,13 @@ public class MediaServiceImpl implements MediaService {
     @SuppressWarnings("unchecked")
     @Override
     public MediaPage findGameByIdOrName(Integer id, String name, Pageable pageable) {
-        Page<MediaModel> results;
-        if (id != null) {
-            List<MediaModel> medias = new ArrayList<MediaModel>();
-            this.mediaRepository.findById(id).ifPresent(media -> medias.add((MediaModel) media));
-            Pageable safePageable = pageable != null ? pageable : Pageable.unpaged();
-            results = new PageImpl<>(medias, safePageable, medias.size());
-        } else {
-            results = this.mediaRepository.findMediaByNameOrAlternativeTitleAndMediaCategory(name, name, mediaCategoryService.findById(MediaDataController.MediaType.GAME.getId()).get().getId(), pageable);
-        }
-        return mountMediaPage(results);
+        return findGenericMediaByIdOrName(id, name, pageable, MediaDataController.MediaType.GAME);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public MediaPage findVisualNovelByIdOrName(Integer id, String name, Pageable pageable) {
-        Page<MediaModel> results;
-
-        if(id != null) {
-            List<MediaModel> medias = new ArrayList<MediaModel>();
-            this.mediaRepository.findById(id).ifPresent(media -> medias.add((MediaModel) media));
-            Pageable safePageable = pageable != null ? pageable : Pageable.unpaged();
-            results = new PageImpl<>(medias, safePageable, medias.size());
-        } else {
-            results = this.mediaRepository.findMediaByNameOrAlternativeTitleAndMediaCategory(name, name, mediaCategoryService.findById(MediaDataController.MediaType.VN.getId()).get().getId(), pageable);
-        }
-        return mountMediaPage(results);
+        return findGenericMediaByIdOrName(id, name, pageable, MediaDataController.MediaType.VN);
     }
 
     /**
@@ -320,6 +301,59 @@ public class MediaServiceImpl implements MediaService {
             default -> media;
         };
 
+    }
+
+    private MediaPage findGenericMediaByIdOrName(Integer id, String name, Pageable pageable, MediaDataController.MediaType mediaType) {
+        Pageable safePageable = pageable != null ? pageable : Pageable.unpaged();
+        var mediaCategory = mediaCategoryService.findById(mediaType.getId()).orElseThrow();
+        Page<MediaModel> results;
+
+        if (id != null) {
+            List<MediaModel> medias = new ArrayList<>();
+            this.mediaRepository.findById(id)
+                    .map(media -> updateIfStale((MediaModel) media))
+                    .ifPresent(medias::add);
+            results = new PageImpl<>(medias, safePageable, medias.size());
+            return mountMediaPage(results);
+        }
+
+        results = this.mediaRepository.findMediaByNameOrAlternativeTitleAndMediaCategory(name, name, mediaCategory.getId(), safePageable);
+
+        if (results.hasContent()) {
+            List<MediaModel> refreshed = results.getContent().stream()
+                    .map(this::updateIfStale)
+                    .toList();
+            return mountMediaPage(new PageImpl<>(refreshed, safePageable, results.getTotalElements()));
+        }
+
+        if (name == null || name.isBlank()) {
+            return mountMediaPage(Page.empty(safePageable));
+        }
+
+        var igdbTypeReference = typeReferenceService.findById(MediaDataController.ExternalReferenceType.IGDB.getId()).orElseThrow();
+        List<MediaModel> fetched = genericMediaDataController.searchMedia(name, gamesAndVNsAPI, igdbTypeReference, mediaCategory);
+
+        if (fetched.isEmpty()) {
+            return mountMediaPage(Page.empty(safePageable));
+        }
+
+        int fromIndex = Math.min((int) safePageable.getOffset(), fetched.size());
+        int toIndex = safePageable.isPaged()
+                ? Math.min(fromIndex + safePageable.getPageSize(), fetched.size())
+                : fetched.size();
+        List<MediaModel> pagedContent = fetched.subList(fromIndex, toIndex);
+
+        return mountMediaPage(new PageImpl<>(pagedContent, safePageable, fetched.size()));
+    }
+
+    private MediaModel updateIfStale(MediaModel media) {
+        if (media == null) {
+            return null;
+        }
+
+        return MediaUtils.updateMediaWhenLastTimeUpdateMoreThanOneDay(media)
+                ? update(media)
+                : media;
     }
 
     private MediaPage mountMediaPage(Page<MediaModel> medias) {
