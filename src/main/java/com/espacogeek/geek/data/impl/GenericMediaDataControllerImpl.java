@@ -290,8 +290,14 @@ public class GenericMediaDataControllerImpl implements MediaDataController {
                 result.add(media);
 
             } catch (MediaAlreadyExist e) {
-                media = mediaService.findByReferenceAndTypeReference(mediaSearch.getExternalReference().iterator().next(), typeReference).orElseThrow(() -> new com.espacogeek.geek.exception.GenericException("Media not found for the given external reference"));
+                Collection<ExternalReferenceModel> externalReferences = mediaSearch.getExternalReference();
+                if (CollectionUtils.isEmpty(externalReferences)) {
+                    throw new com.espacogeek.geek.exception.GenericException("MediaAlreadyExist thrown but no external references are available to lookup existing media");
+                }
 
+                ExternalReferenceModel firstReference = externalReferences.iterator().next();
+                media = mediaService.findByReferenceAndTypeReference(firstReference, typeReference)
+                        .orElseThrow(() -> new com.espacogeek.geek.exception.GenericException("Media not found for the given external reference"));
                 result.add(media);
             }
         }
