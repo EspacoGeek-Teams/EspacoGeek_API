@@ -8,7 +8,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.Map;
 
 import jakarta.validation.ValidationException;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -140,23 +139,6 @@ public class MediaServiceImpl implements MediaService {
         return mountMediaPage(results);
     }
 
-    /**
-     * @see MediaService#findSerieByIdOrName(Integer, String, Map, Pageable)
-     */
-    @SuppressWarnings("unchecked")
-    @Override
-    public MediaPage findSerieByIdOrName(Integer id, String name, Map<String, List<String>> requestedFields, Pageable pageable) {
-        Page<MediaModel> results;
-        if (id != null) {
-            List<MediaModel> medias = new ArrayList<MediaModel>();
-            this.mediaRepository.findById(id).ifPresent(media -> medias.add((MediaModel) media));
-            Pageable safePageable = pageable != null ? pageable : Pageable.unpaged();
-            results = new PageImpl<>(medias, safePageable, medias.size());
-        } else {
-            results = mediaRepository.findMediaByNameOrAlternativeTitleAndMediaCategory(name, name, mediaCategoryService.findById(MediaDataController.MediaType.SERIE.getId()).get().getId(), requestedFields, pageable);
-        }
-        return mountMediaPage(results);
-    }
 
     /**
      * @see MediaService#findGameByIdOrName(Integer, String, Pageable)
@@ -293,22 +275,6 @@ public class MediaServiceImpl implements MediaService {
         }
 
         return Optional.empty();
-    }
-
-    /**
-     * @see MediaService#findMovieByIdOrName(Integer, String, Pageable)
-     */
-    @Override
-    public MediaPage findMovieByIdOrName(Integer id, String name, Map<String, List<String>> requestedFields, Pageable pageable) {
-        Page<MediaModel> results;
-        if (id != null) {
-            List<MediaModel> medias = new ArrayList<MediaModel>();
-            this.mediaRepository.findById(id).ifPresent(media -> medias.add((MediaModel) media));
-            results = new PageImpl<>(medias, pageable, medias.size());
-        } else {
-            results = mediaRepository.findMediaByNameOrAlternativeTitleAndMediaCategory(name, name, mediaCategoryService.findById(MediaDataController.MediaType.MOVIE.getId()).get().getId(), pageable);
-        }
-        return mountMediaPage(results);
     }
 
     @Override
