@@ -35,7 +35,6 @@ import com.espacogeek.geek.services.SeasonService;
 
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 
 @Component("genericMediaDataController")
@@ -327,7 +326,7 @@ public class GenericMediaDataControllerImpl implements MediaDataController {
             field.setAccessible(true);
             for (Field rawField : rawMedia.getClass().getDeclaredFields()) {
                 rawField.setAccessible(true);
-                if (field.isAnnotationPresent(OneToMany.class) || field.isAnnotationPresent(ManyToMany.class) || field.isAnnotationPresent(ManyToOne.class) || field.isAnnotationPresent(Id.class)) continue;
+                if (field.isAnnotationPresent(OneToMany.class) || field.isAnnotationPresent(ManyToMany.class) || field.isAnnotationPresent(Id.class)) continue;
                 if (field.getName().equals(rawField.getName())) {
                     try {
                         field.set(media, rawField.get(rawMedia));

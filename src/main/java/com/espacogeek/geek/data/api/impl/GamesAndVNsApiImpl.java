@@ -87,8 +87,8 @@ public class GamesAndVNsApiImpl implements MediaApi {
 
             for (Game result : searchGames) {
                 if ((long) result.getId() != (long) 0L) {
-                    media = new MediaModel();
                     var reference = new ExternalReferenceModel(null, String.valueOf(result.getId()), media, typeReference);
+                    media = new MediaModel();
 
                     List<String> genresName = new ArrayList<>();
                     result.getGenresList().forEach((genre) -> {
@@ -114,6 +114,7 @@ public class GamesAndVNsApiImpl implements MediaApi {
                     }
                     media.setAlternativeTitles(new java.util.LinkedHashSet<>(alternativeTitles));
                     media.setExternalReference(new java.util.LinkedHashSet<>(List.of(reference)));
+                    media.setMediaCategory(category);
                 }
             }
 
@@ -155,7 +156,8 @@ public class GamesAndVNsApiImpl implements MediaApi {
                     }
                     media.setAlternativeTitles(new java.util.LinkedHashSet<>(alternativeTitles));
                     media.setExternalReference(new java.util.LinkedHashSet<>(List.of(reference)));
-                    media.setMediaCategory(mediaCategoryModel);
+
+                    media.setMediaCategory(category);
 
                     medias.add(media);
                 }
