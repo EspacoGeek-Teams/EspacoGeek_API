@@ -99,7 +99,7 @@ public class TvSeriesApiImpl implements MediaApi {
         MediaModel serie = new MediaModel(
                 null,
                 rawSerieDetails.getName(),
-                Optional.ofNullable(rawSerieDetails.getNumberOfEpisodes()).orElse(season.stream().map(SeasonModel::getEpisodeCount).reduce(Integer::sum).orElseGet(null)),
+                Optional.ofNullable(rawSerieDetails.getNumberOfEpisodes()).orElse(season.stream().map(SeasonModel::getEpisodeCount).reduce(Integer::sum).orElse(null)),
                 rawSerieDetails.getEpisodeRunTime() == null || rawSerieDetails.getEpisodeRunTime().isEmpty() ? null : rawSerieDetails.getEpisodeRunTime().getFirst(),
                 rawSerieDetails.getOverview(),
                 rawSerieDetails.getPosterPath() == null ? null : ExternalCDN.TMDB.getUrl() + rawSerieDetails.getPosterPath(),

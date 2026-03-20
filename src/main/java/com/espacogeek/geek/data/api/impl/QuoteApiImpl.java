@@ -65,8 +65,16 @@ public class QuoteApiImpl implements QuoteApi {
         var parser = new JSONParser();
         var jsonArray = new JSONArray();
         try (Response response = client.newCall(request).execute()) {
-            assert response.body() != null;
-            jsonArray = (JSONArray) parser.parse(response.body().string());
+            if (!response.isSuccessful()) {
+                log.error("Quote API returned unsuccessful response: {}", response.code());
+                throw new GenericException("Quote not found");
+            }
+            okhttp3.ResponseBody body = response.body();
+            if (body == null) {
+                log.error("Quote API returned empty body");
+                throw new GenericException("Quote not found");
+            }
+            jsonArray = (JSONArray) parser.parse(body.string());
         } catch (ParseException | IOException e) {
             log.error("Error executing or parsing response from Quote API: {}", e.getMessage());
             throw new GenericException("Quote not found");

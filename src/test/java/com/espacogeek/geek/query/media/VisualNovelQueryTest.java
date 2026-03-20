@@ -61,7 +61,6 @@ class VisualNovelQueryTest {
     @MockitoBean
     private AlternativeTitlesRepository alternativeTitlesRepository;
 
-    @SuppressWarnings("rawtypes")
     @MockitoBean
     private ExternalReferenceRepository externalReferenceRepository;
 
