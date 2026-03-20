@@ -31,9 +31,11 @@ jobs:
       # Maximum time to wait for the service to become healthy (in seconds)
       TIMEOUT: '60'
       # Interval between retries (in seconds)
-      RETRY_INTERVAL: '10'
+      RETRY_INTERVAL: '15'
       # Number of retries before declaring the service down
-      MAX_RETRIES: '6'
+      MAX_RETRIES: '12'
+      # Initial delay before starting retries (allows the server to boot)
+      PRE_WAIT_DELAY: '30'
 
     steps:
       - name: Validate health-check URL
@@ -50,6 +52,8 @@ jobs:
         id: health
         shell: bash
         run: |
+          echo "Waiting ${PRE_WAIT_DELAY}s for the server to boot before polling..."
+          sleep "${PRE_WAIT_DELAY}"
           echo "Checking ${CHECK_URL} (up to ${MAX_RETRIES} retries, ${RETRY_INTERVAL}s apart)..."
           attempt=0
           while [ "$attempt" -lt "$MAX_RETRIES" ]; do
