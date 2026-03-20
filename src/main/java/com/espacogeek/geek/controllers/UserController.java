@@ -11,7 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CookieValue;
 
 import com.espacogeek.geek.config.JwtConfig;
 import com.espacogeek.geek.exception.GenericException;
@@ -51,9 +50,9 @@ public class UserController {
 
     @QueryMapping(name = "logout")
     @PreAuthorize("hasRole('user')")
-    public String doLogoutUser(
-            @CookieValue(name = "refreshToken", required = false) String refreshTokenCookie,
-            DataFetchingEnvironment environment) {
+    public String doLogoutUser(DataFetchingEnvironment environment) {
+        // Read the refresh token cookie value injected by GraphQlCookieInterceptor
+        String refreshTokenCookie = environment.getGraphQlContext().get("incomingRefreshToken");
         // Invalidate the refresh token stored in the database
         if (refreshTokenCookie != null && !refreshTokenCookie.isBlank()) {
             jwtTokenService.deleteToken(refreshTokenCookie);
@@ -113,9 +112,9 @@ public class UserController {
      * Implements token rotation: the old refresh token is invalidated and a new one is issued.
      */
     @MutationMapping(name = "refreshToken")
-    public AuthPayload doRefreshToken(
-            @CookieValue(name = "refreshToken", required = false) String refreshTokenCookie,
-            DataFetchingEnvironment environment) {
+    public AuthPayload doRefreshToken(DataFetchingEnvironment environment) {
+        // Read the refresh token cookie value injected by GraphQlCookieInterceptor
+        String refreshTokenCookie = environment.getGraphQlContext().get("incomingRefreshToken");
 
         if (refreshTokenCookie == null || refreshTokenCookie.isBlank()) {
             throw new TokenExpiredException();
