@@ -62,7 +62,7 @@ public class MediaController {
     public MediaPage getMovie(@Argument(name = "id") Integer id, @Argument(name = "name") String name, DataFetchingEnvironment dataFetchingEnvironment) {
         name = name == null ? null : name.trim();
 
-        if (name == null && id == null || name == "" && id == null) {
+        if (id == null && (name == null || name.isEmpty())) {
             return new MediaPage();
         }
 
@@ -81,7 +81,7 @@ public class MediaController {
     public MediaPage getSerie(@Argument(name = "id") Integer id, @Argument(name = "name") String name, DataFetchingEnvironment dataFetchingEnvironment) {
         name = name == null ? null : name.trim();
 
-        if (name == null && id == null || name == "" && id == null) {
+        if (id == null && (name == null || name.isEmpty())) {
             return new MediaPage();
         }
 
@@ -100,7 +100,7 @@ public class MediaController {
     public MediaPage getGame(@Argument(name = "id") Integer id, @Argument(name = "name") String name, DataFetchingEnvironment dataFetchingEnvironment) {
         name = name == null ? null : name.trim();
 
-        if (name == null && id == null || name == "" && id == null) {
+        if (id == null && (name == null || name.isEmpty())) {
             return new MediaPage();
         }
 
@@ -117,11 +117,10 @@ public class MediaController {
      */
     @QueryMapping(name = "vn")
     public MediaPage getVisualNovel(@Argument(name = "id") Integer id, @Argument(name = "name") String name, DataFetchingEnvironment dataFetchingEnvironment) {
-        MediaPage response = new MediaPage();
         name = name == null ? null : name.trim();
 
-        if (name == null && id == null || name == "" && id == null) {
-            return response;
+        if (id == null && (name == null || name.isEmpty())) {
+            return new MediaPage();
         }
 
         return this.mediaService.findVisualNovelByIdOrName(id, name, MediaUtils.getPageable(dataFetchingEnvironment));
@@ -138,7 +137,7 @@ public class MediaController {
     public MediaPage getAnime(@Argument(name = "id") Integer id, @Argument(name = "name") String name, DataFetchingEnvironment dataFetchingEnvironment) {
         name = name == null ? null : name.trim();
 
-        if (name == null && id == null || name == "" && id == null) {
+        if (id == null && (name == null || name.isEmpty())) {
             return new MediaPage();
         }
 

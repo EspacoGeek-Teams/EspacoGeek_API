@@ -31,6 +31,6 @@ public class ApiKeyServiceImpl implements ApiKeyService {
      */
     @Override
     public Optional<ApiKeyModel> save(ApiKeyModel apiKeyModel) {
-        return Optional.ofNullable(apiKeyRepository.save(apiKeyModel));
+        return Optional.of(apiKeyRepository.save(apiKeyModel));
     }
 }

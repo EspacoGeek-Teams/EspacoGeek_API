@@ -274,12 +274,9 @@ public class GenericMediaDataControllerImpl implements MediaDataController {
         var result = new ArrayList<MediaModel>();
 
         for (MediaModel mediaSearch : rawMediaSearchList) {
-            var media = new MediaModel();
-            media.setMediaCategory(mediaCategory);
-
+            MediaModel media;
             try {
                 media = createMediaIfNotExistAndIfExistReturnIt(mediaSearch, typeReference);
-                media = mediaSearch;
 
                 if (media != null) {
                     updateExternalReferences(media, mediaSearch, typeReference, mediaApi);

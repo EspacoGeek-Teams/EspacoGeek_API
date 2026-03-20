@@ -82,7 +82,7 @@ public class TvSeriesApiImpl implements MediaApi {
     @Retryable(maxAttempts = 2, backoff = @Backoff(delay = 2000), retryFor = com.espacogeek.geek.exception.RequestException.class)
     @Override
     public MediaModel getDetails(Integer id) {
-        TvSeriesDb rawSerieDetails = new TvSeriesDb();
+        TvSeriesDb rawSerieDetails;
         try {
             rawSerieDetails = api.getDetails(id, "en-US", TvSeriesAppendToResponse.EXTERNAL_IDS, TvSeriesAppendToResponse.ALTERNATIVE_TITLES, TvSeriesAppendToResponse.IMAGES, TvSeriesAppendToResponse.VIDEOS);
         } catch (TmdbException e) {
@@ -117,9 +117,7 @@ public class TvSeriesApiImpl implements MediaApi {
     }
 
     public ExternalReferenceModel getTrailer(TvSeriesDb rawSerieDetails) {
-        ExternalReferenceModel trailers = null;
-
-        trailers = rawSerieDetails.getVideos().getResults().stream().filter(video -> video.getType().equals("Trailer"))
+        ExternalReferenceModel trailers = rawSerieDetails.getVideos().getResults().stream().filter(video -> video.getType().equals("Trailer"))
                 .findFirst().map(video -> new ExternalReferenceModel(null, video.getKey(), null,
                         typeReferenceService.findById(MediaDataController.ExternalReferenceType.YT.getId()).get()))
                 .orElse(null);
@@ -133,7 +131,7 @@ public class TvSeriesApiImpl implements MediaApi {
     @Override
     @Retryable(maxAttempts = 2, backoff = @Backoff(delay = 2000), retryFor = com.espacogeek.geek.exception.RequestException.class)
     public MediaModel getArtwork(Integer id) {
-        Images rawArtwork = new Images();
+        Images rawArtwork;
         try {
             rawArtwork = api.getImages(id, "");
         } catch (TmdbException e) {
@@ -167,7 +165,7 @@ public class TvSeriesApiImpl implements MediaApi {
     @Override
     @Retryable(maxAttempts = 2, backoff = @Backoff(delay = 2000), retryFor = com.espacogeek.geek.exception.RequestException.class)
     public List<AlternativeTitleModel> getAlternativeTitles(Integer id) {
-        List<AlternativeTitle> rawAlternativeTitles = new ArrayList<>();
+        List<AlternativeTitle> rawAlternativeTitles;
         try {
             rawAlternativeTitles = api.getAlternativeTitles(id).getResults();
         } catch (TmdbException e) {
@@ -192,7 +190,7 @@ public class TvSeriesApiImpl implements MediaApi {
     @Override
     @Retryable(maxAttempts = 2, backoff = @Backoff(delay = 2000), retryFor = com.espacogeek.geek.exception.RequestException.class)
     public List<ExternalReferenceModel> getExternalReference(Integer id) {
-        ExternalIds rawExternalReferences = new ExternalIds();
+        ExternalIds rawExternalReferences;
         try {
             rawExternalReferences = api.getExternalIds(id);
         } catch (TmdbException e) {
@@ -225,7 +223,7 @@ public class TvSeriesApiImpl implements MediaApi {
     @Override
     @Retryable(maxAttempts = 2, backoff = @Backoff(delay = 2000), retryFor = com.espacogeek.geek.exception.RequestException.class)
     public List<GenreModel> getGenre(Integer id) {
-        TvSeriesDb rawSerieDetails = new TvSeriesDb();
+        TvSeriesDb rawSerieDetails;
         try {
             rawSerieDetails = api.getDetails(id, "en-US");
         } catch (TmdbException e) {
@@ -246,9 +244,7 @@ public class TvSeriesApiImpl implements MediaApi {
         for (String genre : rawStringGenres) {
             if (genre.contains("&")) {
                 for (String genreDivided : genre.split("&")) {
-                    genreDivided = genreDivided.replace("&", "");
-                    genreDivided = genreDivided.strip();
-                    newRawGenres.add(genreDivided);
+                    newRawGenres.add(genreDivided.strip());
                 }
             }
         }

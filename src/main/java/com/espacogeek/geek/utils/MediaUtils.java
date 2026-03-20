@@ -40,7 +40,7 @@ public abstract class MediaUtils {
 
         LocalDate mediaUpdateAt = media.getUpdateAt() == null ? null : LocalDate.ofInstant(media.getUpdateAt().toInstant(), ZoneId.systemDefault());
 
-        if (mediaUpdateAt == null || ChronoUnit.DAYS.between(mediaUpdateAt, LocalDate.now()) > 1l) {
+        if (mediaUpdateAt == null || ChronoUnit.DAYS.between(mediaUpdateAt, LocalDate.now()) > 1L) {
             return true;
         }
 
@@ -69,7 +69,7 @@ public abstract class MediaUtils {
                     : media);
         }
 
-        return medias;
+        return updatedMedias;
     }
 
     /**
@@ -89,7 +89,7 @@ public abstract class MediaUtils {
                     : media);
         }
 
-        return medias;
+        return updatedMedias;
     }
 
     /**

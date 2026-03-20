@@ -36,8 +36,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             String[] parts = raw.replaceAll("\\s", "").split(",");
             // Normalize roles: if a role doesn't start with ROLE_ or ID_, prefix with ROLE_
             rolesList.addAll(Arrays.stream(parts)
-                .map(s -> s == null ? null : s.trim())
-                .filter(s -> s != null && !s.isBlank())
+                .filter(s -> !s.isBlank())
                 .map(s -> {
                     if (s.startsWith("ROLE_") || s.startsWith("ID_")) return s;
                     return "ROLE_" + s;

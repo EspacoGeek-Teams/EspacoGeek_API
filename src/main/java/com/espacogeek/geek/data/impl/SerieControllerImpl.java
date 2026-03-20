@@ -93,11 +93,6 @@ public class SerieControllerImpl extends GenericMediaDataControllerImpl {
 
                             media.setName(json.get("original_name").toString());
 
-                            if (externalReferenceExisted.isPresent()) {
-                                media.setId(externalReferenceExisted.get().getMedia().getId());
-                                externalReference.setId(externalReferenceExisted.get().getId());
-                            }
-
                             var mediaSaved = mediaService.save(media);
 
                             externalReference.setMedia(mediaSaved);

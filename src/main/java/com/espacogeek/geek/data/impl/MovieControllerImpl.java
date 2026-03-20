@@ -124,11 +124,6 @@ public class MovieControllerImpl extends GenericMediaDataControllerImpl {
 
                             media.setName(json.get("original_title").toString());
 
-                            if (externalReferenceExisted.isPresent()) {
-                                media.setId(externalReferenceExisted.get().getMedia().getId());
-                                externalReference.setId(externalReferenceExisted.get().getId());
-                            }
-
                             var mediaSaved = mediaService.save(media);
 
                             externalReference.setMedia(mediaSaved);

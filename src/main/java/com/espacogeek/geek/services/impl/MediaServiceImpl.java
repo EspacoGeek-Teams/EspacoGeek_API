@@ -210,7 +210,7 @@ public class MediaServiceImpl implements MediaService {
     @Transactional
     public Optional<MediaModel> findByIdEager(Integer id) {
         var fieldList = new ArrayList<Field>();
-        MediaModel media = (MediaModel) mediaRepository.findById(id).orElseGet(null);
+        MediaModel media = (MediaModel) mediaRepository.findById(id).orElse(null);
 
         if (media == null)
             return Optional.empty();
@@ -271,8 +271,7 @@ public class MediaServiceImpl implements MediaService {
                 if (categoryId == null)
                     continue;
 
-                MediaModel updated = media;
-                updated = switch (categoryId) {
+                MediaModel updated = switch (categoryId) {
                     case 2, 3 -> MediaUtils
                         .updateGenericMedia(
                             List.of(media),
@@ -281,7 +280,7 @@ public class MediaServiceImpl implements MediaService {
                             gamesAndVNsAPI)
                         .getFirst();
                     case 1 -> MediaUtils.updateMedia(List.of(media), serieController).getFirst();
-                    default -> updated;
+                    default -> media;
                 };
 
                 if (updated != null && updated.getBanner() != null && !updated.getBanner().isEmpty()) {

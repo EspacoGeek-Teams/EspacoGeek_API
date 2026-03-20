@@ -183,7 +183,7 @@ public class UserController {
 
         Integer userId = UserUtils.getUserID(authentication);
 
-        UserModel userLogged = userService.findById(Integer.valueOf(userId)).get();
+        UserModel userLogged = userService.findById(userId).orElseThrow(() -> new GenericException(HttpStatus.NOT_FOUND.toString()));
         boolean resultPassword = BCrypt.verifyer().verify(actualPassword.toCharArray(), userLogged.getPassword()).verified;
 
         if (resultPassword) {
@@ -205,11 +205,11 @@ public class UserController {
 
         Integer userId = UserUtils.getUserID(authentication);
 
-        UserModel userLogged = userService.findById(userId).get();
+        UserModel userLogged = userService.findById(userId).orElseThrow(() -> new GenericException(HttpStatus.NOT_FOUND.toString()));
         boolean resultPassword = BCrypt.verifyer().verify(password.toCharArray(), userLogged.getPassword()).verified;
 
         if (resultPassword) {
-            userService.deleteById(Integer.valueOf(userId));
+            userService.deleteById(userId);
             return HttpStatus.OK.toString();
         }
 
@@ -222,7 +222,7 @@ public class UserController {
 
         Integer userId = UserUtils.getUserID(authentication);
 
-        UserModel userLogged = userService.findById(userId).get();
+        UserModel userLogged = userService.findById(userId).orElseThrow(() -> new GenericException(HttpStatus.NOT_FOUND.toString()));
         boolean resultPassword = BCrypt.verifyer().verify(password.toCharArray(), userLogged.getPassword()).verified;
 
         if (resultPassword) {
@@ -240,7 +240,7 @@ public class UserController {
 
         Integer userId = UserUtils.getUserID(authentication);
 
-        UserModel userLogged = userService.findById(userId).get();
+        UserModel userLogged = userService.findById(userId).orElseThrow(() -> new GenericException(HttpStatus.NOT_FOUND.toString()));
         boolean resultPassword = BCrypt.verifyer().verify(password.toCharArray(), userLogged.getPassword()).verified;
 
         if (resultPassword) {

@@ -79,8 +79,7 @@ public class JwtConfig {
         if (raw != null && !raw.isBlank()) {
             String[] parts = raw.replaceAll("\\s", "").split(",");
             rolesList.addAll(Arrays.stream(parts)
-                    .map(s -> s == null ? null : s.trim())
-                    .filter(s -> s != null && !s.isBlank())
+                    .filter(s -> !s.isBlank())
                     .map(s -> {
                         if (s.startsWith("ROLE_") || s.startsWith("ID_")) return s;
                         return "ROLE_" + s;
