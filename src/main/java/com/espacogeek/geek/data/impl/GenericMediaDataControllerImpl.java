@@ -1,7 +1,9 @@
 package com.espacogeek.geek.data.impl;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.LinkedHashSet;
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -102,7 +104,7 @@ public class GenericMediaDataControllerImpl implements MediaDataController {
         MediaModel rawArtwork = new MediaModel();
 
         if (result == null) {
-            List<ExternalReferenceModel> externalReferences = media.getExternalReference();
+            Collection<ExternalReferenceModel> externalReferences = media.getExternalReference();
             if (externalReferences == null || !Hibernate.isInitialized(externalReferences)) {
                 externalReferences = externalReferenceService.findAll(media);
             }
@@ -148,20 +150,20 @@ public class GenericMediaDataControllerImpl implements MediaDataController {
                 }
             }
         } else {
-            allAlternativeTitles = result.getAlternativeTitles();
+            allAlternativeTitles = result.getAlternativeTitles() != null ? new ArrayList<>(result.getAlternativeTitles()) : new ArrayList<>();
         }
 
-        if (CollectionUtils.isEmpty(allAlternativeTitles)) return media.getAlternativeTitles();
+        if (CollectionUtils.isEmpty(allAlternativeTitles)) return media.getAlternativeTitles() != null ? new ArrayList<>(media.getAlternativeTitles()) : new ArrayList<>();
 
-        if (media.getAlternativeTitles() == null) media.setAlternativeTitles(new ArrayList<>());
+        if (media.getAlternativeTitles() == null) media.setAlternativeTitles(new LinkedHashSet<>());
         for (AlternativeTitleModel title : allAlternativeTitles) {
             if (media.getAlternativeTitles().stream().noneMatch((alternativeTitle) -> alternativeTitle.getName().equals(title.getName()))) {
                 media.getAlternativeTitles().add(new AlternativeTitleModel(null, title.getName(), media));
             }
         }
 
-        alternativeTitlesService.saveAll(media.getAlternativeTitles());
-        return media.getAlternativeTitles();
+        alternativeTitlesService.saveAll(new ArrayList<>(media.getAlternativeTitles()));
+        return new ArrayList<>(media.getAlternativeTitles());
     }
 
     @Override
@@ -179,12 +181,12 @@ public class GenericMediaDataControllerImpl implements MediaDataController {
                 }
             }
         } else {
-            rawExternalReferences = result.getExternalReference();
+            rawExternalReferences = result.getExternalReference() != null ? new ArrayList<>(result.getExternalReference()) : new ArrayList<>();
         }
 
-        if (CollectionUtils.isEmpty(rawExternalReferences)) return media.getExternalReference();
+        if (CollectionUtils.isEmpty(rawExternalReferences)) return media.getExternalReference() != null ? new ArrayList<>(media.getExternalReference()) : new ArrayList<>();
 
-        if (media.getExternalReference() == null) media.setExternalReference(new ArrayList<>());
+        if (media.getExternalReference() == null) media.setExternalReference(new LinkedHashSet<>());
         for (ExternalReferenceModel reference : rawExternalReferences) {
             if (CollectionUtils.isEmpty(media.getExternalReference()) || media.getExternalReference().stream().noneMatch((eReference) -> eReference.getReference().equals(reference.getReference()))) {
                 reference.setMedia(media);
@@ -192,9 +194,9 @@ public class GenericMediaDataControllerImpl implements MediaDataController {
             }
         }
 
-        externalReferenceService.saveAll(media.getExternalReference());
+        externalReferenceService.saveAll(new ArrayList<>(media.getExternalReference()));
 
-        return media.getExternalReference();
+        return new ArrayList<>(media.getExternalReference());
     }
 
     @Override
@@ -212,10 +214,14 @@ public class GenericMediaDataControllerImpl implements MediaDataController {
                 }
             }
         } else {
-            rawGenres = result.getGenre();
+            rawGenres = result.getGenre() != null ? new ArrayList<>(result.getGenre()) : new ArrayList<>();
         }
 
-        if (CollectionUtils.isEmpty(rawGenres)) return media.getGenre();
+        if (CollectionUtils.isEmpty(rawGenres)) return media.getGenre() != null ? new ArrayList<>(media.getGenre()) : new ArrayList<>();
+
+        if (media.getGenre() == null) {
+            media.setGenre(new LinkedHashSet<>());
+        }
 
         rawGenres.forEach((rawGenre) -> {
             if (media.getGenre().stream().noneMatch((genre) -> genre.getId().equals(rawGenre.getId()))) {
@@ -224,8 +230,8 @@ public class GenericMediaDataControllerImpl implements MediaDataController {
             }
         });
 
-        genreService.saveAll(media.getGenre());
-        return media.getGenre();
+        genreService.saveAll(new ArrayList<>(media.getGenre()));
+        return new ArrayList<>(media.getGenre());
     }
 
     @Override
@@ -240,10 +246,14 @@ public class GenericMediaDataControllerImpl implements MediaDataController {
                 }
             }
         } else {
-            rawSeasons = result.getSeason();
+            rawSeasons = result.getSeason() != null ? new ArrayList<>(result.getSeason()) : new ArrayList<>();
         }
 
-        if (CollectionUtils.isEmpty(rawSeasons)) return media.getSeason();
+        if (CollectionUtils.isEmpty(rawSeasons)) return media.getSeason() != null ? new ArrayList<>(media.getSeason()) : new ArrayList<>();
+
+        if (media.getSeason() == null) {
+            media.setSeason(new LinkedHashSet<>());
+        }
 
         rawSeasons.forEach((rawSeason) -> {
             if (media.getSeason().stream().noneMatch((season) -> season.getName().equals(rawSeason.getName()))) {
@@ -252,7 +262,7 @@ public class GenericMediaDataControllerImpl implements MediaDataController {
         });
 
         var savedSeasons = seasonService.saveAll(seasons);
-        List<SeasonModel> newSeasons = media.getSeason() == null ? new ArrayList<>() : media.getSeason();
+        List<SeasonModel> newSeasons = media.getSeason() == null ? new ArrayList<>() : new ArrayList<>(media.getSeason());
         newSeasons.addAll(savedSeasons == null ? new ArrayList<>() : savedSeasons);
 
         return newSeasons;
@@ -264,12 +274,9 @@ public class GenericMediaDataControllerImpl implements MediaDataController {
         var result = new ArrayList<MediaModel>();
 
         for (MediaModel mediaSearch : rawMediaSearchList) {
-            var media = new MediaModel();
-            media.setMediaCategory(mediaCategory);
-
+            MediaModel media;
             try {
                 media = createMediaIfNotExistAndIfExistReturnIt(mediaSearch, typeReference);
-                media = mediaSearch;
 
                 if (media != null) {
                     updateExternalReferences(media, mediaSearch, typeReference, mediaApi);
@@ -283,8 +290,14 @@ public class GenericMediaDataControllerImpl implements MediaDataController {
                 result.add(media);
 
             } catch (MediaAlreadyExist e) {
-                media = mediaService.findByReferenceAndTypeReference(mediaSearch.getExternalReference().getFirst(), typeReference).orElseThrow();
+                Collection<ExternalReferenceModel> externalReferences = mediaSearch.getExternalReference();
+                if (CollectionUtils.isEmpty(externalReferences)) {
+                    throw new com.espacogeek.geek.exception.GenericException("MediaAlreadyExist thrown but no external references are available to lookup existing media");
+                }
 
+                ExternalReferenceModel firstReference = externalReferences.iterator().next();
+                media = mediaService.findByReferenceAndTypeReference(firstReference, typeReference)
+                        .orElseThrow(() -> new com.espacogeek.geek.exception.GenericException("Media not found for the given external reference"));
                 result.add(media);
             }
         }

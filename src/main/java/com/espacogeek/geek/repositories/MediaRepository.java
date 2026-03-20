@@ -1,5 +1,7 @@
 package com.espacogeek.geek.repositories;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -59,4 +61,34 @@ public interface MediaRepository extends JpaRepository<MediaModel, Integer>, Med
     @Query("SELECT m FROM MediaModel m JOIN ExternalReferenceModel e ON e MEMBER OF m.externalReference WHERE e.reference = :reference AND e.typeReference = :typeReference")
     public Optional<MediaModel> findOneMediaByExternalReferenceAndTypeReference(@Param("reference") String reference,
             @Param("typeReference") TypeReferenceModel typeReference);
+
+    /**
+     * Batch-loads the genre association for a collection of MediaModel entities.
+     * Used by @BatchMapping to resolve the N+1 problem for genres.
+     *
+     * @param medias the collection of MediaModel entities to load genres for.
+     * @return a list of MediaModel entities with their genre collections initialized.
+     */
+    @Query("SELECT DISTINCT m FROM MediaModel m LEFT JOIN FETCH m.genre WHERE m IN :medias")
+    List<MediaModel> findAllWithGenreByMediaIn(@Param("medias") Collection<MediaModel> medias);
+
+    /**
+     * Batch-loads the company association for a collection of MediaModel entities.
+     * Used by @BatchMapping to resolve the N+1 problem for companies.
+     *
+     * @param medias the collection of MediaModel entities to load companies for.
+     * @return a list of MediaModel entities with their company collections initialized.
+     */
+    @Query("SELECT DISTINCT m FROM MediaModel m LEFT JOIN FETCH m.company WHERE m IN :medias")
+    List<MediaModel> findAllWithCompanyByMediaIn(@Param("medias") Collection<MediaModel> medias);
+
+    /**
+     * Batch-loads the people association for a collection of MediaModel entities.
+     * Used by @BatchMapping to resolve the N+1 problem for people.
+     *
+     * @param medias the collection of MediaModel entities to load people for.
+     * @return a list of MediaModel entities with their people collections initialized.
+     */
+    @Query("SELECT DISTINCT m FROM MediaModel m LEFT JOIN FETCH m.people WHERE m IN :medias")
+    List<MediaModel> findAllWithPeopleByMediaIn(@Param("medias") Collection<MediaModel> medias);
 }

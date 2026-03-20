@@ -124,20 +124,15 @@ public class MovieControllerImpl extends GenericMediaDataControllerImpl {
 
                             media.setName(json.get("original_title").toString());
 
-                            if (externalReferenceExisted.isPresent()) {
-                                media.setId(externalReferenceExisted.get().getMedia().getId());
-                                externalReference.setId(externalReferenceExisted.get().getId());
-                            }
-
                             var mediaSaved = mediaService.save(media);
 
                             externalReference.setMedia(mediaSaved);
                             var referenceSaved = externalReferenceService.save(externalReference);
-                            List<ExternalReferenceModel> referenceListSaved = new ArrayList<>();
+                            java.util.LinkedHashSet<ExternalReferenceModel> referenceListSaved = new java.util.LinkedHashSet<>();
                             referenceListSaved.add(referenceSaved);
                             mediaSaved.setExternalReference(referenceListSaved);
 
-                            media.setAlternativeTitles(updateAlternativeTitles(mediaSaved, null, typeReference, movieAPI));
+                            media.setAlternativeTitles(new java.util.LinkedHashSet<>(updateAlternativeTitles(mediaSaved, null, typeReference, movieAPI)));
                         }
                     } catch (Exception e) {
                         var json = (JSONObject) jsonArrayDailyExport.get(index);

@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
@@ -45,10 +46,8 @@ import static com.espacogeek.geek.utils.TextUtils.capitalize;
 public class MediaServiceImpl implements MediaService {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(MediaServiceImpl.class);
 
-    @SuppressWarnings("rawtypes")
     private final MediaRepository mediaRepository;
 
-    @SuppressWarnings("rawtypes")
     private final ExternalReferenceRepository externalsRepo;
 
     private final MediaCategoryService mediaCategoryService;
@@ -211,7 +210,7 @@ public class MediaServiceImpl implements MediaService {
     @Transactional
     public Optional<MediaModel> findByIdEager(Integer id) {
         var fieldList = new ArrayList<Field>();
-        MediaModel media = (MediaModel) mediaRepository.findById(id).orElseGet(null);
+        MediaModel media = (MediaModel) mediaRepository.findById(id).orElse(null);
 
         if (media == null)
             return Optional.empty();
@@ -228,8 +227,8 @@ public class MediaServiceImpl implements MediaService {
                 String getterName = "get" + capitalize(field.getName());
                 Method getter = media.getClass().getMethod(getterName);
                 var fieldValue = getter.invoke(media);
-                if (fieldValue instanceof List) {
-                    ((List<?>) fieldValue).size(); // This will initialize the collection
+                if (fieldValue instanceof Collection) {
+                    ((Collection<?>) fieldValue).size(); // This will initialize the collection
                 }
             } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
                 log.error("Failed to initialize field {} for media id={}: {}", field.getName(), media.getId(), e.getMessage());
@@ -272,8 +271,7 @@ public class MediaServiceImpl implements MediaService {
                 if (categoryId == null)
                     continue;
 
-                MediaModel updated = media;
-                updated = switch (categoryId) {
+                MediaModel updated = switch (categoryId) {
                     case 2, 3 -> MediaUtils
                         .updateGenericMedia(
                             List.of(media),
@@ -282,7 +280,7 @@ public class MediaServiceImpl implements MediaService {
                             gamesAndVNsAPI)
                         .getFirst();
                     case 1 -> MediaUtils.updateMedia(List.of(media), serieController).getFirst();
-                    default -> updated;
+                    default -> media;
                 };
 
                 if (updated != null && updated.getBanner() != null && !updated.getBanner().isEmpty()) {

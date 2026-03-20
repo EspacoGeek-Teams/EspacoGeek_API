@@ -28,7 +28,7 @@ public class GraphQLMetricsInstrumentation {
             }
 
             // Se não encontrou, tenta extrair a primeira palavra-chave GraphQL
-            pattern = java.util.regex.Pattern.compile("(\\w+)\\s*(?:\\(|\\{)");
+            pattern = java.util.regex.Pattern.compile("(\\w+)\\s*[({]");
             matcher = pattern.matcher(query);
             if (matcher.find()) {
                 return matcher.group(1);

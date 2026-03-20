@@ -49,7 +49,7 @@ public class QuoteApiImpl implements QuoteApi {
     @Override
     public QuoteModel getRandomQuote() {
         var client = new OkHttpClient().newBuilder().build();
-        Request request = null;
+        Request request;
         try {
             request = new Request.Builder()
                     .url(URL_QUOTE)
@@ -62,21 +62,21 @@ public class QuoteApiImpl implements QuoteApi {
             throw new GenericException("Quote not found");
         }
 
-        Response response = null;
-        try {
-            response = client.newCall(request).execute();
-        } catch (IOException e) {
-            log.error("Error executing request for Quote API: {}", e.getMessage());
-            throw new GenericException("Quote not found");
-        }
-
         var parser = new JSONParser();
         var jsonArray = new JSONArray();
-        try {
-            assert response.body() != null;
-            jsonArray = (JSONArray) parser.parse(response.body().string());
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful()) {
+                log.error("Quote API returned unsuccessful response: {}", response.code());
+                throw new GenericException("Quote not found");
+            }
+            okhttp3.ResponseBody body = response.body();
+            if (body == null) {
+                log.error("Quote API returned empty body");
+                throw new GenericException("Quote not found");
+            }
+            jsonArray = (JSONArray) parser.parse(body.string());
         } catch (ParseException | IOException e) {
-            log.error("Error parsing response from Quote API: {}", e.getMessage());
+            log.error("Error executing or parsing response from Quote API: {}", e.getMessage());
             throw new GenericException("Quote not found");
         }
 

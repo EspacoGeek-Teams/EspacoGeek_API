@@ -95,7 +95,7 @@ public class GamesAndVNsApiImpl implements MediaApi {
                         genresName.add(genre.getName());
                     });
 
-                    media.setGenre(genreService.findAllByNames(genresName));
+                    media.setGenre(new java.util.LinkedHashSet<>(genreService.findAllByNames(genresName)));
                     media.setAbout(result.getSummary());
                     media.setName(result.getName());
 
@@ -112,8 +112,8 @@ public class GamesAndVNsApiImpl implements MediaApi {
                     for (proto.AlternativeName title : result.getAlternativeNamesList()) {
                         if (!title.getName().isEmpty()) alternativeTitles.add(new AlternativeTitleModel(null, title.getName(), media));
                     }
-                    media.setAlternativeTitles(alternativeTitles);
-                    media.setExternalReference(new ArrayList<>(List.of(reference)));
+                    media.setAlternativeTitles(new java.util.LinkedHashSet<>(alternativeTitles));
+                    media.setExternalReference(new java.util.LinkedHashSet<>(List.of(reference)));
                     media.setMediaCategory(category);
                 }
             }
@@ -154,8 +154,8 @@ public class GamesAndVNsApiImpl implements MediaApi {
                     for (proto.AlternativeName title : result.getGame().getAlternativeNamesList()) {
                         if (!title.getName().isEmpty()) alternativeTitles.add(new AlternativeTitleModel(null, title.getName(), media));
                     }
-                    media.setAlternativeTitles(alternativeTitles);
-                    media.setExternalReference(new ArrayList<>(List.of(reference)));
+                    media.setAlternativeTitles(new java.util.LinkedHashSet<>(alternativeTitles));
+                    media.setExternalReference(new java.util.LinkedHashSet<>(List.of(reference)));
 
                     media.setMediaCategory(category);
 
