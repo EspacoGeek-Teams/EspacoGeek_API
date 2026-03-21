@@ -79,7 +79,7 @@ public class SecurityConfig {
                 // automatically by browsers), making CSRF attacks impossible.
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> {
-                    auth.requestMatchers("/", "/graphql", "/graphiql", "/graphiql/**", "/favicon.ico").permitAll();
+                    auth.requestMatchers("/", "/graphql", "/graphiql", "/graphiql/**", "/settings", "/favicon.ico").permitAll();
                     auth.requestMatchers("/actuator/**").permitAll();
                     auth.requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll();
                     auth.anyRequest().authenticated();

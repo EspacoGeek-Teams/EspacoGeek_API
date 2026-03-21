@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Settings - EspacoGeek</title>
+    <style>
+        :root {
+            --bg: #0f1117;
+            --surface: #1a1d27;
+            --surface2: #22263a;
+            --border: #2e3352;
+            --primary: #6366f1;
+            --primary-hover: #4f52d9;
+            --danger: #ef4444;
+            --danger-hover: #dc2626;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --text: #e2e8f0;
+            --text-muted: #8892a4;
+            --input-bg: #131622;
+            --radius: 10px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ── Topbar ── */
+        header {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 0 24px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .logo {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+            letter-spacing: -0.5px;
+        }
+        #user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+        #user-info strong { color: var(--text); }
+        #btn-logout {
+            padding: 6px 14px;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+        #btn-logout:hover { border-color: var(--primary); color: var(--primary); }
+
+        /* ── Layout ── */
+        .container {
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 40px 24px;
+            width: 100%;
+            flex: 1;
+        }
+
+        h1 {
+            font-size: 26px;
+            font-weight: 700;
+            margin-bottom: 28px;
+            color: var(--text);
+        }
+
+        /* ── Tabs ── */
+        .tabs {
+            display: flex;
+            gap: 4px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 32px;
+        }
+        .tab-btn {
+            padding: 10px 18px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+            transition: color 0.2s, border-color 0.2s;
+        }
+        .tab-btn:hover { color: var(--text); }
+        .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        /* ── Cards ── */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 28px;
+            margin-bottom: 20px;
+        }
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+        .card-desc {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        /* ── Forms ── */
+        .form-group { margin-bottom: 16px; }
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 6px;
+            color: var(--text-muted);
+        }
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px 14px;
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 14px;
+            transition: border-color 0.2s;
+            outline: none;
+        }
+        input:focus { border-color: var(--primary); }
+        input.error { border-color: var(--danger); }
+
+        .field-error {
+            font-size: 12px;
+            color: var(--danger);
+            margin-top: 4px;
+        }
+
+        /* ── Buttons ── */
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-primary { background: var(--primary); color: #fff; }
+        .btn-primary:hover:not(:disabled) { background: var(--primary-hover); }
+        .btn-danger { background: var(--danger); color: #fff; }
+        .btn-danger:hover:not(:disabled) { background: var(--danger-hover); }
+        .btn-secondary {
+            background: transparent;
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+        .btn-secondary:hover:not(:disabled) { border-color: var(--primary); color: var(--primary); }
+
+        /* ── Danger zone ── */
+        .danger-card {
+            border-color: rgba(239, 68, 68, 0.3);
+            background: rgba(239, 68, 68, 0.04);
+        }
+        .danger-card .card-title { color: var(--danger); }
+
+        /* ── Login Page ── */
+        #login-page {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: calc(100vh - 60px);
+            padding: 24px;
+        }
+        .login-box {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+        }
+        .login-box h2 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+        .login-box p {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+        }
+        #login-error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 13px;
+            color: var(--danger);
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        /* ── Password Reset ── */
+        #reset-mode {
+            margin-top: 12px;
+            text-align: center;
+        }
+        #reset-mode a {
+            font-size: 13px;
+            color: var(--primary);
+            cursor: pointer;
+            text-decoration: none;
+        }
+        #reset-mode a:hover { text-decoration: underline; }
+
+        /* ── Toast ── */
+        #toast-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 9999;
+        }
+        .toast {
+            padding: 12px 18px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            min-width: 260px;
+            max-width: 400px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideIn 0.25s ease;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+        }
+        .toast.success { background: #166534; border: 1px solid #22c55e40; color: #bbf7d0; }
+        .toast.error   { background: #7f1d1d; border: 1px solid #ef444440; color: #fecaca; }
+        .toast.info    { background: #1e3a5f; border: 1px solid #3b82f640; color: #bfdbfe; }
+        @keyframes slideIn {
+            from { transform: translateX(50px); opacity: 0; }
+            to   { transform: translateX(0);    opacity: 1; }
+        }
+
+        /* ── Admin Badge ── */
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        .badge-admin { background: rgba(99, 102, 241, 0.15); color: var(--primary); border: 1px solid rgba(99, 102, 241, 0.3); }
+        .badge-user  { background: rgba(34, 197, 94, 0.1);  color: #4ade80;        border: 1px solid rgba(34, 197, 94, 0.2);  }
+
+        /* ── Spinner ── */
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            display: inline-block;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── Confirmation dialog ── */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 28px;
+            max-width: 420px;
+            width: 90%;
+        }
+        .modal h3 { font-size: 18px; margin-bottom: 10px; }
+        .modal p { font-size: 14px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.5; }
+        .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+
+        /* ── Responsive ── */
+        @media (max-width: 600px) {
+            .card { padding: 20px 16px; }
+            .login-box { padding: 28px 20px; }
+            h1 { font-size: 22px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Topbar -->
+<header>
+    <a href="/" class="logo">EspacoGeek</a>
+    <div id="user-info" style="display:none">
+        <span id="header-username"></span>
+        <button id="btn-logout">Logout</button>
+    </div>
+</header>
+
+<!-- Login page (shown when not authenticated) -->
+<div id="login-page">
+    <div class="login-box">
+        <h2>Sign in to continue</h2>
+        <p>Log in to access your Account Settings.</p>
+        <div id="login-error"></div>
+
+        <div id="login-form-section">
+            <div class="form-group">
+                <label for="login-email">Email</label>
+                <input type="email" id="login-email" placeholder="you@example.com" autocomplete="email">
+            </div>
+            <div class="form-group">
+                <label for="login-password">Password</label>
+                <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password">
+            </div>
+            <button class="btn btn-primary" id="btn-login" style="width:100%;justify-content:center">Sign In</button>
+            <div id="reset-mode">
+                <a id="link-forgot">Forgot password?</a>
+            </div>
+        </div>
+
+        <div id="reset-form-section" style="display:none">
+            <p style="margin-bottom:12px;font-size:13px;color:var(--text-muted)">Enter your email to receive a password reset link.</p>
+            <div class="form-group">
+                <label for="reset-email">Email</label>
+                <input type="email" id="reset-email" placeholder="you@example.com">
+            </div>
+            <button class="btn btn-primary" id="btn-send-reset" style="width:100%;justify-content:center">Send Reset Link</button>
+            <div style="margin-top:12px;text-align:center">
+                <a id="link-back-login" style="font-size:13px;color:var(--primary);cursor:pointer;text-decoration:none">← Back to login</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Settings page (shown when authenticated) -->
+<div id="settings-page" style="display:none">
+    <div class="container">
+        <h1>Account Settings</h1>
+
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="profile">Profile</button>
+            <button class="tab-btn" data-tab="security">Security</button>
+            <button class="tab-btn" id="admin-tab-btn" data-tab="admin" style="display:none">
+                Admin Panel <span class="badge badge-admin" style="margin-left:6px">Admin</span>
+            </button>
+        </div>
+
+        <!-- ───── Profile tab ───── -->
+        <div id="tab-profile" class="tab-panel active">
+
+            <!-- Current info -->
+            <div class="card">
+                <div class="card-title">Account Information</div>
+                <div class="card-desc">Your current profile details.</div>
+                <div style="display:flex;gap:20px;flex-wrap:wrap">
+                    <div>
+                        <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px">Username</div>
+                        <div id="info-username" style="font-size:16px;font-weight:600"></div>
+                    </div>
+                    <div>
+                        <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px">Email</div>
+                        <div id="info-email" style="font-size:16px;font-weight:600"></div>
+                    </div>
+                    <div>
+                        <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px">Roles</div>
+                        <div id="info-roles"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Change username -->
+            <div class="card">
+                <div class="card-title">Change Username</div>
+                <div class="card-desc">Username must be between 3 and 20 characters.</div>
+                <div class="form-group">
+                    <label for="new-username">New Username</label>
+                    <input type="text" id="new-username" placeholder="newusername" minlength="3" maxlength="20">
+                    <div class="field-error" id="err-username"></div>
+                </div>
+                <div class="form-group">
+                    <label for="pass-for-username">Confirm with Password</label>
+                    <input type="password" id="pass-for-username" placeholder="Your current password">
+                    <div class="field-error" id="err-pass-username"></div>
+                </div>
+                <button class="btn btn-primary" id="btn-save-username">Save Username</button>
+            </div>
+
+            <!-- Change email -->
+            <div class="card">
+                <div class="card-title">Change Email</div>
+                <div class="card-desc">A verification link will be sent to the new email address. Your email will only be updated after you click the link.</div>
+                <div class="form-group">
+                    <label for="new-email">New Email Address</label>
+                    <input type="email" id="new-email" placeholder="newemail@example.com">
+                    <div class="field-error" id="err-email"></div>
+                </div>
+                <div class="form-group">
+                    <label for="pass-for-email">Confirm with Password</label>
+                    <input type="password" id="pass-for-email" placeholder="Your current password">
+                    <div class="field-error" id="err-pass-email"></div>
+                </div>
+                <button class="btn btn-primary" id="btn-save-email">Request Email Change</button>
+            </div>
+
+            <!-- Delete account -->
+            <div class="card danger-card">
+                <div class="card-title">Delete Account</div>
+                <div class="card-desc">Permanently delete your account and all associated data. This action cannot be undone.</div>
+                <button class="btn btn-danger" id="btn-delete-account">Delete My Account</button>
+            </div>
+        </div>
+
+        <!-- ───── Security tab ───── -->
+        <div id="tab-security" class="tab-panel">
+
+            <!-- Change password -->
+            <div class="card">
+                <div class="card-title">Change Password</div>
+                <div class="card-desc">Use a strong password with at least 8 characters, including uppercase, lowercase, a number, and a special character.</div>
+                <div class="form-group">
+                    <label for="current-password">Current Password</label>
+                    <input type="password" id="current-password" placeholder="Current password" autocomplete="current-password">
+                    <div class="field-error" id="err-current-pass"></div>
+                </div>
+                <div class="form-group">
+                    <label for="new-password">New Password</label>
+                    <input type="password" id="new-password" placeholder="New password" autocomplete="new-password">
+                    <div class="field-error" id="err-new-pass"></div>
+                </div>
+                <div class="form-group">
+                    <label for="confirm-password">Confirm New Password</label>
+                    <input type="password" id="confirm-password" placeholder="Confirm new password" autocomplete="new-password">
+                    <div class="field-error" id="err-confirm-pass"></div>
+                </div>
+                <button class="btn btn-primary" id="btn-save-password">Update Password</button>
+            </div>
+
+            <!-- Password reset -->
+            <div class="card">
+                <div class="card-title">Password Reset via Email</div>
+                <div class="card-desc">Forgot your current password? Send a reset link to your registered email address.</div>
+                <button class="btn btn-secondary" id="btn-request-reset">Send Password Reset Email</button>
+            </div>
+        </div>
+
+        <!-- ───── Admin tab ───── -->
+        <div id="tab-admin" class="tab-panel">
+            <div class="card">
+                <div class="card-title">Admin Panel</div>
+                <div class="card-desc">Administrative controls for managing the application.</div>
+
+                <div style="margin-bottom:20px">
+                    <div style="font-size:13px;font-weight:500;margin-bottom:12px;color:var(--text-muted)">Spring Batch Jobs</div>
+                    <div style="display:flex;gap:10px;flex-wrap:wrap">
+                        <button class="btn btn-secondary" onclick="runBatchJob('serieJob')">▶ Run Serie Job</button>
+                        <button class="btn btn-secondary" onclick="runBatchJob('movieJob')">▶ Run Movie Job</button>
+                    </div>
+                </div>
+
+                <div>
+                    <div style="font-size:13px;font-weight:500;margin-bottom:12px;color:var(--text-muted)">Batch Job History</div>
+                    <button class="btn btn-secondary" id="btn-load-jobs">Load Job History</button>
+                    <div id="jobs-table" style="margin-top:16px"></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">User Search</div>
+                <div class="card-desc">Find users by ID, username, or email.</div>
+                <div style="display:flex;gap:10px">
+                    <input type="text" id="admin-search" placeholder="Username or email..." style="flex:1">
+                    <button class="btn btn-primary" id="btn-admin-search">Search</button>
+                </div>
+                <div id="admin-search-results" style="margin-top:16px"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast container -->
+<div id="toast-container"></div>
+
+<!-- Confirmation modal (delete account) -->
+<div id="modal-delete" class="modal-backdrop" style="display:none">
+    <div class="modal">
+        <h3>Delete Account?</h3>
+        <p>This will permanently delete your account and all associated data. This action <strong>cannot be undone</strong>.</p>
+        <div class="form-group">
+            <label for="delete-password">Enter your password to confirm</label>
+            <input type="password" id="delete-password" placeholder="Your password">
+        </div>
+        <div class="modal-actions">
+            <button class="btn btn-secondary" id="btn-cancel-delete">Cancel</button>
+            <button class="btn btn-danger" id="btn-confirm-delete">Delete Account</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+//  State
+// ─────────────────────────────────────────────
+const STORAGE_KEY = 'eg_auth';
+
+function getAuth() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null'); } catch { return null; }
+}
+function setAuth(data) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+function clearAuth() {
+    localStorage.removeItem(STORAGE_KEY);
+}
+
+// ─────────────────────────────────────────────
+//  GraphQL helper
+// ─────────────────────────────────────────────
+async function gql(query, variables, accessToken) {
+    const headers = { 'Content-Type': 'application/json' };
+    if (accessToken) headers['Authorization'] = 'Bearer ' + accessToken;
+
+    const res = await fetch('/', {
+        method: 'POST',
+        credentials: 'include',
+        headers,
+        body: JSON.stringify({ query, variables })
+    });
+    const json = await res.json();
+    if (json.errors && json.errors.length > 0) {
+        const code = json.errors[0]?.extensions?.errorCode;
+        const msg  = json.errors[0]?.message || 'Unexpected error';
+        const err  = new Error(msg);
+        err.errorCode = code;
+        throw err;
+    }
+    return json.data;
+}
+
+// Silently refresh the access token using the HttpOnly refresh cookie
+async function refreshAccessToken() {
+    try {
+        const data = await gql(`mutation { refreshToken { accessToken user { id username email roles } } }`);
+        const payload = data.refreshToken;
+        setAuth({ accessToken: payload.accessToken, user: payload.user });
+        return payload.accessToken;
+    } catch {
+        clearAuth();
+        return null;
+    }
+}
+
+// Wrapped gql that retries once after token refresh on 401-like errors
+async function authedGql(query, variables) {
+    let auth = getAuth();
+    if (!auth) throw new Error('Not authenticated');
+    try {
+        return await gql(query, variables, auth.accessToken);
+    } catch (err) {
+        // Try to refresh and retry once
+        const newToken = await refreshAccessToken();
+        if (!newToken) throw new Error('Session expired. Please log in again.');
+        return await gql(query, variables, newToken);
+    }
+}
+
+// ─────────────────────────────────────────────
+//  Toast
+// ─────────────────────────────────────────────
+function showToast(message, type = 'info', duration = 4000) {
+    const icons = { success: '✓', error: '✕', info: 'ℹ' };
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.innerHTML = `<span>${icons[type] || 'ℹ'}</span><span>${escapeHtml(message)}</span>`;
+    container.appendChild(toast);
+    setTimeout(() => {
+        toast.style.transition = 'opacity 0.3s, transform 0.3s';
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(50px)';
+        setTimeout(() => toast.remove(), 300);
+    }, duration);
+}
+
+function escapeHtml(str) {
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
+
+// ─────────────────────────────────────────────
+//  Validation helpers
+// ─────────────────────────────────────────────
+const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function setError(id, msg) {
+    const el = document.getElementById(id);
+    if (el) { el.textContent = msg; el.style.display = msg ? 'block' : 'none'; }
+}
+function clearErrors(...ids) {
+    ids.forEach(id => setError(id, ''));
+}
+function markInvalid(inputId, errorId, msg) {
+    const input = document.getElementById(inputId);
+    if (input) input.classList.add('error');
+    setError(errorId, msg);
+}
+function markValid(inputId) {
+    const input = document.getElementById(inputId);
+    if (input) input.classList.remove('error');
+}
+
+// ─────────────────────────────────────────────
+//  UI helpers
+// ─────────────────────────────────────────────
+function setLoading(btn, loading) {
+    if (loading) {
+        btn.dataset.originalText = btn.innerHTML;
+        btn.innerHTML = '<span class="spinner"></span>';
+        btn.disabled = true;
+    } else {
+        btn.innerHTML = btn.dataset.originalText || btn.innerHTML;
+        btn.disabled = false;
+    }
+}
+
+// ─────────────────────────────────────────────
+//  Auth flow
+// ─────────────────────────────────────────────
+function showLoginPage() {
+    document.getElementById('login-page').style.display = 'flex';
+    document.getElementById('settings-page').style.display = 'none';
+    document.getElementById('user-info').style.display = 'none';
+}
+
+function showSettingsPage(user) {
+    document.getElementById('login-page').style.display = 'none';
+    document.getElementById('settings-page').style.display = 'block';
+    document.getElementById('user-info').style.display = 'flex';
+
+    // Update header
+    const usernameEl = document.getElementById('header-username');
+    usernameEl.innerHTML = `Signed in as <strong>${escapeHtml(user.username)}</strong>`;
+
+    // Update profile info
+    document.getElementById('info-username').textContent = user.username;
+    document.getElementById('info-email').textContent    = user.email;
+
+    const rolesEl = document.getElementById('info-roles');
+    rolesEl.innerHTML = (user.roles || []).map(role => {
+        const label = role.replace('ROLE_', '');
+        const cls   = label.toLowerCase() === 'admin' ? 'badge-admin' : 'badge-user';
+        return `<span class="badge ${cls}" style="margin-right:4px">${escapeHtml(label)}</span>`;
+    }).join('');
+
+    // Show admin tab if user has ROLE_admin
+    const isAdmin = (user.roles || []).some(r => r === 'ROLE_admin');
+    const adminTabBtn = document.getElementById('admin-tab-btn');
+    if (isAdmin) {
+        adminTabBtn.style.display = 'inline-flex';
+    } else {
+        adminTabBtn.style.display = 'none';
+        // If currently on admin tab, switch to profile
+        if (document.querySelector('.tab-btn.active')?.dataset?.tab === 'admin') {
+            switchTab('profile');
+        }
+    }
+}
+
+// ─────────────────────────────────────────────
+//  Tabs
+// ─────────────────────────────────────────────
+function switchTab(name) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === 'tab-' + name));
+}
+
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+});
+
+// ─────────────────────────────────────────────
+//  Login
+// ─────────────────────────────────────────────
+document.getElementById('btn-login').addEventListener('click', async () => {
+    const email    = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value;
+    const errorEl  = document.getElementById('login-error');
+    errorEl.style.display = 'none';
+
+    if (!email || !password) {
+        errorEl.textContent = 'Please enter your email and password.';
+        errorEl.style.display = 'block';
+        return;
+    }
+
+    const btn = document.getElementById('btn-login');
+    setLoading(btn, true);
+    try {
+        const data = await gql(`
+            mutation Login($email: String, $password: String) {
+                login(email: $email, password: $password, deviceInfo: "EspacoGeek Settings") {
+                    accessToken
+                    user { id username email roles }
+                }
+            }
+        `, { email, password });
+        const payload = data.login;
+        setAuth({ accessToken: payload.accessToken, user: payload.user });
+        showSettingsPage(payload.user);
+        showToast('Signed in successfully!', 'success');
+    } catch (err) {
+        errorEl.textContent = err.errorCode === 1001
+            ? 'Invalid email or password.'
+            : (err.message || 'Login failed. Please try again.');
+        errorEl.style.display = 'block';
+    } finally {
+        setLoading(btn, false);
+    }
+});
+
+// Enter key on login form
+['login-email', 'login-password'].forEach(id => {
+    document.getElementById(id).addEventListener('keydown', e => {
+        if (e.key === 'Enter') document.getElementById('btn-login').click();
+    });
+});
+
+// ─────────────────────────────────────────────
+//  Logout
+// ─────────────────────────────────────────────
+document.getElementById('btn-logout').addEventListener('click', async () => {
+    const auth = getAuth();
+    if (auth) {
+        try {
+            await gql(`query { logout }`, {}, auth.accessToken);
+        } catch { /* ignore */ }
+    }
+    clearAuth();
+    showLoginPage();
+    showToast('Signed out.', 'info');
+});
+
+// ─────────────────────────────────────────────
+//  Forgot password (from login page)
+// ─────────────────────────────────────────────
+document.getElementById('link-forgot').addEventListener('click', () => {
+    document.getElementById('login-form-section').style.display = 'none';
+    document.getElementById('reset-form-section').style.display = 'block';
+    document.getElementById('login-error').style.display = 'none';
+});
+document.getElementById('link-back-login').addEventListener('click', () => {
+    document.getElementById('reset-form-section').style.display = 'none';
+    document.getElementById('login-form-section').style.display = 'block';
+});
+document.getElementById('btn-send-reset').addEventListener('click', async () => {
+    const email = document.getElementById('reset-email').value.trim();
+    const errorEl = document.getElementById('login-error');
+    if (!EMAIL_REGEX.test(email)) {
+        errorEl.textContent = 'Please enter a valid email address.';
+        errorEl.style.display = 'block';
+        return;
+    }
+    const btn = document.getElementById('btn-send-reset');
+    setLoading(btn, true);
+    try {
+        await gql(`
+            mutation RequestPasswordReset($email: String!) {
+                requestPasswordReset(email: $email)
+            }
+        `, { email });
+        showToast('Password reset email sent! Check your inbox.', 'success');
+        document.getElementById('reset-email').value = '';
+        document.getElementById('reset-form-section').style.display = 'none';
+        document.getElementById('login-form-section').style.display = 'block';
+    } catch (err) {
+        errorEl.textContent = err.message || 'Failed to send reset email.';
+        errorEl.style.display = 'block';
+    } finally {
+        setLoading(btn, false);
+    }
+});
+
+// ─────────────────────────────────────────────
+//  Change Username
+// ─────────────────────────────────────────────
+document.getElementById('btn-save-username').addEventListener('click', async () => {
+    clearErrors('err-username', 'err-pass-username');
+    markValid('new-username');
+    markValid('pass-for-username');
+
+    const newUsername = document.getElementById('new-username').value.trim();
+    const password    = document.getElementById('pass-for-username').value;
+    let valid = true;
+
+    if (newUsername.length < 3 || newUsername.length > 20) {
+        markInvalid('new-username', 'err-username', 'Username must be between 3 and 20 characters.');
+        valid = false;
+    }
+    if (!password) {
+        markInvalid('pass-for-username', 'err-pass-username', 'Password is required.');
+        valid = false;
+    }
+    if (!valid) return;
+
+    const btn = document.getElementById('btn-save-username');
+    setLoading(btn, true);
+    try {
+        await authedGql(`
+            mutation EditUsername($password: String, $newUsername: String) {
+                editUsername(password: $password, newUsername: $newUsername)
+            }
+        `, { password, newUsername });
+
+        // Update local state
+        const auth = getAuth();
+        if (auth?.user) {
+            auth.user.username = newUsername;
+            setAuth(auth);
+            showSettingsPage(auth.user);
+        }
+        document.getElementById('new-username').value = '';
+        document.getElementById('pass-for-username').value = '';
+        showToast('Username updated successfully!', 'success');
+    } catch (err) {
+        const msg = err.errorCode === 1001
+            ? 'Incorrect password.'
+            : (err.message || 'Failed to update username.');
+        markInvalid('pass-for-username', 'err-pass-username', msg);
+        showToast(msg, 'error');
+    } finally {
+        setLoading(btn, false);
+    }
+});
+
+// ─────────────────────────────────────────────
+//  Change Email
+// ─────────────────────────────────────────────
+document.getElementById('btn-save-email').addEventListener('click', async () => {
+    clearErrors('err-email', 'err-pass-email');
+    markValid('new-email');
+    markValid('pass-for-email');
+
+    const newEmail = document.getElementById('new-email').value.trim();
+    const password = document.getElementById('pass-for-email').value;
+    let valid = true;
+
+    if (!EMAIL_REGEX.test(newEmail)) {
+        markInvalid('new-email', 'err-email', 'Please enter a valid email address.');
+        valid = false;
+    }
+    if (!password) {
+        markInvalid('pass-for-email', 'err-pass-email', 'Password is required.');
+        valid = false;
+    }
+    if (!valid) return;
+
+    const btn = document.getElementById('btn-save-email');
+    setLoading(btn, true);
+    try {
+        await authedGql(`
+            mutation EditEmail($password: String, $newEmail: String) {
+                editEmail(password: $password, newEmail: $newEmail)
+            }
+        `, { password, newEmail });
+
+        document.getElementById('new-email').value = '';
+        document.getElementById('pass-for-email').value = '';
+        showToast('Verification email sent to ' + newEmail + '. Check your inbox to confirm the change.', 'success', 7000);
+    } catch (err) {
+        const msg = err.errorCode === 1001
+            ? 'Incorrect password.'
+            : (err.message || 'Failed to request email change.');
+        markInvalid('pass-for-email', 'err-pass-email', msg);
+        showToast(msg, 'error');
+    } finally {
+        setLoading(btn, false);
+    }
+});
+
+// ─────────────────────────────────────────────
+//  Change Password
+// ─────────────────────────────────────────────
+document.getElementById('btn-save-password').addEventListener('click', async () => {
+    clearErrors('err-current-pass', 'err-new-pass', 'err-confirm-pass');
+    ['current-password', 'new-password', 'confirm-password'].forEach(markValid);
+
+    const currentPassword = document.getElementById('current-password').value;
+    const newPassword     = document.getElementById('new-password').value;
+    const confirmPassword = document.getElementById('confirm-password').value;
+    let valid = true;
+
+    if (!currentPassword) {
+        markInvalid('current-password', 'err-current-pass', 'Current password is required.');
+        valid = false;
+    }
+    if (!PASSWORD_REGEX.test(newPassword)) {
+        markInvalid('new-password', 'err-new-pass',
+            'Password must be at least 8 characters with uppercase, lowercase, number, and special character.');
+        valid = false;
+    }
+    if (newPassword !== confirmPassword) {
+        markInvalid('confirm-password', 'err-confirm-pass', 'Passwords do not match.');
+        valid = false;
+    }
+    if (!valid) return;
+
+    const btn = document.getElementById('btn-save-password');
+    setLoading(btn, true);
+    try {
+        await authedGql(`
+            mutation EditPassword($actualPassword: String, $newPassword: String) {
+                editPassword(actualPassword: $actualPassword, newPassword: $newPassword)
+            }
+        `, { actualPassword: currentPassword, newPassword });
+
+        document.getElementById('current-password').value = '';
+        document.getElementById('new-password').value     = '';
+        document.getElementById('confirm-password').value = '';
+        showToast('Password updated successfully!', 'success');
+    } catch (err) {
+        const msg = err.errorCode === 1001
+            ? 'Incorrect current password.'
+            : (err.message || 'Failed to update password.');
+        markInvalid('current-password', 'err-current-pass', msg);
+        showToast(msg, 'error');
+    } finally {
+        setLoading(btn, false);
+    }
+});
+
+// ─────────────────────────────────────────────
+//  Password Reset (from Settings > Security)
+// ─────────────────────────────────────────────
+document.getElementById('btn-request-reset').addEventListener('click', async () => {
+    const auth = getAuth();
+    if (!auth?.user?.email) return;
+    const email = auth.user.email;
+    const btn = document.getElementById('btn-request-reset');
+    setLoading(btn, true);
+    try {
+        await gql(`
+            mutation RequestPasswordReset($email: String!) {
+                requestPasswordReset(email: $email)
+            }
+        `, { email });
+        showToast('Password reset email sent to ' + email + '. Check your inbox.', 'success', 6000);
+    } catch (err) {
+        showToast(err.message || 'Failed to send reset email.', 'error');
+    } finally {
+        setLoading(btn, false);
+    }
+});
+
+// ─────────────────────────────────────────────
+//  Delete Account
+// ─────────────────────────────────────────────
+document.getElementById('btn-delete-account').addEventListener('click', () => {
+    document.getElementById('delete-password').value = '';
+    document.getElementById('modal-delete').style.display = 'flex';
+});
+document.getElementById('btn-cancel-delete').addEventListener('click', () => {
+    document.getElementById('modal-delete').style.display = 'none';
+});
+document.getElementById('btn-confirm-delete').addEventListener('click', async () => {
+    const password = document.getElementById('delete-password').value;
+    if (!password) {
+        showToast('Please enter your password to confirm deletion.', 'error');
+        return;
+    }
+    const btn = document.getElementById('btn-confirm-delete');
+    setLoading(btn, true);
+    try {
+        await authedGql(`
+            mutation DeleteUser($password: String) {
+                deleteUser(password: $password)
+            }
+        `, { password });
+        clearAuth();
+        document.getElementById('modal-delete').style.display = 'none';
+        showToast('Account deleted. Goodbye!', 'info', 5000);
+        setTimeout(() => showLoginPage(), 1500);
+    } catch (err) {
+        const msg = err.errorCode === 1001
+            ? 'Incorrect password.'
+            : (err.message || 'Failed to delete account.');
+        showToast(msg, 'error');
+    } finally {
+        setLoading(btn, false);
+    }
+});
+// Close modal on backdrop click
+document.getElementById('modal-delete').addEventListener('click', e => {
+    if (e.target === e.currentTarget) e.currentTarget.style.display = 'none';
+});
+
+// ─────────────────────────────────────────────
+//  Admin: Load Job History
+// ─────────────────────────────────────────────
+document.getElementById('btn-load-jobs').addEventListener('click', async () => {
+    const btn = document.getElementById('btn-load-jobs');
+    setLoading(btn, true);
+    try {
+        const data = await authedGql(`
+            query {
+                batchJobs {
+                    jobExecutionId
+                    jobName
+                    status
+                    exitCode
+                    startTime
+                    endTime
+                }
+            }
+        `);
+        const jobs = data.batchJobs || [];
+        const table = document.getElementById('jobs-table');
+        if (!jobs.length) {
+            table.innerHTML = '<p style="font-size:13px;color:var(--text-muted)">No jobs found.</p>';
+            return;
+        }
+        table.innerHTML = `
+            <table style="width:100%;border-collapse:collapse;font-size:13px">
+                <thead>
+                    <tr style="border-bottom:1px solid var(--border);text-align:left;color:var(--text-muted)">
+                        <th style="padding:8px">ID</th>
+                        <th style="padding:8px">Job Name</th>
+                        <th style="padding:8px">Status</th>
+                        <th style="padding:8px">Exit Code</th>
+                        <th style="padding:8px">Start</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${jobs.map(j => `
+                        <tr style="border-bottom:1px solid var(--border)20">
+                            <td style="padding:8px">${escapeHtml(String(j.jobExecutionId))}</td>
+                            <td style="padding:8px">${escapeHtml(j.jobName || '')}</td>
+                            <td style="padding:8px">${escapeHtml(j.status || '')}</td>
+                            <td style="padding:8px">${escapeHtml(j.exitCode || '')}</td>
+                            <td style="padding:8px">${j.startTime ? new Date(j.startTime).toLocaleString() : ''}</td>
+                        </tr>`).join('')}
+                </tbody>
+            </table>`;
+    } catch (err) {
+        showToast(err.message || 'Failed to load jobs.', 'error');
+    } finally {
+        setLoading(btn, false);
+    }
+});
+
+// ─────────────────────────────────────────────
+//  Admin: Run Batch Job
+// ─────────────────────────────────────────────
+async function runBatchJob(jobName) {
+    const auth = getAuth();
+    if (!auth) return;
+    try {
+        const res = await fetch(`/admin/batch/run/${encodeURIComponent(jobName)}`, {
+            headers: { 'Authorization': 'Bearer ' + auth.accessToken }
+        });
+        const text = await res.text();
+        if (res.ok) {
+            showToast('Job started: ' + text, 'success');
+        } else {
+            showToast('Failed to start job: ' + text, 'error');
+        }
+    } catch (err) {
+        showToast('Failed to start job: ' + (err.message || 'Unknown error'), 'error');
+    }
+}
+
+// ─────────────────────────────────────────────
+//  Admin: User Search
+// ─────────────────────────────────────────────
+document.getElementById('btn-admin-search').addEventListener('click', async () => {
+    const query = document.getElementById('admin-search').value.trim();
+    if (!query) return;
+    const btn = document.getElementById('btn-admin-search');
+    setLoading(btn, true);
+    try {
+        const data = await authedGql(`
+            query FindUser($username: String) {
+                findUser(username: $username) {
+                    id username email roles
+                }
+            }
+        `, { username: query });
+        const users = data.findUser || [];
+        const resultsEl = document.getElementById('admin-search-results');
+        if (!users.length) {
+            resultsEl.innerHTML = '<p style="font-size:13px;color:var(--text-muted)">No users found.</p>';
+            return;
+        }
+        resultsEl.innerHTML = users.map(u => `
+            <div style="padding:12px;border:1px solid var(--border);border-radius:8px;margin-bottom:8px">
+                <div style="font-weight:600">${escapeHtml(u.username)}</div>
+                <div style="font-size:13px;color:var(--text-muted)">${escapeHtml(u.email)}</div>
+                <div style="margin-top:6px">
+                    ${(u.roles || []).map(r => {
+                        const label = r.replace('ROLE_', '');
+                        const cls = label.toLowerCase() === 'admin' ? 'badge-admin' : 'badge-user';
+                        return `<span class="badge ${cls}" style="margin-right:4px">${escapeHtml(label)}</span>`;
+                    }).join('')}
+                </div>
+            </div>`).join('');
+    } catch (err) {
+        showToast(err.message || 'Search failed.', 'error');
+    } finally {
+        setLoading(btn, false);
+    }
+});
+document.getElementById('admin-search').addEventListener('keydown', e => {
+    if (e.key === 'Enter') document.getElementById('btn-admin-search').click();
+});
+
+// ─────────────────────────────────────────────
+//  Init
+// ─────────────────────────────────────────────
+async function init() {
+    // Check URL for password reset token (e.g. /settings?resetToken=xxx)
+    const params = new URLSearchParams(window.location.search);
+    const resetToken = params.get('resetToken');
+    if (resetToken) {
+        handleResetTokenFlow(resetToken);
+        return;
+    }
+
+    const auth = getAuth();
+    if (!auth?.accessToken) {
+        // Try silent refresh via cookie
+        const newToken = await refreshAccessToken();
+        if (!newToken) {
+            showLoginPage();
+            return;
+        }
+        const freshAuth = getAuth();
+        showSettingsPage(freshAuth.user);
+        return;
+    }
+    showSettingsPage(auth.user);
+}
+
+// ─────────────────────────────────────────────
+//  Password Reset Token Flow
+//  (user arrives from reset-link email with ?resetToken=xxx)
+// ─────────────────────────────────────────────
+function handleResetTokenFlow(token) {
+    const loginPage = document.getElementById('login-page');
+    loginPage.style.display = 'flex';
+    document.getElementById('settings-page').style.display = 'none';
+
+    const box = loginPage.querySelector('.login-box');
+    box.innerHTML = `
+        <h2>Reset Your Password</h2>
+        <p>Enter a new password for your account.</p>
+        <div id="reset-token-error" style="display:none;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--danger);margin-bottom:16px"></div>
+        <div class="form-group">
+            <label for="rt-new-password">New Password</label>
+            <input type="password" id="rt-new-password" placeholder="New password" autocomplete="new-password">
+            <div class="field-error" id="err-rt-pass"></div>
+        </div>
+        <div class="form-group">
+            <label for="rt-confirm-password">Confirm Password</label>
+            <input type="password" id="rt-confirm-password" placeholder="Confirm new password" autocomplete="new-password">
+            <div class="field-error" id="err-rt-confirm"></div>
+        </div>
+        <button class="btn btn-primary" id="btn-rt-submit" style="width:100%;justify-content:center">Reset Password</button>
+    `;
+
+    document.getElementById('btn-rt-submit').addEventListener('click', async () => {
+        const newPass     = document.getElementById('rt-new-password').value;
+        const confirmPass = document.getElementById('rt-confirm-password').value;
+        const errEl       = document.getElementById('reset-token-error');
+        setError('err-rt-pass', '');
+        setError('err-rt-confirm', '');
+        markValid('rt-new-password');
+        markValid('rt-confirm-password');
+
+        let valid = true;
+        if (!PASSWORD_REGEX.test(newPass)) {
+            markInvalid('rt-new-password', 'err-rt-pass',
+                'Password must be at least 8 characters with uppercase, lowercase, number, and special character.');
+            valid = false;
+        }
+        if (newPass !== confirmPass) {
+            markInvalid('rt-confirm-password', 'err-rt-confirm', 'Passwords do not match.');
+            valid = false;
+        }
+        if (!valid) return;
+
+        const btn = document.getElementById('btn-rt-submit');
+        setLoading(btn, true);
+        try {
+            await gql(`
+                mutation ResetPassword($token: String!, $newPassword: String!) {
+                    resetPassword(token: $token, newPassword: $newPassword)
+                }
+            `, { token, newPassword: newPass });
+            showToast('Password reset successfully! Please log in.', 'success', 5000);
+            // Replace with login form after short delay
+            setTimeout(() => {
+                window.history.replaceState({}, '', '/settings');
+                location.reload();
+            }, 2000);
+        } catch (err) {
+            errEl.textContent = err.errorCode === 1002
+                ? 'This reset link has expired or already been used. Please request a new one.'
+                : (err.message || 'Failed to reset password. The link may have expired.');
+            errEl.style.display = 'block';
+        } finally {
+            setLoading(btn, false);
+        }
+    });
+}
+
+init();
+</script>
+</body>
+</html>
