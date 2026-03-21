@@ -16,6 +16,7 @@ import com.espacogeek.geek.data.api.MediaApi;
 import com.espacogeek.geek.models.AlternativeTitleModel;
 import com.espacogeek.geek.models.ExternalReferenceModel;
 import com.espacogeek.geek.models.GenreModel;
+import com.espacogeek.geek.models.MediaCategoryModel;
 import com.espacogeek.geek.models.MediaModel;
 import com.espacogeek.geek.services.ApiKeyService;
 import com.espacogeek.geek.services.GenreService;
@@ -26,6 +27,7 @@ import com.espacogeek.geek.utils.DataJumpUtils.DataJumpTypeTMDB;
 
 import info.movito.themoviedbapi.TmdbApi;
 import info.movito.themoviedbapi.TmdbMovies;
+import info.movito.themoviedbapi.TmdbSearch;
 import info.movito.themoviedbapi.model.core.AlternativeTitle;
 import info.movito.themoviedbapi.model.core.Genre;
 import info.movito.themoviedbapi.model.keywords.Keyword;
@@ -44,6 +46,7 @@ import static com.espacogeek.geek.data.api.MediaApi.ApiKey.TMDB_API_KEY_ID;
 @RequiredArgsConstructor
 public class MovieAPIImpl implements MediaApi {
     private TmdbMovies api;
+    private TmdbSearch searchApi;
 
     private final ApiKeyService apiKeyService;
     private final TypeReferenceService typeReferenceService;
@@ -52,7 +55,9 @@ public class MovieAPIImpl implements MediaApi {
 
     @PostConstruct
     private void init() {
-        this.api = new TmdbApi(this.apiKeyService.findById(TMDB_API_KEY_ID.getId()).get().getKey()).getMovies();
+        TmdbApi tmdbApi = new TmdbApi(this.apiKeyService.findById(TMDB_API_KEY_ID.getId()).get().getKey());
+        this.api = tmdbApi.getMovies();
+        this.searchApi = tmdbApi.getSearch();
     }
 
     /**
@@ -69,6 +74,39 @@ public class MovieAPIImpl implements MediaApi {
     @Retryable(maxAttempts = 2, backoff = @Backoff(delay = 2000), retryFor = com.espacogeek.geek.exception.RequestException.class)
     public InputStream updateTitlesStream() {
         return DataJumpUtils.getDataJumpTMDBStream(DataJumpTypeTMDB.MOVIE);
+    }
+
+    /**
+     * @see MediaApi#doSearch(String, MediaCategoryModel)
+     */
+    @Override
+    @Retryable(maxAttempts = 2, backoff = @Backoff(delay = 2000), retryFor = com.espacogeek.geek.exception.RequestException.class)
+    public List<MediaModel> doSearch(String search, MediaCategoryModel mediaCategoryModel) {
+        List<info.movito.themoviedbapi.model.core.Movie> rawResults;
+        try {
+            rawResults = searchApi.searchMovie(search, false, "en-US", null, 1, null, null).getResults();
+        } catch (TmdbException e) {
+            log.error("Error searching movies", e);
+            throw new com.espacogeek.geek.exception.RequestException();
+        }
+
+        List<MediaModel> medias = new ArrayList<>();
+        for (info.movito.themoviedbapi.model.core.Movie result : rawResults) {
+            var media = new MediaModel();
+            var reference = new ExternalReferenceModel(null, String.valueOf(result.getId()), media,
+                    typeReferenceService.findById(MediaDataController.ExternalReferenceType.TMDB.getId()).get());
+
+            media.setName(result.getTitle());
+            media.setAbout(result.getOverview());
+            media.setCover(result.getPosterPath() == null ? null : ExternalCDN.TMDB.getUrl() + result.getPosterPath());
+            media.setBanner(result.getBackdropPath() == null ? null : ExternalCDN.TMDB.getUrl() + result.getBackdropPath());
+            media.setExternalReference(new java.util.LinkedHashSet<>(List.of(reference)));
+            media.setMediaCategory(mediaCategoryModel);
+
+            medias.add(media);
+        }
+
+        return medias;
     }
 
         /**

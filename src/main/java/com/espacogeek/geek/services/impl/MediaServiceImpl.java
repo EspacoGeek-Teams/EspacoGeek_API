@@ -65,6 +65,9 @@ public class MediaServiceImpl implements MediaService {
     @Qualifier("movieAPI")
     private final MediaApi movieAPI;
 
+    @Qualifier("tvSeriesApi")
+    private final MediaApi tvSeriesApi;
+
     public MediaServiceImpl(
             MediaRepository mediaRepository,
             ExternalReferenceRepository externalsRepo,
@@ -73,7 +76,8 @@ public class MediaServiceImpl implements MediaService {
             @Qualifier("genericMediaDataController") MediaDataController genericMediaDataController,
             TypeReferenceService typeReferenceService,
             @Qualifier("gamesAndVNsAPI") MediaApi gamesAndVNsAPI,
-            @Qualifier("movieAPI") MediaApi movieAPI
+            @Qualifier("movieAPI") MediaApi movieAPI,
+            @Qualifier("tvSeriesApi") MediaApi tvSeriesApi
     ) {
         this.mediaRepository = mediaRepository;
         this.externalsRepo = externalsRepo;
@@ -83,6 +87,7 @@ public class MediaServiceImpl implements MediaService {
         this.typeReferenceService = typeReferenceService;
         this.gamesAndVNsAPI = gamesAndVNsAPI;
         this.movieAPI = movieAPI;
+        this.tvSeriesApi = tvSeriesApi;
     }
 
     /**
@@ -127,16 +132,7 @@ public class MediaServiceImpl implements MediaService {
     @SuppressWarnings("unchecked")
     @Override
     public MediaPage findSerieByIdOrName(Integer id, String name, Pageable pageable) {
-        Page<MediaModel> results;
-        if (id != null) {
-            List<MediaModel> medias = new ArrayList<MediaModel>();
-            this.mediaRepository.findById(id).ifPresent(media -> medias.add((MediaModel) media));
-            Pageable safePageable = pageable != null ? pageable : Pageable.unpaged();
-            results = new PageImpl<>(medias, safePageable, medias.size());
-        } else {
-            results = this.mediaRepository.findMediaByNameOrAlternativeTitleAndMediaCategory(name, name, mediaCategoryService.findById(MediaDataController.MediaType.SERIE.getId()).get().getId(), pageable);
-        }
-        return mountMediaPage(results);
+        return findTmdbMediaByIdOrName(id, name, pageable, MediaDataController.MediaType.SERIE, tvSeriesApi);
     }
 
 
@@ -261,16 +257,7 @@ public class MediaServiceImpl implements MediaService {
     @Override
     @SuppressWarnings("unchecked")
     public MediaPage findAnimeByIdOrName(Integer id, String name, Pageable pageable) {
-        Page<MediaModel> results;
-        if (id != null) {
-            List<MediaModel> medias = new ArrayList<MediaModel>();
-            this.mediaRepository.findById(id).ifPresent(media -> medias.add((MediaModel) media));
-            Pageable safePageable = pageable != null ? pageable : Pageable.unpaged();
-            results = new PageImpl<>(medias, safePageable, medias.size());
-        } else {
-            results = (Page<MediaModel>) this.mediaRepository.findMediaByNameOrAlternativeTitleAndMediaCategory(name, name, mediaCategoryService.findById(MediaDataController.MediaType.ANIME_SERIE.getId()).get().getId(), pageable);
-        }
-        return mountMediaPage(results);
+        return findTmdbMediaByIdOrName(id, name, pageable, MediaDataController.MediaType.ANIME_SERIE, tvSeriesApi);
     }
 
     /**
@@ -279,16 +266,7 @@ public class MediaServiceImpl implements MediaService {
     @SuppressWarnings("unchecked")
     @Override
     public MediaPage findMovieByIdOrName(Integer id, String name, Pageable pageable) {
-        Page<MediaModel> results;
-        if (id != null) {
-            List<MediaModel> medias = new ArrayList<MediaModel>();
-            this.mediaRepository.findById(id).ifPresent(media -> medias.add((MediaModel) media));
-            Pageable safePageable = pageable != null ? pageable : Pageable.unpaged();
-            results = new PageImpl<>(medias, safePageable, medias.size());
-        } else {
-            results = (Page<MediaModel>) this.mediaRepository.findMediaByNameOrAlternativeTitleAndMediaCategory(name, name, mediaCategoryService.findById(MediaDataController.MediaType.MOVIE.getId()).get().getId(), pageable);
-        }
-        return mountMediaPage(results);
+        return findTmdbMediaByIdOrName(id, name, pageable, MediaDataController.MediaType.MOVIE, movieAPI);
     }
 
     private MediaModel update(MediaModel media) {
@@ -301,6 +279,48 @@ public class MediaServiceImpl implements MediaService {
             default -> media;
         };
 
+    }
+
+    @SuppressWarnings("unchecked")
+    private MediaPage findTmdbMediaByIdOrName(Integer id, String name, Pageable pageable, MediaDataController.MediaType mediaType, MediaApi mediaApi) {
+        Pageable safePageable = pageable != null ? pageable : Pageable.unpaged();
+        var mediaCategory = mediaCategoryService.findById(mediaType.getId()).orElseThrow();
+        Page<MediaModel> results;
+
+        if (id != null) {
+            List<MediaModel> medias = new ArrayList<>();
+            this.mediaRepository.findById(id).ifPresent(media -> medias.add((MediaModel) media));
+            results = new PageImpl<>(medias, safePageable, medias.size());
+            return mountMediaPage(results);
+        }
+
+        results = (Page<MediaModel>) this.mediaRepository.findMediaByNameOrAlternativeTitleAndMediaCategory(name, name, mediaCategory.getId(), safePageable);
+
+        if (results.hasContent()) {
+            List<MediaModel> refreshed = results.getContent().stream()
+                    .map(this::updateIfStale)
+                    .toList();
+            return mountMediaPage(new PageImpl<>(refreshed, safePageable, results.getTotalElements()));
+        }
+
+        if (name == null || name.isBlank()) {
+            return mountMediaPage(Page.empty(safePageable));
+        }
+
+        var tmdbTypeReference = typeReferenceService.findById(MediaDataController.ExternalReferenceType.TMDB.getId()).orElseThrow();
+        List<MediaModel> fetched = genericMediaDataController.searchMedia(name, mediaApi, tmdbTypeReference, mediaCategory);
+
+        if (fetched.isEmpty()) {
+            return mountMediaPage(Page.empty(safePageable));
+        }
+
+        int fromIndex = Math.min((int) safePageable.getOffset(), fetched.size());
+        int toIndex = safePageable.isPaged()
+                ? Math.min(fromIndex + safePageable.getPageSize(), fetched.size())
+                : fetched.size();
+        List<MediaModel> pagedContent = fetched.subList(fromIndex, toIndex);
+
+        return mountMediaPage(new PageImpl<>(pagedContent, safePageable, fetched.size()));
     }
 
     private MediaPage findGenericMediaByIdOrName(Integer id, String name, Pageable pageable, MediaDataController.MediaType mediaType) {

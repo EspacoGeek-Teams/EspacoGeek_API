@@ -61,6 +61,9 @@ class MediaServiceImplTest {
     @Mock(name = "movieAPI")
     private com.espacogeek.geek.data.api.MediaApi movieAPI;
 
+    @Mock(name = "tvSeriesApi")
+    private com.espacogeek.geek.data.api.MediaApi tvSeriesApi;
+
     private MediaServiceImpl mediaService;
 
     @BeforeEach
@@ -73,7 +76,8 @@ class MediaServiceImplTest {
                 genericMediaDataController,
                 typeReferenceService,
                 gamesAndVNsAPI,
-                movieAPI);
+                movieAPI,
+                tvSeriesApi);
     }
 
     @Test
