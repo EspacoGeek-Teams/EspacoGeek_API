@@ -1,9 +1,12 @@
 package com.espacogeek.geek.query.media;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
@@ -82,5 +85,60 @@ class MediaQueryTest {
                 .satisfy(errors -> {
                     assertThat(errors).isNotEmpty();
                 });
+    }
+
+    /**
+     * Verifies that all 6 {@code @BatchMapping(typeName = "Media")} methods are
+     * correctly wired to the {@code Media} GraphQL type. Each batch-loader
+     * repository method must be invoked exactly once when the corresponding field
+     * is requested. If any {@code @BatchMapping} registration were unmapped (i.e.,
+     * still pointing at the non-existent {@code MediaModel} type), Spring for
+     * GraphQL would fall back to the default property accessor and the repository
+     * method would never be called, causing the {@code verify()} below to fail.
+     */
+    @Test
+    void media_WithAllBatchFields_ShouldInvokeAllSixBatchLoadersConfirmingNoUnmappedRegistrations() {
+        // Given
+        MediaModel media = new MediaModel();
+        media.setId(1);
+        media.setName("Breaking Bad");
+
+        when(mediaService.findByIdEager(anyInt())).thenReturn(Optional.of(media));
+        when(seasonRepository.findByMediaIn(any())).thenReturn(List.of());
+        when(externalReferenceRepository.findAllByMediaIn(any())).thenReturn(List.of());
+        when(alternativeTitlesRepository.findByMediaIn(any())).thenReturn(List.of());
+        when(mediaRepository.findAllWithGenreByMediaIn(any())).thenReturn(List.of());
+        when(mediaRepository.findAllWithCompanyByMediaIn(any())).thenReturn(List.of());
+        when(mediaRepository.findAllWithPeopleByMediaIn(any())).thenReturn(List.of());
+
+        // When & Then
+        graphQlTester.document("""
+                query {
+                    media(id: 1) {
+                        id
+                        name
+                        season { id }
+                        genre { id }
+                        company { id }
+                        people { id }
+                        externalReference { id }
+                        alternativeTitles { id }
+                    }
+                }
+                """)
+                .execute()
+                .errors().verify()
+                .path("media.id").entity(String.class).isEqualTo("1")
+                .path("media.name").entity(String.class).isEqualTo("Breaking Bad");
+
+        // Each repository method must have been called via its batch loader.
+        // If @BatchMapping(typeName = "Media") were wrong the DataLoader would
+        // never fire and these verify() calls would fail.
+        verify(seasonRepository).findByMediaIn(any());
+        verify(externalReferenceRepository).findAllByMediaIn(any());
+        verify(alternativeTitlesRepository).findByMediaIn(any());
+        verify(mediaRepository).findAllWithGenreByMediaIn(any());
+        verify(mediaRepository).findAllWithCompanyByMediaIn(any());
+        verify(mediaRepository).findAllWithPeopleByMediaIn(any());
     }
 }

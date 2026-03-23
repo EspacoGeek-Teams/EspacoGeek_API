@@ -14,6 +14,8 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 
+import org.hibernate.collection.spi.PersistentSet;
+
 import jakarta.validation.ValidationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -148,6 +150,44 @@ class MediaServiceImplTest {
                 .hasMessage("Referência externa obrigatória");
 
         verify(mediaRepository, never()).save(any());
+    }
+
+    @Test
+    void save_WithUninitializedLazyCollection_ShouldFallbackToDbCheckAndPersist() {
+        // Simulate a detached entity whose lazy externalReference collection was never
+        // loaded (PersistentSet with null session ≡ uninitialized Hibernate proxy).
+        MediaModel media = new MediaModel();
+        media.setId(42);
+        media.setName("Detached Media");
+        media.setExternalReference(new PersistentSet<>(null));
+
+        when(externalsRepo.existsByMediaId(42)).thenReturn(true);
+        when(mediaRepository.save(media)).thenReturn(media);
+
+        // Must NOT throw LazyInitializationException; falls through to the DB check.
+        MediaModel result = mediaService.save(media);
+
+        assertThat(result).isEqualTo(media);
+        verify(mediaRepository).save(media);
+    }
+
+    @Test
+    void saveAll_WithUninitializedLazyCollection_ShouldFallbackToDbCheckAndPersist() {
+        // Simulate a detached entity whose lazy externalReference collection was never
+        // loaded (PersistentSet with null session ≡ uninitialized Hibernate proxy).
+        MediaModel media = new MediaModel();
+        media.setId(77);
+        media.setName("Detached Series");
+        media.setExternalReference(new PersistentSet<>(null));
+
+        when(externalsRepo.existsByMediaId(77)).thenReturn(true);
+        when(mediaRepository.saveAll(any())).thenReturn(List.of(media));
+
+        // Must NOT throw LazyInitializationException; falls through to the DB check.
+        List<MediaModel> result = mediaService.saveAll(List.of(media));
+
+        assertThat(result).hasSize(1).containsExactly(media);
+        verify(mediaRepository).saveAll(any());
     }
 
     @Test
