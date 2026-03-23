@@ -95,6 +95,7 @@ class MediaServicePersistenceIntegrationTest {
 
         gamesAndVNsAPI = mock(MediaApi.class);
         MediaApi movieAPI = mock(MediaApi.class);
+        MediaApi tvSeriesApi = mock(MediaApi.class);
         MediaDataController serieController = mock(MediaDataController.class);
 
         GenericMediaDataControllerImpl genericMediaDataController = new GenericMediaDataControllerImpl(
@@ -112,7 +113,8 @@ class MediaServicePersistenceIntegrationTest {
                 genericMediaDataController,
                 typeReferenceService,
                 gamesAndVNsAPI,
-                movieAPI);
+                movieAPI,
+                tvSeriesApi);
 
         ReflectionTestUtils.setField(genericMediaDataController, "mediaService", mediaService);
     }
