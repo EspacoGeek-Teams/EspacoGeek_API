@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.espacogeek.geek.services.*;
+import com.espacogeek.geek.utils.MediaLazyLoader;
 import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -33,8 +34,8 @@ public class SerieControllerImpl extends GenericMediaDataControllerImpl {
 
     private TypeReferenceModel typeReference;
 
-    public SerieControllerImpl(MediaService mediaService, GenreService genreService, AlternativeTitlesService alternativeTitlesService, ExternalReferenceService externalReferenceService, SeasonService seasonService, MediaApi tvSeriesApi, MediaCategoryService mediaCategoryService, ExternalReferenceService externalReferenceService1, TypeReferenceService typeReferenceService) {
-        super(mediaService, genreService, alternativeTitlesService, externalReferenceService, seasonService);
+    public SerieControllerImpl(MediaService mediaService, GenreService genreService, AlternativeTitlesService alternativeTitlesService, ExternalReferenceService externalReferenceService, SeasonService seasonService, MediaApi tvSeriesApi, MediaCategoryService mediaCategoryService, ExternalReferenceService externalReferenceService1, TypeReferenceService typeReferenceService, MediaLazyLoader mediaLazyLoader) {
+        super(mediaService, genreService, alternativeTitlesService, externalReferenceService, seasonService, mediaLazyLoader);
         this.tvSeriesApi = tvSeriesApi;
         this.mediaCategoryService = mediaCategoryService;
         this.externalReferenceService = externalReferenceService1;

@@ -39,6 +39,7 @@ import com.espacogeek.geek.services.impl.ExternalReferenceServiceImpl;
 import com.espacogeek.geek.services.impl.GenreServiceImpl;
 import com.espacogeek.geek.services.impl.MediaServiceImpl;
 import com.espacogeek.geek.types.MediaPage;
+import com.espacogeek.geek.utils.MediaLazyLoader;
 
 @DataJpaTest
 @ActiveProfiles("test")
@@ -92,18 +93,26 @@ class MediaServicePersistenceIntegrationTest {
 
         SeasonService seasonService = mock(SeasonService.class);
         when(seasonService.saveAll(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(seasonService.findAll(any())).thenReturn(java.util.List.of());
 
         gamesAndVNsAPI = mock(MediaApi.class);
         MediaApi movieAPI = mock(MediaApi.class);
         MediaApi tvSeriesApi = mock(MediaApi.class);
         MediaDataController serieController = mock(MediaDataController.class);
 
+        MediaLazyLoader mediaLazyLoader = new MediaLazyLoader(
+                externalReferenceService,
+                alternativeTitlesService,
+                genreService,
+                seasonService);
+
         GenericMediaDataControllerImpl genericMediaDataController = new GenericMediaDataControllerImpl(
                 null,
                 genreService,
                 alternativeTitlesService,
                 externalReferenceService,
-                seasonService);
+                seasonService,
+                mediaLazyLoader);
 
         mediaService = new MediaServiceImpl(
                 mediaRepository,
@@ -114,7 +123,8 @@ class MediaServicePersistenceIntegrationTest {
                 typeReferenceService,
                 gamesAndVNsAPI,
                 movieAPI,
-                tvSeriesApi);
+                tvSeriesApi,
+                mediaLazyLoader);
 
         ReflectionTestUtils.setField(genericMediaDataController, "mediaService", mediaService);
     }

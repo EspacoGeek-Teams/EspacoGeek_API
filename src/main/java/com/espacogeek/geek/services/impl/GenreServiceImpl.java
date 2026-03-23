@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.espacogeek.geek.models.GenreModel;
+import com.espacogeek.geek.models.MediaModel;
 import com.espacogeek.geek.repositories.GenreRepository;
 import com.espacogeek.geek.services.GenreService;
 
@@ -21,6 +22,14 @@ public class GenreServiceImpl implements GenreService {
     @Override
     public List<GenreModel> findAllByNames(List<String> names) {
         return genreRepository.findAllByNameIn(names);
+    }
+
+    /**
+     * @see GenreService#findAll(MediaModel)
+     */
+    @Override
+    public List<GenreModel> findAll(MediaModel media) {
+        return genreRepository.findByMediaId(media.getId());
     }
 
     /**
