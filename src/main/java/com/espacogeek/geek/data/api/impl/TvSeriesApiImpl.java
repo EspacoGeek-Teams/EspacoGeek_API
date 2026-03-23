@@ -187,8 +187,8 @@ public class TvSeriesApiImpl implements MediaApi {
         }
         var media = new MediaModel();
 
-        media.setCover(rawArtwork.getPosters().isEmpty() ? "" : ExternalCDN.TMDB.getUrl() + rawArtwork.getPosters().getFirst());
-        media.setBanner(rawArtwork.getBackdrops().isEmpty() ? "" : ExternalCDN.TMDB.getUrl() + rawArtwork.getBackdrops().getFirst());
+        media.setCover(rawArtwork.getPosters().isEmpty() ? "" : ExternalCDN.TMDB.getUrl() + rawArtwork.getPosters().getFirst().getFilePath());
+        media.setBanner(rawArtwork.getBackdrops().isEmpty() ? "" : ExternalCDN.TMDB.getUrl() + rawArtwork.getBackdrops().getFirst().getFilePath());
 
         return media;
     }

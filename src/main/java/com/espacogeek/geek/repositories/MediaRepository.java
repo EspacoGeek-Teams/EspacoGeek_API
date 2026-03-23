@@ -52,6 +52,32 @@ public interface MediaRepository extends JpaRepository<MediaModel, Integer> {
             @PageableDefault(size = 10, page = 0) Pageable pageable);
 
     /**
+     * Finds media by matching name or alternative title within multiple media
+     * categories.
+     *
+     * @param name             The name of the media to search for.
+     * @param alternativeTitle The alternative title of the media to search for.
+     * @param categories       The IDs of the media categories to filter results by.
+     * @param pageable         Pagination information.
+     * @return A page of MediaModel objects that match the search criteria.
+     */
+    @Query("SELECT m FROM MediaModel m " +
+               "WHERE m.mediaCategory.id IN :categories " +
+               "AND (" +
+               "   m.name LIKE CONCAT('%', :name, '%') " +
+               "   OR EXISTS (" +
+               "       SELECT 1 FROM AlternativeTitleModel a " +
+               "       WHERE a.media = m " +
+               "       AND a.name LIKE CONCAT('%', :alternativeTitle, '%')" +
+               "   )" +
+               ")")
+    Page<MediaModel> findMediaByNameOrAlternativeTitleAndMediaCategoryIn(
+            @Param("name") String name,
+            @Param("alternativeTitle") String alternativeTitle,
+            @Param("categories") java.util.Collection<Integer> categories,
+            @PageableDefault(size = 10, page = 0) Pageable pageable);
+
+    /**
      * Find Media by ExternalReference and TypeReference.
      *
      * @param externalReference
