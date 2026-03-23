@@ -34,6 +34,7 @@ import info.movito.themoviedbapi.model.keywords.Keyword;
 import info.movito.themoviedbapi.model.movies.ExternalIds;
 import info.movito.themoviedbapi.model.movies.Images;
 import info.movito.themoviedbapi.model.movies.MovieDb;
+import info.movito.themoviedbapi.model.core.responses.TmdbResponseException;
 import info.movito.themoviedbapi.tools.TmdbException;
 import info.movito.themoviedbapi.tools.appendtoresponse.MovieAppendToResponse;
 import jakarta.annotation.PostConstruct;
@@ -118,6 +119,14 @@ public class MovieAPIImpl implements MediaApi {
         MovieDb movieDb;
         try {
             movieDb = api.getDetails(id, "en-US", MovieAppendToResponse.EXTERNAL_IDS, MovieAppendToResponse.ALTERNATIVE_TITLES, MovieAppendToResponse.IMAGES, MovieAppendToResponse.VIDEOS);
+        } catch (TmdbResponseException e) {
+            var code = e.getResponseCode();
+            // tmdbCode 34 is RESOURCE_NOT_FOUND; also guard against HTTP 404 responses without a code
+            if (code != null && (code.getTmdbCode() == 34 || code.getHttpStatus() == 404)) {
+                log.debug("Movie resource not found for id {}", id);
+                return null;
+            }
+            throw new com.espacogeek.geek.exception.RequestException();
         } catch (TmdbException e) {
             log.error("Error fetching movie details", e);
             throw new com.espacogeek.geek.exception.RequestException();
