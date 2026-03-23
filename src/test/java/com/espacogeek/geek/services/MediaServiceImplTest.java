@@ -34,6 +34,7 @@ import com.espacogeek.geek.models.TypeReferenceModel;
 import com.espacogeek.geek.repositories.ExternalReferenceRepository;
 import com.espacogeek.geek.repositories.MediaRepository;
 import com.espacogeek.geek.services.impl.MediaServiceImpl;
+import com.espacogeek.geek.utils.MediaLazyLoader;
 
 @ExtendWith(MockitoExtension.class)
 @SuppressWarnings({"unchecked", "rawtypes"})
@@ -66,6 +67,9 @@ class MediaServiceImplTest {
     @Mock(name = "tvSeriesApi")
     private com.espacogeek.geek.data.api.MediaApi tvSeriesApi;
 
+    @Mock
+    private MediaLazyLoader mediaLazyLoader;
+
     private MediaServiceImpl mediaService;
 
     @BeforeEach
@@ -79,7 +83,8 @@ class MediaServiceImplTest {
                 typeReferenceService,
                 gamesAndVNsAPI,
                 movieAPI,
-                tvSeriesApi);
+                tvSeriesApi,
+                mediaLazyLoader);
     }
 
     @Test

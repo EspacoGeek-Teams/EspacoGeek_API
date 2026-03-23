@@ -7,6 +7,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import com.espacogeek.geek.models.AlternativeTitleModel;
+import com.espacogeek.geek.models.MediaModel;
 import com.espacogeek.geek.repositories.AlternativeTitlesRepository;
 import com.espacogeek.geek.services.AlternativeTitlesService;
 
@@ -17,5 +18,10 @@ public class AlternativeTitlesServiceImpl implements AlternativeTitlesService {
 
     public List<AlternativeTitleModel> saveAll(List<AlternativeTitleModel> alternativeTitles) throws DataIntegrityViolationException {
         return alternativeTitlesRepository.saveAll(alternativeTitles);
+    }
+
+    @Override
+    public List<AlternativeTitleModel> findAll(MediaModel media) {
+        return alternativeTitlesRepository.findByMedia(media);
     }
 }

@@ -12,6 +12,8 @@ import com.espacogeek.geek.models.MediaModel;
 @Repository
 public interface AlternativeTitlesRepository extends JpaRepository<AlternativeTitleModel, Integer> {
 
+    List<AlternativeTitleModel> findByMedia(MediaModel media);
+
     List<AlternativeTitleModel> findByMediaIn(Collection<MediaModel> medias);
 
 }

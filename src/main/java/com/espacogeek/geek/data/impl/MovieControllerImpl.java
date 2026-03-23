@@ -28,6 +28,7 @@ import com.espacogeek.geek.services.AlternativeTitlesService;
 import com.espacogeek.geek.services.MediaCategoryService;
 import com.espacogeek.geek.services.SeasonService;
 import com.espacogeek.geek.services.TypeReferenceService;
+import com.espacogeek.geek.utils.MediaLazyLoader;
 
 import jakarta.annotation.PostConstruct;
 
@@ -51,9 +52,10 @@ public class MovieControllerImpl extends GenericMediaDataControllerImpl {
             GenreService genreService,
             AlternativeTitlesService alternativeTitlesService,
             ExternalReferenceService baseExternalReferenceService,
-            SeasonService seasonService
+            SeasonService seasonService,
+            MediaLazyLoader mediaLazyLoader
     ) {
-        super(mediaService, genreService, alternativeTitlesService, baseExternalReferenceService, seasonService);
+        super(mediaService, genreService, alternativeTitlesService, baseExternalReferenceService, seasonService, mediaLazyLoader);
         this.movieAPI = movieAPI;
         this.mediaCategoryService = mediaCategoryService;
         this.externalReferenceService = externalReferenceService;

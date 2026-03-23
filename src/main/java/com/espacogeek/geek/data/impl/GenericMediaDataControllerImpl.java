@@ -32,6 +32,7 @@ import com.espacogeek.geek.services.ExternalReferenceService;
 import com.espacogeek.geek.services.GenreService;
 import com.espacogeek.geek.services.MediaService;
 import com.espacogeek.geek.services.SeasonService;
+import com.espacogeek.geek.utils.MediaLazyLoader;
 
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
@@ -48,6 +49,7 @@ public class GenericMediaDataControllerImpl implements MediaDataController {
     private final AlternativeTitlesService alternativeTitlesService;
     private final ExternalReferenceService externalReferenceService;
     private final SeasonService seasonService;
+    private final MediaLazyLoader mediaLazyLoader;
 
     @Autowired
     public GenericMediaDataControllerImpl(
@@ -55,13 +57,15 @@ public class GenericMediaDataControllerImpl implements MediaDataController {
             GenreService genreService,
             AlternativeTitlesService alternativeTitlesService,
             ExternalReferenceService externalReferenceService,
-            SeasonService seasonService
+            SeasonService seasonService,
+            MediaLazyLoader mediaLazyLoader
     ) {
         this.mediaService = mediaService;
         this.genreService = genreService;
         this.alternativeTitlesService = alternativeTitlesService;
         this.externalReferenceService = externalReferenceService;
         this.seasonService = seasonService;
+        this.mediaLazyLoader = mediaLazyLoader;
     }
 
     public GenericMediaDataControllerImpl getInstance() {
@@ -73,6 +77,8 @@ public class GenericMediaDataControllerImpl implements MediaDataController {
      */
     @Override
     public MediaModel updateAllInformation(MediaModel media, MediaModel result, TypeReferenceModel typeReference, MediaApi mediaApi) {
+        mediaLazyLoader.initializeCollections(media);
+
         if (result == null) {
             Collection<ExternalReferenceModel> externalReferences = media.getExternalReference();
             if (externalReferences == null || !Hibernate.isInitialized(externalReferences)) {

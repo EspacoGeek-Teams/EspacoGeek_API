@@ -12,6 +12,8 @@ import com.espacogeek.geek.models.SeasonModel;
 @Repository
 public interface SeasonRepository extends JpaRepository<SeasonModel, Integer> {
 
+    List<SeasonModel> findByMedia(MediaModel media);
+
     List<SeasonModel> findByMediaIn(Collection<MediaModel> medias);
 
 }

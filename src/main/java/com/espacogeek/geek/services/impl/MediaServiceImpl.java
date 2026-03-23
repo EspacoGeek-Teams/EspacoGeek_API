@@ -1,10 +1,6 @@
 package com.espacogeek.geek.services.impl;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
@@ -31,12 +27,9 @@ import com.espacogeek.geek.services.TypeReferenceService;
 import com.espacogeek.geek.types.MediaPage;
 import com.espacogeek.geek.types.MediaSimplefied;
 import com.espacogeek.geek.utils.MediaUtils;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.OneToMany;
+import com.espacogeek.geek.utils.MediaLazyLoader;
 import jakarta.transaction.Transactional;
 import org.hibernate.Hibernate;
-
-import static com.espacogeek.geek.utils.TextUtils.capitalize;
 
 /**
  * A Implementation class of MediaService @see MediaService
@@ -69,6 +62,8 @@ public class MediaServiceImpl implements MediaService {
     @Qualifier("tvSeriesApi")
     private final MediaApi tvSeriesApi;
 
+    private final MediaLazyLoader mediaLazyLoader;
+
     public MediaServiceImpl(
             MediaRepository mediaRepository,
             ExternalReferenceRepository externalsRepo,
@@ -78,7 +73,8 @@ public class MediaServiceImpl implements MediaService {
             TypeReferenceService typeReferenceService,
             @Qualifier("gamesAndVNsAPI") MediaApi gamesAndVNsAPI,
             @Qualifier("movieAPI") MediaApi movieAPI,
-            @Qualifier("tvSeriesApi") MediaApi tvSeriesApi
+            @Qualifier("tvSeriesApi") MediaApi tvSeriesApi,
+            MediaLazyLoader mediaLazyLoader
     ) {
         this.mediaRepository = mediaRepository;
         this.externalsRepo = externalsRepo;
@@ -89,6 +85,7 @@ public class MediaServiceImpl implements MediaService {
         this.gamesAndVNsAPI = gamesAndVNsAPI;
         this.movieAPI = movieAPI;
         this.tvSeriesApi = tvSeriesApi;
+        this.mediaLazyLoader = mediaLazyLoader;
     }
 
     /**
@@ -175,31 +172,12 @@ public class MediaServiceImpl implements MediaService {
     @Override
     @Transactional
     public Optional<MediaModel> findByIdEager(Integer id) {
-        var fieldList = new ArrayList<Field>();
         MediaModel media = (MediaModel) mediaRepository.findById(id).orElse(null);
 
         if (media == null)
             return Optional.empty();
 
-        for (Field field : media.getClass().getDeclaredFields()) {
-            field.setAccessible(true);
-            if (field.isAnnotationPresent(OneToMany.class) || field.isAnnotationPresent(ManyToMany.class)) {
-                fieldList.add(field);
-            }
-        }
-
-        for (Field field : fieldList) {
-            try {
-                String getterName = "get" + capitalize(field.getName());
-                Method getter = media.getClass().getMethod(getterName);
-                var fieldValue = getter.invoke(media);
-                if (fieldValue instanceof Collection) {
-                    ((Collection<?>) fieldValue).size(); // This will initialize the collection
-                }
-            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-                log.error("Failed to initialize field {} for media id={}: {}", field.getName(), media.getId(), e.getMessage());
-            }
-        }
+        mediaLazyLoader.initializeCollections(media);
 
         media = update(media);
 
