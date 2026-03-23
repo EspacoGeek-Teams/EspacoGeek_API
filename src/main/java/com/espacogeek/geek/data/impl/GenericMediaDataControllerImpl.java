@@ -74,7 +74,11 @@ public class GenericMediaDataControllerImpl implements MediaDataController {
     @Override
     public MediaModel updateAllInformation(MediaModel media, MediaModel result, TypeReferenceModel typeReference, MediaApi mediaApi) {
         if (result == null) {
-            var id = media.getExternalReference().stream()
+            Collection<ExternalReferenceModel> externalReferences = media.getExternalReference();
+            if (externalReferences == null || !Hibernate.isInitialized(externalReferences)) {
+                externalReferences = externalReferenceService.findAll(media);
+            }
+            var id = externalReferences.stream()
                         .filter(externalReference -> externalReference.getTypeReference().getId().equals(typeReference.getId()))
                         .map(ExternalReferenceModel::getReference)
                         .findFirst()
