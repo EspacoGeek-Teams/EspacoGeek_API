@@ -147,7 +147,7 @@ public class MediaController {
     /**
      * Batch-loads seasons for a list of MediaModel sources, resolving the N+1 problem.
      */
-    @BatchMapping
+    @BatchMapping(typeName = "Media")
     public Map<MediaModel, Set<SeasonModel>> season(List<MediaModel> medias) {
         Map<Integer, MediaModel> sourceById = new java.util.LinkedHashMap<>();
         for (MediaModel m : medias) {
@@ -169,7 +169,7 @@ public class MediaController {
     /**
      * Batch-loads genres for a list of MediaModel sources, resolving the N+1 problem.
      */
-    @BatchMapping
+    @BatchMapping(typeName = "Media")
     public Map<MediaModel, Set<GenreModel>> genre(List<MediaModel> medias) {
         Map<Integer, MediaModel> sourceById = new java.util.LinkedHashMap<>();
         for (MediaModel m : medias) {
@@ -191,7 +191,7 @@ public class MediaController {
     /**
      * Batch-loads companies for a list of MediaModel sources, resolving the N+1 problem.
      */
-    @BatchMapping
+    @BatchMapping(typeName = "Media")
     public Map<MediaModel, Set<CompanyModel>> company(List<MediaModel> medias) {
         Map<Integer, MediaModel> sourceById = new java.util.LinkedHashMap<>();
         for (MediaModel m : medias) {
@@ -213,7 +213,7 @@ public class MediaController {
     /**
      * Batch-loads people for a list of MediaModel sources, resolving the N+1 problem.
      */
-    @BatchMapping
+    @BatchMapping(typeName = "Media")
     public Map<MediaModel, Set<PeopleModel>> people(List<MediaModel> medias) {
         Map<Integer, MediaModel> sourceById = new java.util.LinkedHashMap<>();
         for (MediaModel m : medias) {
@@ -235,7 +235,7 @@ public class MediaController {
     /**
      * Batch-loads external references for a list of MediaModel sources, resolving the N+1 problem.
      */
-    @BatchMapping
+    @BatchMapping(typeName = "Media")
     public Map<MediaModel, Set<ExternalReferenceModel>> externalReference(List<MediaModel> medias) {
         Map<Integer, MediaModel> sourceById = new java.util.LinkedHashMap<>();
         for (MediaModel m : medias) {
@@ -258,7 +258,7 @@ public class MediaController {
     /**
      * Batch-loads alternative titles for a list of MediaModel sources, resolving the N+1 problem.
      */
-    @BatchMapping
+    @BatchMapping(typeName = "Media")
     public Map<MediaModel, Set<AlternativeTitleModel>> alternativeTitles(List<MediaModel> medias) {
         Map<Integer, MediaModel> sourceById = new java.util.LinkedHashMap<>();
         for (MediaModel m : medias) {

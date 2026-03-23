@@ -34,6 +34,7 @@ import com.espacogeek.geek.utils.MediaUtils;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.transaction.Transactional;
+import org.hibernate.Hibernate;
 
 import static com.espacogeek.geek.utils.TextUtils.capitalize;
 
@@ -95,8 +96,11 @@ public class MediaServiceImpl implements MediaService {
      */
     @SuppressWarnings("unchecked")
     @Override
+    @Transactional
     public MediaModel save(MediaModel media) {
-        boolean hasInMemoryRefs = media.getExternalReference() != null && !media.getExternalReference().isEmpty();
+        boolean hasInMemoryRefs = media.getExternalReference() != null
+                && Hibernate.isInitialized(media.getExternalReference())
+                && !media.getExternalReference().isEmpty();
         boolean hasDbRefs = media.getId() != null && externalsRepo.existsByMediaId(media.getId());
         if (!hasInMemoryRefs && !hasDbRefs) {
             throw new ValidationException("Referência externa obrigatória");
@@ -109,10 +113,13 @@ public class MediaServiceImpl implements MediaService {
      */
     @SuppressWarnings("unchecked")
     @Override
+    @Transactional
     public List<MediaModel> saveAll(List<MediaModel> medias) {
         List<MediaModel> validToSave = new ArrayList<>();
         for (MediaModel media : medias) {
-            boolean hasInMemoryRefs = media.getExternalReference() != null && !media.getExternalReference().isEmpty();
+            boolean hasInMemoryRefs = media.getExternalReference() != null
+                    && Hibernate.isInitialized(media.getExternalReference())
+                    && !media.getExternalReference().isEmpty();
             boolean hasDbRefs = media.getId() != null && externalsRepo.existsByMediaId(media.getId());
             if (!hasInMemoryRefs && !hasDbRefs) {
                 log.warn("Skipping media '{}' - missing external reference (Referência externa obrigatória)", media.getName());
