@@ -39,6 +39,7 @@ import info.movito.themoviedbapi.model.tv.core.TvSeason;
 import info.movito.themoviedbapi.model.tv.series.ExternalIds;
 import info.movito.themoviedbapi.model.tv.series.Images;
 import info.movito.themoviedbapi.model.tv.series.TvSeriesDb;
+import info.movito.themoviedbapi.model.core.responses.TmdbResponseException;
 import info.movito.themoviedbapi.tools.TmdbException;
 import info.movito.themoviedbapi.tools.appendtoresponse.TvSeriesAppendToResponse;
 import jakarta.annotation.PostConstruct;
@@ -123,6 +124,14 @@ public class TvSeriesApiImpl implements MediaApi {
         TvSeriesDb rawSerieDetails;
         try {
             rawSerieDetails = api.getDetails(id, "en-US", TvSeriesAppendToResponse.EXTERNAL_IDS, TvSeriesAppendToResponse.ALTERNATIVE_TITLES, TvSeriesAppendToResponse.IMAGES, TvSeriesAppendToResponse.VIDEOS);
+        } catch (TmdbResponseException e) {
+            var code = e.getResponseCode();
+            // tmdbCode 34 is RESOURCE_NOT_FOUND; also guard against HTTP 404 responses without a code
+            if (code != null && (code.getTmdbCode() == 34 || code.getHttpStatus() == 404)) {
+                log.debug("TV series resource not found for id {}", id);
+                return null;
+            }
+            throw new com.espacogeek.geek.exception.RequestException();
         } catch (TmdbException e) {
             log.error("Error fetching TV series details", e);
             throw new com.espacogeek.geek.exception.RequestException();
