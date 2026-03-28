@@ -35,7 +35,7 @@ jobs:
           no-fail: true
 
       - name: Upload Hadolint SARIF (Dockerfile.jvm)
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         if: always()
         with:
           sarif_file: hadolint-jvm.sarif
@@ -50,7 +50,7 @@ jobs:
           no-fail: true
 
       - name: Upload Hadolint SARIF (Dockerfile.native)
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         if: always()
         with:
           sarif_file: hadolint-native.sarif
@@ -62,18 +62,6 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v4
-
-      - name: Set up Java 21 (Temurin)
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '21'
-
-      - name: Setup Gradle (with caching)
-        uses: gradle/actions/setup-gradle@v3
-
-      - name: Make Gradle wrapper executable
-        run: chmod +x gradlew
 
       # Run OWASP Dependency-Check via the official CLI wrapper (no Maven required)
       # Note: dependency-check/Dependency-Check_Action does not publish versioned tags;
@@ -94,7 +82,7 @@ jobs:
           NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
 
       - name: Upload OWASP Dependency-Check SARIF
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         if: always()
         with:
           sarif_file: build/reports/dependency-check-report.sarif
@@ -139,7 +127,7 @@ jobs:
           exit-code: '0'  # Do not fail the build; report only
 
       - name: Upload Trivy SARIF results
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         if: always()
         with:
           sarif_file: trivy-results.sarif
