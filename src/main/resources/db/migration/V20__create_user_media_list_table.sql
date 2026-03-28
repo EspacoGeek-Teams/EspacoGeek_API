@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS `user_media_list` (
   `user_id` INT NOT NULL,
   `media_id` INT NOT NULL,
   `status` VARCHAR(50) DEFAULT NULL,
-  `score` FLOAT DEFAULT NULL,
+  `score` DECIMAL(3,1) DEFAULT NULL,
   `progress` INT DEFAULT NULL,
   `start_date` DATETIME DEFAULT NULL,
   `finish_date` DATETIME DEFAULT NULL,
