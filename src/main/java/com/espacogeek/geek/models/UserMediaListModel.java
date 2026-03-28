@@ -14,6 +14,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
+import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,7 +22,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "user_media_list")
+@Table(name = "user_media_list", uniqueConstraints = {
+    @UniqueConstraint(name = "uniq_user_media_list_user_media", columnNames = {"user_id", "media_id"})
+})
 @Getter
 @Setter
 @AllArgsConstructor
