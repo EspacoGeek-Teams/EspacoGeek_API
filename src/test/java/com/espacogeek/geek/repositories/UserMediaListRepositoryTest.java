@@ -10,6 +10,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.ActiveProfiles;
 
+import com.espacogeek.geek.models.CategoryType;
 import com.espacogeek.geek.models.MediaCategoryModel;
 import com.espacogeek.geek.models.MediaModel;
 import com.espacogeek.geek.models.UserMediaListModel;
@@ -36,7 +37,7 @@ class UserMediaListRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        MediaCategoryModel category = mediaCategoryRepository.save(new MediaCategoryModel(null, "ANIME", null));
+        MediaCategoryModel category = mediaCategoryRepository.save(new MediaCategoryModel(null, CategoryType.ANIME, null));
 
         UserModel newUser = new UserModel();
         newUser.setUsername("testuser");
