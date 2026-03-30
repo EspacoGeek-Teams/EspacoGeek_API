@@ -75,4 +75,10 @@ type Query {
     Example: getBatchJobs(page: 0, size: 10, status: "FAILED")
     """
     getBatchJobs(page: Int!, size: Int!, status: String): BatchJobPage!
+
+    """
+    Retrieve all available media statuses (e.g. WATCHING, COMPLETED, PLAN_TO_WATCH, DROPPED).
+    Example: findAllMediaStatuses { id name }
+    """
+    findAllMediaStatuses: [MediaStatus]
 }
