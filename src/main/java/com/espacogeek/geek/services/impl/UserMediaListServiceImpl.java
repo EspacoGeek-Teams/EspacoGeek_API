@@ -19,16 +19,21 @@ public class UserMediaListServiceImpl implements UserMediaListService {
     private UserMediaListRepository userMediaListRepository;
 
     /**
-     * @see UserMediaListService#findByUserIdWithFilters(Integer, String, Integer, String, String, String)
+     * @see UserMediaListService#findByUserIdWithFilters(Integer, String, Long, Integer, String, Integer, String, Integer, String, String)
      */
     @Override
     public List<UserMediaListModel> findByUserIdWithFilters(
             Integer userId,
             String status,
+            Integer statusId,
             Integer categoryId,
+            String categoryName,
+            Integer genreId,
             String genreName,
+            Integer mediaId,
             String mediaName,
             String altTitle) {
-        return userMediaListRepository.findByUserIdWithFilters(userId, status, categoryId, genreName, mediaName, altTitle);
+        return userMediaListRepository.findByUserIdWithFilters(
+                userId, status, statusId, categoryId, categoryName, genreId, genreName, mediaId, mediaName, altTitle);
     }
 }

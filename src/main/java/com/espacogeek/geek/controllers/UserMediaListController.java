@@ -24,13 +24,18 @@ public class UserMediaListController {
 
     /**
      * Returns the authenticated user's media library, optionally filtered by
-     * status, category, genre, media name, or alternative title.
+     * status, statusId, category, categoryName, genre, genreId, mediaId, media name,
+     * or alternative title.
      *
-     * @param status     optional status filter (e.g. "watching", "completed")
-     * @param categoryId optional media category ID filter
-     * @param genreName  optional genre name filter
-     * @param mediaName  optional media name filter (partial match)
-     * @param altTitle   optional alternative title filter (partial match)
+     * @param status       optional user tracking status string filter (e.g. "watching")
+     * @param statusId     optional media production status ID filter (MediaStatusModel.id)
+     * @param categoryId   optional media category ID filter
+     * @param categoryName optional media category name filter (e.g. "ANIME")
+     * @param genreId      optional genre ID filter
+     * @param genreName    optional genre name filter
+     * @param mediaId      optional media ID filter
+     * @param mediaName    optional media name filter (partial match)
+     * @param altTitle     optional alternative title filter (partial match)
      * @param authentication the currently authenticated user (required)
      * @return list of matching library entries belonging to the user
      */
@@ -38,13 +43,18 @@ public class UserMediaListController {
     @PreAuthorize("hasRole('user')")
     public List<UserMediaListModel> findUserMediaLibrary(
             @Argument(name = "status") String status,
+            @Argument(name = "statusId") Integer statusId,
             @Argument(name = "categoryId") Integer categoryId,
+            @Argument(name = "categoryName") String categoryName,
+            @Argument(name = "genreId") Integer genreId,
             @Argument(name = "genreName") String genreName,
+            @Argument(name = "mediaId") Integer mediaId,
             @Argument(name = "mediaName") String mediaName,
             @Argument(name = "altTitle") String altTitle,
             Authentication authentication) {
         var user = userService.findUserByEmail(authentication.getName())
                 .orElseThrow(() -> new GenericException("User not found"));
-        return userMediaListService.findByUserIdWithFilters(user.getId(), status, categoryId, genreName, mediaName, altTitle);
+        return userMediaListService.findByUserIdWithFilters(
+                user.getId(), status, statusId, categoryId, categoryName, genreId, genreName, mediaId, mediaName, altTitle);
     }
 }

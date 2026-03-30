@@ -75,26 +75,22 @@ class UserMediaLibraryQueryTest {
     @Test
     @WithMockUser(username = "user@example.com", roles = {"user"})
     void findUserMediaLibrary_NoFilters_ShouldReturnAllUserEntries() {
-        // Given
         UserModel user = stubUser(1, "user@example.com");
         MediaModel media = stubMedia(10, "Naruto");
         UserMediaListModel entry = stubEntry(user, media, "watching");
 
         when(userService.findUserByEmail("user@example.com")).thenReturn(Optional.of(user));
-        when(userMediaListService.findByUserIdWithFilters(eq(1), isNull(), isNull(), isNull(), isNull(), isNull()))
+        when(userMediaListService.findByUserIdWithFilters(
+                eq(1), isNull(), isNull(), isNull(), isNull(), isNull(), isNull(), isNull(), isNull(), isNull()))
                 .thenReturn(List.of(entry));
 
-        // When & Then
         graphQlTester.document("""
                 query {
                     findUserMediaLibrary {
                         status
                         progress
                         score
-                        media {
-                            id
-                            name
-                        }
+                        media { id name }
                     }
                 }
                 """)
@@ -111,16 +107,15 @@ class UserMediaLibraryQueryTest {
     @Test
     @WithMockUser(username = "user@example.com", roles = {"user"})
     void findUserMediaLibrary_FilterByStatus_ShouldPassStatusToService() {
-        // Given
         UserModel user = stubUser(1, "user@example.com");
         MediaModel media = stubMedia(10, "Attack on Titan");
         UserMediaListModel entry = stubEntry(user, media, "completed");
 
         when(userService.findUserByEmail("user@example.com")).thenReturn(Optional.of(user));
-        when(userMediaListService.findByUserIdWithFilters(eq(1), eq("completed"), isNull(), isNull(), isNull(), isNull()))
+        when(userMediaListService.findByUserIdWithFilters(
+                eq(1), eq("completed"), isNull(), isNull(), isNull(), isNull(), isNull(), isNull(), isNull(), isNull()))
                 .thenReturn(List.of(entry));
 
-        // When & Then
         graphQlTester.document("""
                 query {
                     findUserMediaLibrary(status: "completed") {
@@ -133,22 +128,50 @@ class UserMediaLibraryQueryTest {
                 .errors().verify()
                 .path("findUserMediaLibrary[0].status").entity(String.class).isEqualTo("completed");
 
-        verify(userMediaListService).findByUserIdWithFilters(1, "completed", null, null, null, null);
+        verify(userMediaListService).findByUserIdWithFilters(
+                1, "completed", null, null, null, null, null, null, null, null);
     }
 
     @Test
     @WithMockUser(username = "user@example.com", roles = {"user"})
-    void findUserMediaLibrary_FilterByCategory_ShouldPassCategoryIdToService() {
-        // Given
+    void findUserMediaLibrary_FilterByStatusId_ShouldPassStatusIdToService() {
+        UserModel user = stubUser(1, "user@example.com");
+        MediaModel media = stubMedia(10, "Steins;Gate");
+        UserMediaListModel entry = stubEntry(user, media, "completed");
+
+        when(userService.findUserByEmail("user@example.com")).thenReturn(Optional.of(user));
+        when(userMediaListService.findByUserIdWithFilters(
+                eq(1), isNull(), eq(2), isNull(), isNull(), isNull(), isNull(), isNull(), isNull(), isNull()))
+                .thenReturn(List.of(entry));
+
+        graphQlTester.document("""
+                query {
+                    findUserMediaLibrary(statusId: 2) {
+                        status
+                        media { name }
+                    }
+                }
+                """)
+                .execute()
+                .errors().verify()
+                .path("findUserMediaLibrary[0].media.name").entity(String.class).isEqualTo("Steins;Gate");
+
+        verify(userMediaListService).findByUserIdWithFilters(
+                1, null, 2, null, null, null, null, null, null, null);
+    }
+
+    @Test
+    @WithMockUser(username = "user@example.com", roles = {"user"})
+    void findUserMediaLibrary_FilterByCategoryId_ShouldPassCategoryIdToService() {
         UserModel user = stubUser(1, "user@example.com");
         MediaModel media = stubMedia(20, "One Piece");
         UserMediaListModel entry = stubEntry(user, media, "watching");
 
         when(userService.findUserByEmail("user@example.com")).thenReturn(Optional.of(user));
-        when(userMediaListService.findByUserIdWithFilters(eq(1), isNull(), eq(2), isNull(), isNull(), isNull()))
+        when(userMediaListService.findByUserIdWithFilters(
+                eq(1), isNull(), isNull(), eq(2), isNull(), isNull(), isNull(), isNull(), isNull(), isNull()))
                 .thenReturn(List.of(entry));
 
-        // When & Then
         graphQlTester.document("""
                 query {
                     findUserMediaLibrary(categoryId: 2) {
@@ -161,22 +184,78 @@ class UserMediaLibraryQueryTest {
                 .errors().verify()
                 .path("findUserMediaLibrary[0].media.name").entity(String.class).isEqualTo("One Piece");
 
-        verify(userMediaListService).findByUserIdWithFilters(1, null, 2, null, null, null);
+        verify(userMediaListService).findByUserIdWithFilters(
+                1, null, null, 2, null, null, null, null, null, null);
     }
 
     @Test
     @WithMockUser(username = "user@example.com", roles = {"user"})
-    void findUserMediaLibrary_FilterByGenre_ShouldPassGenreNameToService() {
-        // Given
+    void findUserMediaLibrary_FilterByCategoryName_ShouldPassCategoryNameToService() {
+        UserModel user = stubUser(1, "user@example.com");
+        MediaModel media = stubMedia(20, "Dragon Ball");
+        UserMediaListModel entry = stubEntry(user, media, "watching");
+
+        when(userService.findUserByEmail("user@example.com")).thenReturn(Optional.of(user));
+        when(userMediaListService.findByUserIdWithFilters(
+                eq(1), isNull(), isNull(), isNull(), eq("ANIME"), isNull(), isNull(), isNull(), isNull(), isNull()))
+                .thenReturn(List.of(entry));
+
+        graphQlTester.document("""
+                query {
+                    findUserMediaLibrary(categoryName: "ANIME") {
+                        status
+                        media { name }
+                    }
+                }
+                """)
+                .execute()
+                .errors().verify()
+                .path("findUserMediaLibrary[0].media.name").entity(String.class).isEqualTo("Dragon Ball");
+
+        verify(userMediaListService).findByUserIdWithFilters(
+                1, null, null, null, "ANIME", null, null, null, null, null);
+    }
+
+    @Test
+    @WithMockUser(username = "user@example.com", roles = {"user"})
+    void findUserMediaLibrary_FilterByGenreId_ShouldPassGenreIdToService() {
         UserModel user = stubUser(1, "user@example.com");
         MediaModel media = stubMedia(30, "Demon Slayer");
         UserMediaListModel entry = stubEntry(user, media, "watching");
 
         when(userService.findUserByEmail("user@example.com")).thenReturn(Optional.of(user));
-        when(userMediaListService.findByUserIdWithFilters(eq(1), isNull(), isNull(), eq("Action"), isNull(), isNull()))
+        when(userMediaListService.findByUserIdWithFilters(
+                eq(1), isNull(), isNull(), isNull(), isNull(), eq(5), isNull(), isNull(), isNull(), isNull()))
                 .thenReturn(List.of(entry));
 
-        // When & Then
+        graphQlTester.document("""
+                query {
+                    findUserMediaLibrary(genreId: 5) {
+                        status
+                        media { name }
+                    }
+                }
+                """)
+                .execute()
+                .errors().verify()
+                .path("findUserMediaLibrary[0].media.name").entity(String.class).isEqualTo("Demon Slayer");
+
+        verify(userMediaListService).findByUserIdWithFilters(
+                1, null, null, null, null, 5, null, null, null, null);
+    }
+
+    @Test
+    @WithMockUser(username = "user@example.com", roles = {"user"})
+    void findUserMediaLibrary_FilterByGenreName_ShouldPassGenreNameToService() {
+        UserModel user = stubUser(1, "user@example.com");
+        MediaModel media = stubMedia(30, "Demon Slayer");
+        UserMediaListModel entry = stubEntry(user, media, "watching");
+
+        when(userService.findUserByEmail("user@example.com")).thenReturn(Optional.of(user));
+        when(userMediaListService.findByUserIdWithFilters(
+                eq(1), isNull(), isNull(), isNull(), isNull(), isNull(), eq("Action"), isNull(), isNull(), isNull()))
+                .thenReturn(List.of(entry));
+
         graphQlTester.document("""
                 query {
                     findUserMediaLibrary(genreName: "Action") {
@@ -189,22 +268,50 @@ class UserMediaLibraryQueryTest {
                 .errors().verify()
                 .path("findUserMediaLibrary[0].media.name").entity(String.class).isEqualTo("Demon Slayer");
 
-        verify(userMediaListService).findByUserIdWithFilters(1, null, null, "Action", null, null);
+        verify(userMediaListService).findByUserIdWithFilters(
+                1, null, null, null, null, null, "Action", null, null, null);
+    }
+
+    @Test
+    @WithMockUser(username = "user@example.com", roles = {"user"})
+    void findUserMediaLibrary_FilterByMediaId_ShouldPassMediaIdToService() {
+        UserModel user = stubUser(1, "user@example.com");
+        MediaModel media = stubMedia(42, "Fullmetal Alchemist");
+        UserMediaListModel entry = stubEntry(user, media, "completed");
+
+        when(userService.findUserByEmail("user@example.com")).thenReturn(Optional.of(user));
+        when(userMediaListService.findByUserIdWithFilters(
+                eq(1), isNull(), isNull(), isNull(), isNull(), isNull(), isNull(), eq(42), isNull(), isNull()))
+                .thenReturn(List.of(entry));
+
+        graphQlTester.document("""
+                query {
+                    findUserMediaLibrary(mediaId: 42) {
+                        status
+                        media { id name }
+                    }
+                }
+                """)
+                .execute()
+                .errors().verify()
+                .path("findUserMediaLibrary[0].media.name").entity(String.class).isEqualTo("Fullmetal Alchemist");
+
+        verify(userMediaListService).findByUserIdWithFilters(
+                1, null, null, null, null, null, null, 42, null, null);
     }
 
     @Test
     @WithMockUser(username = "user@example.com", roles = {"user"})
     void findUserMediaLibrary_FilterByMediaName_ShouldPassMediaNameToService() {
-        // Given
         UserModel user = stubUser(1, "user@example.com");
         MediaModel media = stubMedia(40, "Fullmetal Alchemist");
         UserMediaListModel entry = stubEntry(user, media, "completed");
 
         when(userService.findUserByEmail("user@example.com")).thenReturn(Optional.of(user));
-        when(userMediaListService.findByUserIdWithFilters(eq(1), isNull(), isNull(), isNull(), eq("Fullmetal"), isNull()))
+        when(userMediaListService.findByUserIdWithFilters(
+                eq(1), isNull(), isNull(), isNull(), isNull(), isNull(), isNull(), isNull(), eq("Fullmetal"), isNull()))
                 .thenReturn(List.of(entry));
 
-        // When & Then
         graphQlTester.document("""
                 query {
                     findUserMediaLibrary(mediaName: "Fullmetal") {
@@ -217,22 +324,22 @@ class UserMediaLibraryQueryTest {
                 .errors().verify()
                 .path("findUserMediaLibrary[0].media.name").entity(String.class).isEqualTo("Fullmetal Alchemist");
 
-        verify(userMediaListService).findByUserIdWithFilters(1, null, null, null, "Fullmetal", null);
+        verify(userMediaListService).findByUserIdWithFilters(
+                1, null, null, null, null, null, null, null, "Fullmetal", null);
     }
 
     @Test
     @WithMockUser(username = "user@example.com", roles = {"user"})
     void findUserMediaLibrary_FilterByAltTitle_ShouldPassAltTitleToService() {
-        // Given
         UserModel user = stubUser(1, "user@example.com");
         MediaModel media = stubMedia(50, "Shingeki no Kyojin");
         UserMediaListModel entry = stubEntry(user, media, "completed");
 
         when(userService.findUserByEmail("user@example.com")).thenReturn(Optional.of(user));
-        when(userMediaListService.findByUserIdWithFilters(eq(1), isNull(), isNull(), isNull(), isNull(), eq("Attack")))
+        when(userMediaListService.findByUserIdWithFilters(
+                eq(1), isNull(), isNull(), isNull(), isNull(), isNull(), isNull(), isNull(), isNull(), eq("Attack")))
                 .thenReturn(List.of(entry));
 
-        // When & Then
         graphQlTester.document("""
                 query {
                     findUserMediaLibrary(altTitle: "Attack") {
@@ -245,23 +352,33 @@ class UserMediaLibraryQueryTest {
                 .errors().verify()
                 .path("findUserMediaLibrary[0].media.name").entity(String.class).isEqualTo("Shingeki no Kyojin");
 
-        verify(userMediaListService).findByUserIdWithFilters(1, null, null, null, null, "Attack");
+        verify(userMediaListService).findByUserIdWithFilters(
+                1, null, null, null, null, null, null, null, null, "Attack");
     }
 
     @Test
     @WithMockUser(username = "user@example.com", roles = {"user"})
     void findUserMediaLibrary_AllFilters_ShouldPassAllFiltersToService() {
-        // Given
         UserModel user = stubUser(1, "user@example.com");
 
         when(userService.findUserByEmail("user@example.com")).thenReturn(Optional.of(user));
-        when(userMediaListService.findByUserIdWithFilters(eq(1), eq("watching"), eq(1), eq("Action"), eq("Naruto"), eq("Shippuden")))
+        when(userMediaListService.findByUserIdWithFilters(
+                eq(1), eq("watching"), eq(3), eq(1), eq("ANIME"), eq(5), eq("Action"), eq(99), eq("Naruto"), eq("Shippuden")))
                 .thenReturn(List.of());
 
-        // When & Then
         graphQlTester.document("""
                 query {
-                    findUserMediaLibrary(status: "watching", categoryId: 1, genreName: "Action", mediaName: "Naruto", altTitle: "Shippuden") {
+                    findUserMediaLibrary(
+                        status: "watching",
+                        statusId: 3,
+                        categoryId: 1,
+                        categoryName: "ANIME",
+                        genreId: 5,
+                        genreName: "Action",
+                        mediaId: 99,
+                        mediaName: "Naruto",
+                        altTitle: "Shippuden"
+                    ) {
                         status
                         media { name }
                     }
@@ -272,20 +389,20 @@ class UserMediaLibraryQueryTest {
                 .path("findUserMediaLibrary").entityList(UserMediaListModel.class)
                 .satisfies(results -> assertThat(results).isEmpty());
 
-        verify(userMediaListService).findByUserIdWithFilters(1, "watching", 1, "Action", "Naruto", "Shippuden");
+        verify(userMediaListService).findByUserIdWithFilters(
+                1, "watching", 3, 1, "ANIME", 5, "Action", 99, "Naruto", "Shippuden");
     }
 
     @Test
     @WithMockUser(username = "user@example.com", roles = {"user"})
     void findUserMediaLibrary_WhenEmpty_ShouldReturnEmptyList() {
-        // Given
         UserModel user = stubUser(1, "user@example.com");
 
         when(userService.findUserByEmail("user@example.com")).thenReturn(Optional.of(user));
-        when(userMediaListService.findByUserIdWithFilters(any(), any(), any(), any(), any(), any()))
+        when(userMediaListService.findByUserIdWithFilters(
+                any(), any(), any(), any(), any(), any(), any(), any(), any(), any()))
                 .thenReturn(List.of());
 
-        // When & Then
         graphQlTester.document("""
                 query {
                     findUserMediaLibrary {
@@ -303,7 +420,6 @@ class UserMediaLibraryQueryTest {
     @Test
     @WithMockUser(username = "user@example.com", roles = {"user"})
     void findUserMediaLibrary_MultipleEntries_ShouldReturnAll() {
-        // Given
         UserModel user = stubUser(1, "user@example.com");
         MediaModel media1 = stubMedia(10, "Naruto");
         MediaModel media2 = stubMedia(20, "Bleach");
@@ -311,10 +427,10 @@ class UserMediaLibraryQueryTest {
         UserMediaListModel entry2 = stubEntry(user, media2, "watching");
 
         when(userService.findUserByEmail("user@example.com")).thenReturn(Optional.of(user));
-        when(userMediaListService.findByUserIdWithFilters(eq(1), isNull(), isNull(), isNull(), isNull(), isNull()))
+        when(userMediaListService.findByUserIdWithFilters(
+                eq(1), isNull(), isNull(), isNull(), isNull(), isNull(), isNull(), isNull(), isNull(), isNull()))
                 .thenReturn(List.of(entry1, entry2));
 
-        // When & Then
         graphQlTester.document("""
                 query {
                     findUserMediaLibrary {
@@ -334,7 +450,7 @@ class UserMediaLibraryQueryTest {
 
     @Test
     void findUserMediaLibrary_WithoutAuth_ShouldReturnError() {
-        // When & Then (no @WithMockUser — unauthenticated)
+        // No @WithMockUser — unauthenticated request should be rejected
         graphQlTester.document("""
                 query {
                     findUserMediaLibrary {

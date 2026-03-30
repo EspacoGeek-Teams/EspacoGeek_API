@@ -78,8 +78,9 @@ type Query {
 
     """
     Fetch the authenticated user's media library with optional filters.
-    Filters: status (e.g. "watching"), categoryId, genreName, mediaName, altTitle.
+    Filters: status, statusId (media production status ID), categoryId, categoryName,
+    genreId, genreName, mediaId, mediaName, altTitle.
     Example: findUserMediaLibrary(status: "watching") { id status media { name } }
     """
-    findUserMediaLibrary(status: String, categoryId: Int, genreName: String, mediaName: String, altTitle: String): [UserMediaList]
+    findUserMediaLibrary(status: String, statusId: Int, categoryId: Int, categoryName: String, genreId: Int, genreName: String, mediaId: Int, mediaName: String, altTitle: String): [UserMediaList]
 }
