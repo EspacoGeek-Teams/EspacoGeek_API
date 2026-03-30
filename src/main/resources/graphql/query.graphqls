@@ -77,8 +77,9 @@ type Query {
     getBatchJobs(page: Int!, size: Int!, status: String): BatchJobPage!
 
     """
-    Retrieve all available media statuses (e.g. WATCHING, COMPLETED, PLAN_TO_WATCH, DROPPED).
-    Example: findAllMediaStatuses { id name }
+    Fetch the authenticated user's media library with optional filters.
+    Filters: status (e.g. "watching"), categoryId, genreName, mediaName, altTitle.
+    Example: findUserMediaLibrary(status: "watching") { id status media { name } }
     """
-    findAllMediaStatuses: [MediaStatus]
+    findUserMediaLibrary(status: String, categoryId: Int, genreName: String, mediaName: String, altTitle: String): [UserMediaList]
 }
