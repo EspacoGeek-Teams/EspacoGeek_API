@@ -152,6 +152,7 @@ public class TvSeriesApiImpl implements MediaApi {
                 rawSerieDetails.getPosterPath() == null ? null : ExternalCDN.TMDB.getUrl() + rawSerieDetails.getPosterPath(),
                 rawSerieDetails.getBackdropPath() == null ? null : ExternalCDN.TMDB.getUrl() + rawSerieDetails.getBackdropPath(),
                 mediaCategoryService.findById(MediaDataController.MediaType.SERIE.getId()).get(),
+                null,
                 new java.util.LinkedHashSet<>(externalReferences),
                 null,
                 null,

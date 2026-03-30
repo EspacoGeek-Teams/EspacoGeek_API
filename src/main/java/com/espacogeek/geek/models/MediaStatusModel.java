@@ -25,18 +25,18 @@ import lombok.Setter;
 @NoArgsConstructor
 @Entity
 @EqualsAndHashCode(exclude = {"medias"})
-@Table(name = "media_categories")
-public class MediaCategoryModel implements Serializable {
+@Table(name = "media_status")
+public class MediaStatusModel implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_media_category")
-    private Integer id;
+    @Column(name = "id")
+    private Long id;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "type_category")
-    private CategoryType name;
+    @Column(name = "name")
+    private StatusType name;
 
-    @OneToMany(mappedBy = "mediaCategory")
+    @OneToMany(mappedBy = "mediaStatus")
     @Transient
     private List<MediaModel> medias;
 }
