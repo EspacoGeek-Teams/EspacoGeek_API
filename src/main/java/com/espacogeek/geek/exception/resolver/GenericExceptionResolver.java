@@ -9,11 +9,14 @@ import org.springframework.graphql.execution.DataFetcherExceptionResolverAdapter
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
+import com.espacogeek.geek.exception.AccessDeniedException;
 import com.espacogeek.geek.exception.EmailAlreadyExistsException;
 import com.espacogeek.geek.exception.GenericException;
 import com.espacogeek.geek.exception.InputValidationException;
 import com.espacogeek.geek.exception.InvalidCredentialsException;
 import com.espacogeek.geek.exception.MediaAlreadyExist;
+import com.espacogeek.geek.exception.MediaAlreadyInLibraryException;
+import com.espacogeek.geek.exception.NotFoundException;
 import com.espacogeek.geek.exception.TokenExpiredException;
 import org.springframework.dao.DataAccessException;
 
@@ -37,6 +40,13 @@ import java.util.Map;
  *       <li>2001 – Email already registered</li>
  *       <li>2003 – Media already exists</li>
  *       <li>2004 – Input validation failed</li>
+ *       <li>2005 – Media already in library</li>
+ *     </ul>
+ *   </li>
+ *   <li><b>3xxx – Resource errors</b>
+ *     <ul>
+ *       <li>3403 – Access denied (e.g. private library)</li>
+ *       <li>3404 – Resource not found (e.g. user or media)</li>
  *     </ul>
  *   </li>
  *   <li><b>5xxx – Internal errors</b>
@@ -62,7 +72,10 @@ public class GenericExceptionResolver extends DataFetcherExceptionResolverAdapte
             case TokenExpiredException e        -> buildError(env, "Token expired/invalid", 1002);
             case EmailAlreadyExistsException e  -> buildError(env, "Email already registered", 2001);
             case MediaAlreadyExist e            -> buildError(env, "Media already exists", 2003);
-            case InputValidationException e     -> buildError(env, "Input validation failed", 2004);
+            case MediaAlreadyInLibraryException e -> buildError(env, "Media already in library", 2005);
+            case InputValidationException e     -> buildError(env, e.getMessage() != null ? e.getMessage() : "Input validation failed", 2004);
+            case AccessDeniedException e        -> buildError(env, e.getMessage(), 3403);
+            case NotFoundException e            -> buildError(env, e.getMessage(), 3404);
             case ValidationException e          -> buildError(env, "Input validation failed", 2004);
             case DataAccessException e          -> {
                 log.error("Database error during GraphQL execution: {}", exception.getMessage(), exception);

@@ -1,0 +1,87 @@
+package com.espacogeek.geek.models;
+
+import java.io.Serializable;
+import java.util.Date;
+import java.util.UUID;
+
+import org.hibernate.annotations.UuidGenerator;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
+import jakarta.persistence.UniqueConstraint;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Entity
+@Table(name = "user_media_list", uniqueConstraints = {
+    @UniqueConstraint(name = "uniq_user_media_list_user_media", columnNames = {"user_id", "media_id"})
+})
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+public class UserMediaListModel implements Serializable {
+    @Id
+    @UuidGenerator(style = UuidGenerator.Style.TIME)
+    @Column(name = "id_user_media_list", columnDefinition = "BINARY(16)", updatable = false, nullable = false)
+    private UUID id;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    @NotNull
+    private UserModel user;
+
+    @ManyToOne
+    @JoinColumn(name = "media_id", nullable = false)
+    @NotNull
+    private MediaModel media;
+
+    @Column(name = "status", length = 50)
+    private String status;
+
+    @Column(name = "score")
+    private Float score;
+
+    @Column(name = "progress")
+    private Integer progress;
+
+    @Column(name = "start_date")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date startDate;
+
+    @Column(name = "finish_date")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date finishDate;
+
+    @Column(name = "time_spent")
+    private Integer timeSpent;
+
+    @Column(name = "note", length = 2000)
+    private String note;
+
+    @Column(name = "date_planned")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date datePlanned;
+
+    @ManyToOne
+    @JoinColumn(name = "custom_status_id")
+    private UserCustomStatusModel customStatus;
+
+    @Column(name = "rewatch_count", columnDefinition = "INT DEFAULT 0")
+    private Integer rewatchCount;
+
+    @Column(name = "is_private", columnDefinition = "TINYINT(1) DEFAULT 0")
+    private Boolean isPrivate;
+
+    @Column(name = "personal_notes", length = 2000)
+    private String personalNotes;
+}

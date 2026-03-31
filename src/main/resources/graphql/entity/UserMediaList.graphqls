@@ -1,0 +1,62 @@
+"""
+An entry in the authenticated user's media library.
+"""
+type UserMediaList {
+    "Unique identifier for this library entry"
+    id: ID
+    "The media item"
+    media: Media
+    "User-defined tracking status (e.g. PLANNING, IN_PROGRESS, COMPLETED, DROPPED, PAUSED)"
+    status: String
+    "User score for this media"
+    score: Float
+    "Current progress (e.g. episodes watched)"
+    progress: Int
+    "Date the user started the media"
+    startDate: Date
+    "Date the user finished the media"
+    finishDate: Date
+    "Total time spent in minutes"
+    timeSpent: Int
+    "User note or review"
+    note: String
+    "Date the user added the media to their plan list"
+    datePlanned: Date
+    "The user-defined custom status list this entry belongs to (optional)"
+    customStatus: UserStatus
+    "Number of times the user has rewatched/replayed this media (default 0)"
+    rewatchCount: Int
+    "Whether this library entry is private (default false)"
+    isPrivate: Boolean
+    "Personal notes separate from the main review note"
+    personalNotes: String
+}
+
+"""
+Input type for the upsertUserMedia mutation. All fields except mediaId are optional;
+only non-null fields will be applied on update. On create, status defaults to PLANNING.
+"""
+input UpdateUserMediaInput {
+    "ID of the media to add or update in the user's library (required)"
+    mediaId: Int!
+    "Tracking status: PLANNING, IN_PROGRESS, COMPLETED, DROPPED, or PAUSED"
+    status: StatusType
+    "Current progress (e.g. episode or chapter number)"
+    progress: Int
+    "User score (0.0 – 10.0)"
+    score: Float
+    "Date the user started the media"
+    startDate: Date
+    "Date the user finished the media"
+    finishDate: Date
+    "User note or review"
+    note: String
+    "ID of the user's custom status list to assign this media to (optional)"
+    customStatusId: Int
+    "Number of times rewatched/replayed"
+    rewatchCount: Int
+    "Whether this entry should be private"
+    isPrivate: Boolean
+    "Personal notes for this entry"
+    personalNotes: String
+}
