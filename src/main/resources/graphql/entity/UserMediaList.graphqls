@@ -33,7 +33,7 @@ type UserMediaList {
 }
 
 """
-Input type for the userMediaProgress mutation. All fields except mediaId are optional;
+Input type for the upsertUserMedia mutation. All fields except mediaId are optional;
 only non-null fields will be applied on update. On create, status defaults to PLANNING.
 """
 input UpdateUserMediaInput {
