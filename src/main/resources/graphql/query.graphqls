@@ -75,4 +75,12 @@ type Query {
     Example: getBatchJobs(page: 0, size: 10, status: "FAILED")
     """
     getBatchJobs(page: Int!, size: Int!, status: String): BatchJobPage!
+
+    """
+    Fetch the authenticated user's media library with optional filters.
+    Filters: status, statusId (media production status ID), categoryId, categoryName,
+    genreId, genreName, mediaId, mediaName, altTitle.
+    Example: findUserMediaLibrary(status: "watching") { id status media { name } }
+    """
+    findUserMediaLibrary(status: String, statusId: Int, categoryId: Int, categoryName: String, genreId: Int, genreName: String, mediaId: Int, mediaName: String, altTitle: String): [UserMediaList]
 }
