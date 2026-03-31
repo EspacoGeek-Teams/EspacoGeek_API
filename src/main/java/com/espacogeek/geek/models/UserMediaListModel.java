@@ -71,4 +71,8 @@ public class UserMediaListModel implements Serializable {
     @Column(name = "date_planned")
     @Temporal(TemporalType.TIMESTAMP)
     private Date datePlanned;
+
+    @ManyToOne
+    @JoinColumn(name = "custom_status_id")
+    private UserCustomStatusModel customStatus;
 }

@@ -13,9 +13,11 @@ import com.espacogeek.geek.exception.NotFoundException;
 import com.espacogeek.geek.models.CategoryType;
 import com.espacogeek.geek.models.MediaModel;
 import com.espacogeek.geek.models.StatusType;
+import com.espacogeek.geek.models.UserCustomStatusModel;
 import com.espacogeek.geek.models.UserMediaListModel;
 import com.espacogeek.geek.models.UserModel;
 import com.espacogeek.geek.repositories.MediaRepository;
+import com.espacogeek.geek.repositories.UserCustomStatusRepository;
 import com.espacogeek.geek.repositories.UserMediaListRepository;
 import com.espacogeek.geek.repositories.UserRepository;
 import com.espacogeek.geek.services.UserMediaListService;
@@ -30,14 +32,17 @@ public class UserMediaListServiceImpl implements UserMediaListService {
     private final UserMediaListRepository userMediaListRepository;
     private final UserRepository userRepository;
     private final MediaRepository mediaRepository;
+    private final UserCustomStatusRepository userCustomStatusRepository;
 
     public UserMediaListServiceImpl(
             UserMediaListRepository userMediaListRepository,
             UserRepository userRepository,
-            MediaRepository mediaRepository) {
+            MediaRepository mediaRepository,
+            UserCustomStatusRepository userCustomStatusRepository) {
         this.userMediaListRepository = userMediaListRepository;
         this.userRepository = userRepository;
         this.mediaRepository = mediaRepository;
+        this.userCustomStatusRepository = userCustomStatusRepository;
     }
 
     /**
@@ -99,6 +104,12 @@ public class UserMediaListServiceImpl implements UserMediaListService {
             validateStatus(input.getStatus());
         }
 
+        UserCustomStatusModel customStatus = null;
+        if (input.getCustomStatusId() != null) {
+            customStatus = userCustomStatusRepository.findByIdAndUserId(input.getCustomStatusId(), userId)
+                    .orElseThrow(() -> new NotFoundException("Custom status not found"));
+        }
+
         Optional<UserMediaListModel> existing = userMediaListRepository
                 .findByUserIdAndMediaId(userId, input.getMediaId());
 
@@ -116,7 +127,7 @@ public class UserMediaListServiceImpl implements UserMediaListService {
             entry.setMedia(media);
         }
 
-        applyUpdates(entry, input);
+        applyUpdates(entry, input, customStatus);
 
         return userMediaListRepository.save(entry);
     }
@@ -147,7 +158,7 @@ public class UserMediaListServiceImpl implements UserMediaListService {
         }
     }
 
-    private void applyUpdates(UserMediaListModel entry, UpdateUserMediaInput input) {
+    private void applyUpdates(UserMediaListModel entry, UpdateUserMediaInput input, UserCustomStatusModel customStatus) {
         if (input.getStatus() != null) {
             String normalizedStatus = input.getStatus().toUpperCase();
             String previousStatus = entry.getStatus();
@@ -179,6 +190,9 @@ public class UserMediaListServiceImpl implements UserMediaListService {
         }
         if (input.getNote() != null) {
             entry.setNote(input.getNote());
+        }
+        if (customStatus != null) {
+            entry.setCustomStatus(customStatus);
         }
     }
 }

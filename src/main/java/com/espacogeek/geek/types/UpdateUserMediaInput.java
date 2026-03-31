@@ -35,4 +35,7 @@ public class UpdateUserMediaInput {
 
     /** User note or review. */
     private String note;
+
+    /** ID of the user's custom status list to assign this media to (optional). */
+    private Integer customStatusId;
 }

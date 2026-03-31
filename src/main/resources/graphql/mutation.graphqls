@@ -91,7 +91,8 @@ type Mutation {
     If the entry already exists it is updated with only the non-null fields from input;
     if not, a new entry is created (status defaults to PLANNING when not provided).
     When the status is PLANNING, datePlanned is automatically set.
-    Example: userMediaProgress(input: { mediaId: 42, status: "IN_PROGRESS", progress: 13 })
+    Optionally assign the entry to a user-defined custom status list via customStatusId.
+    Example: userMediaProgress(input: { mediaId: 42, status: "IN_PROGRESS", progress: 13, customStatusId: 2 })
     Returns: The created or updated UserMediaList entry.
     """
     userMediaProgress(input: UpdateUserMediaInput!): UserMediaList

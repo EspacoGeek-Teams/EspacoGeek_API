@@ -22,6 +22,8 @@ type UserMediaList {
     note: String
     "Date the user added the media to their plan list"
     datePlanned: Date
+    "The user-defined custom status list this entry belongs to (optional)"
+    customStatus: UserStatus
 }
 
 """
@@ -43,4 +45,6 @@ input UpdateUserMediaInput {
     finishDate: Date
     "User note or review"
     note: String
+    "ID of the user's custom status list to assign this media to (optional)"
+    customStatusId: Int
 }

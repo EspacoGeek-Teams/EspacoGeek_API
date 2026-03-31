@@ -16,13 +16,14 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import com.espacogeek.geek.controllers.UserMediaListController;
-import com.espacogeek.geek.exception.GenericException;
+import com.espacogeek.geek.exception.InputValidationException;
 import com.espacogeek.geek.exception.MediaAlreadyInLibraryException;
 import com.espacogeek.geek.exception.NotFoundException;
 import com.espacogeek.geek.models.MediaCategoryModel;
 import com.espacogeek.geek.models.CategoryType;
 import com.espacogeek.geek.models.MediaModel;
 import com.espacogeek.geek.models.StatusType;
+import com.espacogeek.geek.models.UserCustomStatusModel;
 import com.espacogeek.geek.models.UserMediaListModel;
 import com.espacogeek.geek.models.UserModel;
 import com.espacogeek.geek.services.UserMediaListService;
@@ -244,7 +245,7 @@ class UserMediaListMutationTest {
     @WithMockUser(authorities = {"ROLE_user", "ID_1"})
     void userMediaProgress_InvalidStatus_ShouldReturnError() {
         when(userMediaListService.userMediaProgress(anyInt(), any(UpdateUserMediaInput.class)))
-                .thenThrow(new GenericException("Invalid status: INVALID_STATUS. Allowed values: PLANNING, IN_PROGRESS, COMPLETED, DROPPED, PAUSED"));
+                .thenThrow(new InputValidationException("Invalid status: INVALID_STATUS. Allowed values: PLANNING, IN_PROGRESS, COMPLETED, DROPPED, PAUSED"));
 
         graphQlTester.document("""
                 mutation {
@@ -255,7 +256,10 @@ class UserMediaListMutationTest {
                 """)
                 .execute()
                 .errors()
-                .satisfy(errors -> assertThat(errors).isNotEmpty());
+                .satisfy(errors -> {
+                    assertThat(errors).isNotEmpty();
+                    assertThat(errors.get(0).getExtensions().get("errorCode")).isEqualTo(2004);
+                });
     }
 
     @Test
@@ -313,5 +317,64 @@ class UserMediaListMutationTest {
                 .errors().verify()
                 .path("userMediaProgress.status").entity(String.class).isEqualTo("PLANNING")
                 .path("userMediaProgress.datePlanned").hasValue();
+    }
+
+    @Test
+    @WithMockUser(authorities = {"ROLE_user", "ID_1"})
+    void userMediaProgress_WithCustomStatus_ShouldReturnEntryWithCustomStatus() {
+        UserModel user = new UserModel();
+        user.setId(1);
+        user.setUsername("testuser");
+
+        UserCustomStatusModel customStatus = new UserCustomStatusModel();
+        customStatus.setId(2);
+        customStatus.setName("Re-watching");
+        customStatus.setUser(user);
+
+        UserMediaListModel entry = stubEntry(1, 10);
+        entry.setStatus(StatusType.IN_PROGRESS.name());
+        entry.setCustomStatus(customStatus);
+
+        when(userMediaListService.userMediaProgress(eq(1), any(UpdateUserMediaInput.class))).thenReturn(entry);
+
+        graphQlTester.document("""
+                mutation {
+                    userMediaProgress(input: { mediaId: 10, status: "IN_PROGRESS", customStatusId: 2 }) {
+                        status
+                        customStatus {
+                            id
+                            name
+                        }
+                    }
+                }
+                """)
+                .execute()
+                .errors().verify()
+                .path("userMediaProgress.status").entity(String.class).isEqualTo("IN_PROGRESS")
+                .path("userMediaProgress.customStatus.id").hasValue()
+                .path("userMediaProgress.customStatus.name").entity(String.class).isEqualTo("Re-watching");
+
+        verify(userMediaListService).userMediaProgress(eq(1), any(UpdateUserMediaInput.class));
+    }
+
+    @Test
+    @WithMockUser(authorities = {"ROLE_user", "ID_1"})
+    void userMediaProgress_WithInvalidCustomStatusId_ShouldReturnNotFoundError() {
+        when(userMediaListService.userMediaProgress(anyInt(), any(UpdateUserMediaInput.class)))
+                .thenThrow(new NotFoundException("Custom status not found"));
+
+        graphQlTester.document("""
+                mutation {
+                    userMediaProgress(input: { mediaId: 10, customStatusId: 999 }) {
+                        status
+                    }
+                }
+                """)
+                .execute()
+                .errors()
+                .satisfy(errors -> {
+                    assertThat(errors).isNotEmpty();
+                    assertThat(errors.get(0).getExtensions().get("errorCode")).isEqualTo(3404);
+                });
     }
 }
