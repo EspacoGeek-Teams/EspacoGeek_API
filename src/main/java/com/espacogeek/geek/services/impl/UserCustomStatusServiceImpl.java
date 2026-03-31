@@ -70,10 +70,7 @@ public class UserCustomStatusServiceImpl implements UserCustomStatusService {
     @Override
     @Transactional
     public boolean delete(Integer userId, Integer statusId) {
-        if (!userCustomStatusRepository.existsByIdAndUserId(statusId, userId)) {
-            return false;
-        }
-        userCustomStatusRepository.deleteById(statusId);
-        return true;
+        int deletedCount = userCustomStatusRepository.deleteByIdAndUserId(statusId, userId);
+        return deletedCount > 0;
     }
 }
