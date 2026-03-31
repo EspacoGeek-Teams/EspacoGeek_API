@@ -276,7 +276,7 @@ class UserMediaLibraryQueryTest {
 
     @Test
     @WithMockUser(authorities = {"ROLE_user", "ID_1"})
-    void findUserMediaLibrary_WithUserId_PrivateList_ShouldReturnError() {
+    void findUserMediaLibrary_WithUserId_PrivateList_ShouldReturnAccessDeniedError() {
         // User 2 has a private library
         UserModel otherUser = stubUser(2, "other@example.com");
         otherUser.setPrivateList(true);
@@ -292,7 +292,10 @@ class UserMediaLibraryQueryTest {
                 """)
                 .execute()
                 .errors()
-                .satisfy(errors -> assertThat(errors).isNotEmpty());
+                .satisfy(errors -> {
+                    assertThat(errors).isNotEmpty();
+                    assertThat(errors.get(0).getExtensions().get("errorCode")).isEqualTo(3403);
+                });
     }
 
     @Test

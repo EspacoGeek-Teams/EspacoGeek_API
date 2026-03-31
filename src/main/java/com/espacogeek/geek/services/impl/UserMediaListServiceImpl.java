@@ -3,12 +3,11 @@ package com.espacogeek.geek.services.impl;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.espacogeek.geek.exception.GenericException;
 import com.espacogeek.geek.exception.MediaAlreadyInLibraryException;
+import com.espacogeek.geek.exception.NotFoundException;
 import com.espacogeek.geek.models.CategoryType;
 import com.espacogeek.geek.models.MediaModel;
 import com.espacogeek.geek.models.StatusType;
@@ -64,10 +63,10 @@ public class UserMediaListServiceImpl implements UserMediaListService {
         }
 
         UserModel user = userRepository.findById(userId)
-                .orElseThrow(() -> new GenericException(HttpStatus.NOT_FOUND.toString()));
+                .orElseThrow(() -> new NotFoundException("User not found"));
 
         MediaModel media = mediaRepository.findById(mediaId)
-                .orElseThrow(() -> new GenericException(HttpStatus.NOT_FOUND.toString()));
+                .orElseThrow(() -> new NotFoundException("Media not found"));
 
         UserMediaListModel entry = new UserMediaListModel();
         entry.setUser(user);

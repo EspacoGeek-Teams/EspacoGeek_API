@@ -5,12 +5,13 @@ import java.util.List;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 
+import com.espacogeek.geek.exception.AccessDeniedException;
 import com.espacogeek.geek.exception.GenericException;
+import com.espacogeek.geek.exception.NotFoundException;
 import com.espacogeek.geek.models.CategoryType;
 import com.espacogeek.geek.models.UserMediaListModel;
 import com.espacogeek.geek.models.UserModel;
@@ -70,9 +71,9 @@ public class UserMediaListController {
         } else {
             // Viewing another user's library: check privacy setting
             UserModel targetUser = userService.findById(userId)
-                    .orElseThrow(() -> new GenericException(HttpStatus.NOT_FOUND.toString()));
+                    .orElseThrow(() -> new NotFoundException("User not found"));
             if (Boolean.TRUE.equals(targetUser.getPrivateList())) {
-                throw new GenericException(HttpStatus.FORBIDDEN.toString());
+                throw new AccessDeniedException("This user's library is private");
             }
             targetUserId = userId;
         }

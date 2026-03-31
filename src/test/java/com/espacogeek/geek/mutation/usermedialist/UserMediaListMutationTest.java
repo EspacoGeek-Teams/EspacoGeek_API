@@ -15,8 +15,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import com.espacogeek.geek.controllers.UserMediaListController;
-import com.espacogeek.geek.exception.GenericException;
 import com.espacogeek.geek.exception.MediaAlreadyInLibraryException;
+import com.espacogeek.geek.exception.NotFoundException;
 import com.espacogeek.geek.models.MediaCategoryModel;
 import com.espacogeek.geek.models.CategoryType;
 import com.espacogeek.geek.models.MediaModel;
@@ -107,9 +107,9 @@ class UserMediaListMutationTest {
 
     @Test
     @WithMockUser(authorities = {"ROLE_user", "ID_1"})
-    void addMediaToUserLibrary_NonExistentMedia_ShouldReturnError() {
+    void addMediaToUserLibrary_NonExistentMedia_ShouldReturnNotFoundError() {
         when(userMediaListService.addMedia(anyInt(), anyInt()))
-                .thenThrow(new GenericException("404 NOT_FOUND"));
+                .thenThrow(new NotFoundException("Media not found"));
 
         graphQlTester.document("""
                 mutation {
@@ -120,7 +120,10 @@ class UserMediaListMutationTest {
                 """)
                 .execute()
                 .errors()
-                .satisfy(errors -> assertThat(errors).isNotEmpty());
+                .satisfy(errors -> {
+                    assertThat(errors).isNotEmpty();
+                    assertThat(errors.get(0).getExtensions().get("errorCode")).isEqualTo(3404);
+                });
     }
 
     @Test
