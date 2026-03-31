@@ -1,0 +1,25 @@
+"""
+Represents a media entry in the user's personal library
+"""
+type UserMediaList {
+    "Unique library entry identifier"
+    id: ID
+    "Watching/reading progress"
+    progress: Int
+    "Date the media was added to the library"
+    addedAt: Date
+    "Current tracking status (e.g. Planning, Watching, Completed)"
+    typeStatus: TypeStatus
+    "The media associated with this entry"
+    media: Media
+}
+
+"""
+Represents a media tracking status (e.g. Planning, Watching, Completed)
+"""
+type TypeStatus {
+    "Unique status identifier"
+    id: ID
+    "Status name"
+    name: String
+}

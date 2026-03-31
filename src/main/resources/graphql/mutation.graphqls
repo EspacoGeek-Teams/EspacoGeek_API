@@ -76,4 +76,19 @@ type Mutation {
     Returns: Success message
     """
     verifyEmailChange(token: String!): String
+
+    """
+    Add a media item to the authenticated user's library. Requires authentication.
+    Creates a new library entry with default status (Planning) and progress 0.
+    Example: addMediaToUserLibrary(mediaId: 42)
+    Returns: The newly created UserMediaList entry.
+    """
+    addMediaToUserLibrary(mediaId: Int!): UserMediaList
+
+    """
+    Remove a media item from the authenticated user's library. Requires authentication.
+    Example: removeMediaFromUserLibrary(mediaId: 42)
+    Returns: true if the entry was removed, false if it was not found.
+    """
+    removeMediaFromUserLibrary(mediaId: Int!): Boolean
 }

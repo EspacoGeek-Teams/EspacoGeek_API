@@ -75,4 +75,10 @@ type Query {
     Example: getBatchJobs(page: 0, size: 10, status: "FAILED")
     """
     getBatchJobs(page: Int!, size: Int!, status: String): BatchJobPage!
+
+    """
+    Get the authenticated user's media library. Requires authentication via Authorization: Bearer header.
+    Returns a list of all media entries tracked by the current user.
+    """
+    findUserMediaLibrary: [UserMediaList]
 }
