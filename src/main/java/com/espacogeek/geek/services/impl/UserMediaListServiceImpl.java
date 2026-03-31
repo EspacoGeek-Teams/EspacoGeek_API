@@ -19,7 +19,7 @@ public class UserMediaListServiceImpl implements UserMediaListService {
     private UserMediaListRepository userMediaListRepository;
 
     /**
-     * @see UserMediaListService#findByUserIdWithFilters(Integer, String, Long, Integer, String, Integer, String, Integer, String, String)
+     * @see UserMediaListService#findByUserIdWithFilters(Integer, String, Integer, Integer, String, Integer, String, Integer, String, String)
      */
     @Override
     public List<UserMediaListModel> findByUserIdWithFilters(

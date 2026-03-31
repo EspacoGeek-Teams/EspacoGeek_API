@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 import com.espacogeek.geek.models.MediaStatusModel;
 
 @Repository
-public interface MediaStatusRepository extends JpaRepository<MediaStatusModel, Long> {
+public interface MediaStatusRepository extends JpaRepository<MediaStatusModel, Integer> {
 
 }
