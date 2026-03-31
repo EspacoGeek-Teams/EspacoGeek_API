@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.espacogeek.geek.models.CategoryType;
 import com.espacogeek.geek.models.UserMediaListModel;
+import com.espacogeek.geek.types.UpdateUserMediaInput;
 
 /**
  * Interface for the UserMediaListService, which provides methods for managing
@@ -40,7 +41,7 @@ public interface UserMediaListService {
 
     /**
      * Adds a media item to the user's library with default status
-     * ({@link com.espacogeek.geek.models.StatusType#PLAN_TO_WATCH}) and progress 0.
+     * ({@link com.espacogeek.geek.models.StatusType#PLANNING}) and progress 0.
      * Throws {@link com.espacogeek.geek.exception.MediaAlreadyInLibraryException} if
      * the entry already exists.
      *
@@ -49,6 +50,22 @@ public interface UserMediaListService {
      * @return the newly created {@link UserMediaListModel} entry
      */
     UserMediaListModel addMedia(Integer userId, Integer mediaId);
+
+    /**
+     * Creates or updates the user's library entry for the specified media (upsert).
+     * If an entry for the given user and {@code input.mediaId} already exists, it is
+     * updated with only the non-null fields from {@code input}. If no entry exists, a
+     * new one is created with the provided fields (status defaults to {@code PLANNING}
+     * when not specified).
+     * <p>
+     * When the resulting status is {@code PLANNING}, {@code datePlanned} is set to the
+     * current timestamp automatically.
+     *
+     * @param userId the ID of the authenticated user
+     * @param input  the input data for the create-or-update operation
+     * @return the persisted (created or updated) {@link UserMediaListModel} entry
+     */
+    UserMediaListModel upsertUserMedia(Integer userId, UpdateUserMediaInput input);
 
     /**
      * Removes a media item from the user's library.

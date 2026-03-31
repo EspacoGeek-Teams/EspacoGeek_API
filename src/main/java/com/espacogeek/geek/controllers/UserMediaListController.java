@@ -17,6 +17,7 @@ import com.espacogeek.geek.models.UserMediaListModel;
 import com.espacogeek.geek.models.UserModel;
 import com.espacogeek.geek.services.UserMediaListService;
 import com.espacogeek.geek.services.UserService;
+import com.espacogeek.geek.types.UpdateUserMediaInput;
 import com.espacogeek.geek.utils.UserUtils;
 
 import lombok.RequiredArgsConstructor;
@@ -37,7 +38,7 @@ public class UserMediaListController {
      * returns results if the target user's library is not marked as private.
      *
      * @param userId       optional target user ID; defaults to the authenticated user
-     * @param status       optional user tracking status string filter (e.g. "WATCHING")
+     * @param status       optional user tracking status string filter (e.g. "IN_PROGRESS")
      * @param statusId     optional media production status ID filter (MediaStatusModel.id)
      * @param categoryId   optional media category ID filter
      * @param categoryName optional media category name filter (e.g. "ANIME")
@@ -97,7 +98,7 @@ public class UserMediaListController {
 
     /**
      * Adds the specified media to the authenticated user's library with default status
-     * ({@code PLAN_TO_WATCH}) and progress 0. Throws an error if the media is already
+     * ({@code PLANNING}) and progress 0. Throws an error if the media is already
      * in the user's library.
      *
      * @param mediaId        the ID of the media to add
@@ -111,6 +112,25 @@ public class UserMediaListController {
             Authentication authentication) {
         Integer userId = UserUtils.getUserID(authentication);
         return userMediaListService.addMedia(userId, mediaId);
+    }
+
+    /**
+     * Creates or updates the authenticated user's library entry for the media specified
+     * in {@code input.mediaId} (upsert). Non-null fields in the input are applied to the
+     * entry; absent fields are left unchanged on update. When the resulting status is
+     * {@code PLANNING}, {@code datePlanned} is automatically set to the current timestamp.
+     *
+     * @param input          the create-or-update payload
+     * @param authentication the currently authenticated user
+     * @return the persisted (created or updated) library entry
+     */
+    @MutationMapping(name = "upsertUserMedia")
+    @PreAuthorize("hasRole('user')")
+    public UserMediaListModel upsertUserMedia(
+            @Argument(name = "input") UpdateUserMediaInput input,
+            Authentication authentication) {
+        Integer userId = UserUtils.getUserID(authentication);
+        return userMediaListService.upsertUserMedia(userId, input);
     }
 
     /**

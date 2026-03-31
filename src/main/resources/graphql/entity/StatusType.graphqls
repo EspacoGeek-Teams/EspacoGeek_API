@@ -1,0 +1,10 @@
+"""
+Tracking status values for a user's media library entry.
+"""
+enum StatusType {
+    PLANNING
+    IN_PROGRESS
+    COMPLETED
+    DROPPED
+    PAUSED
+}

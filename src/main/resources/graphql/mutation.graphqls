@@ -79,11 +79,23 @@ type Mutation {
 
     """
     Add a media item to the authenticated user's library. Requires authentication.
-    Creates a new library entry with default status (PLAN_TO_WATCH) and progress 0.
+    Creates a new library entry with default status (PLANNING) and progress 0.
     Example: addMediaToUserLibrary(mediaId: 42)
     Returns: The newly created UserMediaList entry.
     """
     addMediaToUserLibrary(mediaId: Int!): UserMediaList
+
+    """
+    Create or update the authenticated user's library entry for a media item (upsert).
+    Requires authentication. Identified by the authenticated user's ID and input.mediaId.
+    If the entry already exists it is updated with only the non-null fields from input;
+    if not, a new entry is created (status defaults to PLANNING when not provided).
+    When the status is PLANNING, datePlanned is automatically set.
+    Optionally assign the entry to a user-defined custom status list via customStatusId.
+    Example: upsertUserMedia(input: { mediaId: 42, status: IN_PROGRESS, progress: 13, customStatusId: 2 })
+    Returns: The created or updated UserMediaList entry.
+    """
+    upsertUserMedia(input: UpdateUserMediaInput!): UserMediaList
 
     """
     Remove a media item from the authenticated user's library. Requires authentication.
@@ -91,4 +103,25 @@ type Mutation {
     Returns: true if the entry was removed, false if it was not found.
     """
     removeMediaFromUserLibrary(mediaId: Int!): Boolean
+
+    """
+    Create a new custom tracking status label for the authenticated user's profile.
+    Requires authentication. Example: createUserCustomStatus(name: "Re-watching")
+    Returns: The newly created UserStatus.
+    """
+    createUserCustomStatus(name: String!): UserStatus
+
+    """
+    Update an existing custom tracking status label owned by the authenticated user.
+    Requires authentication. Example: updateUserCustomStatus(id: 1, name: "Collecting")
+    Returns: The updated UserStatus.
+    """
+    updateUserCustomStatus(id: Int!, name: String!): UserStatus
+
+    """
+    Delete a custom tracking status label owned by the authenticated user.
+    Requires authentication. Example: deleteUserCustomStatus(id: 1)
+    Returns: true if deleted, false if not found.
+    """
+    deleteUserCustomStatus(id: Int!): Boolean
 }

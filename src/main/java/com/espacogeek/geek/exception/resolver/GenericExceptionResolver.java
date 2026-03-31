@@ -73,7 +73,7 @@ public class GenericExceptionResolver extends DataFetcherExceptionResolverAdapte
             case EmailAlreadyExistsException e  -> buildError(env, "Email already registered", 2001);
             case MediaAlreadyExist e            -> buildError(env, "Media already exists", 2003);
             case MediaAlreadyInLibraryException e -> buildError(env, "Media already in library", 2005);
-            case InputValidationException e     -> buildError(env, "Input validation failed", 2004);
+            case InputValidationException e     -> buildError(env, e.getMessage() != null ? e.getMessage() : "Input validation failed", 2004);
             case AccessDeniedException e        -> buildError(env, e.getMessage(), 3403);
             case NotFoundException e            -> buildError(env, e.getMessage(), 3404);
             case ValidationException e          -> buildError(env, "Input validation failed", 2004);

@@ -1,0 +1,9 @@
+"""
+A user-defined custom tracking status label.
+"""
+type UserStatus {
+    "Unique identifier for this custom status"
+    id: ID
+    "The label name (e.g. 'Re-watching', 'Collecting')"
+    name: String
+}

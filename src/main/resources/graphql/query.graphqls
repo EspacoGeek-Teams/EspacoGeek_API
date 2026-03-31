@@ -82,7 +82,13 @@ type Query {
     If userId is provided, returns that user's library (only if their list is not private).
     Filters: status, statusId (media production status ID), categoryId, categoryName,
     genreId, genreName, mediaId, mediaName, altTitle.
-    Example: findUserMediaLibrary(status: "WATCHING") { id status media { name } }
+    Example: findUserMediaLibrary(status: "IN_PROGRESS") { id status media { name } }
     """
     findUserMediaLibrary(userId: Int, status: String, statusId: Int, categoryId: Int, categoryName: String, genreId: Int, genreName: String, mediaId: Int, mediaName: String, altTitle: String): [UserMediaList]
+
+    """
+    Get all custom tracking status labels created by the authenticated user.
+    Requires authentication. Example: getUserCustomStatuses { id name }
+    """
+    getUserCustomStatuses: [UserStatus]
 }
