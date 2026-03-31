@@ -79,7 +79,7 @@ type Mutation {
 
     """
     Add a media item to the authenticated user's library. Requires authentication.
-    Creates a new library entry with default status (Planning) and progress 0.
+    Creates a new library entry with default status (PLAN_TO_WATCH) and progress 0.
     Example: addMediaToUserLibrary(mediaId: 42)
     Returns: The newly created UserMediaList entry.
     """
