@@ -143,8 +143,11 @@ public class UserMediaListServiceImpl implements UserMediaListService {
     private void applyUpdates(UserMediaListModel entry, UpdateUserMediaInput input) {
         if (input.getStatus() != null) {
             String normalizedStatus = input.getStatus().toUpperCase();
+            String previousStatus = entry.getStatus();
             entry.setStatus(normalizedStatus);
-            if (StatusType.PLANNING.name().equals(normalizedStatus)) {
+            if (StatusType.PLANNING.name().equals(normalizedStatus)
+                    && (previousStatus == null || !StatusType.PLANNING.name().equals(previousStatus))
+                    && entry.getDatePlanned() == null) {
                 entry.setDatePlanned(new Date());
             }
         } else if (entry.getId() == null) {
