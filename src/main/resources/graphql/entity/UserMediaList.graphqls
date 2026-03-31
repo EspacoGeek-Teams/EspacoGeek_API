@@ -6,7 +6,7 @@ type UserMediaList {
     id: ID
     "The media item"
     media: Media
-    "User-defined status (e.g. watching, completed, dropped)"
+    "User-defined status (e.g. WATCHING, COMPLETED, PLAN_TO_WATCH, DROPPED)"
     status: String
     "User score for this media"
     score: Float

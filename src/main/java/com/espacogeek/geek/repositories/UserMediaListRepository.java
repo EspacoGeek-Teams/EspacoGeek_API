@@ -4,8 +4,10 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.espacogeek.geek.models.CategoryType;
 import com.espacogeek.geek.models.UserMediaListModel;
@@ -52,4 +54,17 @@ public interface UserMediaListRepository extends JpaRepository<UserMediaListMode
             @Param("mediaId") Integer mediaId,
             @Param("mediaName") String mediaName,
             @Param("altTitle") String altTitle);
+
+    /**
+     * Returns {@code true} if an entry already exists for the given user and media.
+     */
+    boolean existsByUserIdAndMediaId(Integer userId, Integer mediaId);
+
+    /**
+     * Deletes the entry for the given user and media, returning the number of rows deleted.
+     */
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM UserMediaListModel u WHERE u.user.id = :userId AND u.media.id = :mediaId")
+    long deleteByUserIdAndMediaId(@Param("userId") Integer userId, @Param("mediaId") Integer mediaId);
 }

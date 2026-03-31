@@ -19,6 +19,9 @@ The API uses a standardized error format via the `GenericExceptionResolver`. Eve
 | 2xxx Business | 2001 | Email already registered | `EmailAlreadyExistsException`    | Duplicate email on user registration            |
 | 2xxx Business | 2003 | Media already exists     | `MediaAlreadyExist`              | Attempt to add an already-registered media item |
 | 2xxx Business | 2004 | Input validation failed  | `InputValidationException`       | Invalid field value (short password, etc.)      |
+| 2xxx Business | 2005 | Media already in library | `MediaAlreadyInLibraryException` | Media already added to user's library           |
+| 3xxx Resource | 3403 | Access denied            | `AccessDeniedException`          | Trying to view a user's private library         |
+| 3xxx Resource | 3404 | Resource not found       | `NotFoundException`              | User or media ID does not exist                 |
 | 5xxx Internal | 5000 | Unexpected server error  | (unmapped exceptions)            | Any error without a specific code               |
 | 5xxx Internal | 5001 | Database error           | `DataAccessException`            | Low-level database failure                      |
 

@@ -77,10 +77,12 @@ type Query {
     getBatchJobs(page: Int!, size: Int!, status: String): BatchJobPage!
 
     """
-    Fetch the authenticated user's media library with optional filters.
+    Fetch a user's media library with optional filters. Requires authentication.
+    If userId is omitted, returns the authenticated user's own library.
+    If userId is provided, returns that user's library (only if their list is not private).
     Filters: status, statusId (media production status ID), categoryId, categoryName,
     genreId, genreName, mediaId, mediaName, altTitle.
-    Example: findUserMediaLibrary(status: "watching") { id status media { name } }
+    Example: findUserMediaLibrary(status: "WATCHING") { id status media { name } }
     """
-    findUserMediaLibrary(status: String, statusId: Int, categoryId: Int, categoryName: String, genreId: Int, genreName: String, mediaId: Int, mediaName: String, altTitle: String): [UserMediaList]
+    findUserMediaLibrary(userId: Int, status: String, statusId: Int, categoryId: Int, categoryName: String, genreId: Int, genreName: String, mediaId: Int, mediaName: String, altTitle: String): [UserMediaList]
 }
