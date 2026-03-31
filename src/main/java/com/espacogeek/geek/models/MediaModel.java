@@ -53,6 +53,10 @@ public class MediaModel implements Serializable {
     @NotNull
     private MediaCategoryModel mediaCategory;
 
+    @JoinColumn(name = "status_id")
+    @ManyToOne
+    private MediaStatusModel mediaStatus;
+
     @OneToMany(mappedBy = "media", fetch = FetchType.LAZY)
     private Set<ExternalReferenceModel> externalReference;
 

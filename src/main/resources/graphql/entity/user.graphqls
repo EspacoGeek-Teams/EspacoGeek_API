@@ -10,6 +10,8 @@ type User {
     email: String
     "List of roles assigned to the user (e.g. ROLE_user, ROLE_admin)"
     roles: [String]
+    "Whether the user's media library is private"
+    privateList: Boolean
 }
 
 """

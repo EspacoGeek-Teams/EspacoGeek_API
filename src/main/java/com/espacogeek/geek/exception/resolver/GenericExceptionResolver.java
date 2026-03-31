@@ -14,6 +14,7 @@ import com.espacogeek.geek.exception.GenericException;
 import com.espacogeek.geek.exception.InputValidationException;
 import com.espacogeek.geek.exception.InvalidCredentialsException;
 import com.espacogeek.geek.exception.MediaAlreadyExist;
+import com.espacogeek.geek.exception.MediaAlreadyInLibraryException;
 import com.espacogeek.geek.exception.TokenExpiredException;
 import org.springframework.dao.DataAccessException;
 
@@ -62,6 +63,7 @@ public class GenericExceptionResolver extends DataFetcherExceptionResolverAdapte
             case TokenExpiredException e        -> buildError(env, "Token expired/invalid", 1002);
             case EmailAlreadyExistsException e  -> buildError(env, "Email already registered", 2001);
             case MediaAlreadyExist e            -> buildError(env, "Media already exists", 2003);
+            case MediaAlreadyInLibraryException e -> buildError(env, "Media already in library", 2005);
             case InputValidationException e     -> buildError(env, "Input validation failed", 2004);
             case ValidationException e          -> buildError(env, "Input validation failed", 2004);
             case DataAccessException e          -> {
