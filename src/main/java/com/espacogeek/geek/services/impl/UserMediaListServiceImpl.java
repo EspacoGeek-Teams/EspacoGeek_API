@@ -135,8 +135,15 @@ public class UserMediaListServiceImpl implements UserMediaListService {
         try {
             StatusType.valueOf(status.toUpperCase());
         } catch (IllegalArgumentException e) {
-            throw new GenericException("Invalid status: " + status
-                    + ". Allowed values: PLANNING, IN_PROGRESS, COMPLETED, DROPPED, PAUSED");
+            StringBuilder allowedValues = new StringBuilder();
+            for (StatusType value : StatusType.values()) {
+                if (allowedValues.length() > 0) {
+                    allowedValues.append(", ");
+                }
+                allowedValues.append(value.name());
+            }
+            throw new IllegalArgumentException("Invalid status: " + status
+                    + ". Allowed values: " + allowedValues);
         }
     }
 
