@@ -1,0 +1,4 @@
+type MediaStatus {
+    id: ID
+    name: String
+}

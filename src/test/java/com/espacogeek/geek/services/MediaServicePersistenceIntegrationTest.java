@@ -25,6 +25,7 @@ import com.espacogeek.geek.data.api.MediaApi;
 import com.espacogeek.geek.data.impl.GenericMediaDataControllerImpl;
 import com.espacogeek.geek.models.AlternativeTitleModel;
 import com.espacogeek.geek.models.ExternalReferenceModel;
+import com.espacogeek.geek.models.CategoryType;
 import com.espacogeek.geek.models.MediaCategoryModel;
 import com.espacogeek.geek.models.MediaModel;
 import com.espacogeek.geek.models.TypeReferenceModel;
@@ -71,8 +72,8 @@ class MediaServicePersistenceIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        gameCategory = mediaCategoryRepository.save(new MediaCategoryModel(null, "GAME", null));
-        vnCategory = mediaCategoryRepository.save(new MediaCategoryModel(null, "VISUAL_NOVEL", null));
+        gameCategory = mediaCategoryRepository.save(new MediaCategoryModel(null, CategoryType.GAME, null));
+        vnCategory = mediaCategoryRepository.save(new MediaCategoryModel(null, CategoryType.VISUAL_NOVEL, null));
         igdbTypeReference = typeReferenceRepository.save(new TypeReferenceModel(null, "IGDB", null));
 
         MediaCategoryService mediaCategoryService = mock(MediaCategoryService.class);
