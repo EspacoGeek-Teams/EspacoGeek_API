@@ -67,4 +67,8 @@ public class UserMediaListModel implements Serializable {
 
     @Column(name = "note", length = 2000)
     private String note;
+
+    @Column(name = "date_planned")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date datePlanned;
 }

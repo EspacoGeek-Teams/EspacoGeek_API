@@ -1,8 +1,9 @@
 package com.espacogeek.geek.models;
 
 public enum StatusType {
-    WATCHING,
+    PLANNING,
+    IN_PROGRESS,
     COMPLETED,
-    PLAN_TO_WATCH,
-    DROPPED
+    DROPPED,
+    PAUSED
 }

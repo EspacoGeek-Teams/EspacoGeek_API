@@ -6,7 +6,7 @@ type UserMediaList {
     id: ID
     "The media item"
     media: Media
-    "User-defined status (e.g. WATCHING, COMPLETED, PLAN_TO_WATCH, DROPPED)"
+    "User-defined tracking status (e.g. PLANNING, IN_PROGRESS, COMPLETED, DROPPED, PAUSED)"
     status: String
     "User score for this media"
     score: Float
@@ -18,6 +18,29 @@ type UserMediaList {
     finishDate: Date
     "Total time spent in minutes"
     timeSpent: Int
+    "User note or review"
+    note: String
+    "Date the user added the media to their plan list"
+    datePlanned: Date
+}
+
+"""
+Input type for the userMediaProgress mutation. All fields except mediaId are optional;
+only non-null fields will be applied on update. On create, status defaults to PLANNING.
+"""
+input UpdateUserMediaInput {
+    "ID of the media to add or update in the user's library (required)"
+    mediaId: Int!
+    "Tracking status: PLANNING, IN_PROGRESS, COMPLETED, DROPPED, or PAUSED"
+    status: String
+    "Current progress (e.g. episode or chapter number)"
+    progress: Int
+    "User score (0.0 – 10.0)"
+    score: Float
+    "Date the user started the media"
+    startDate: Date
+    "Date the user finished the media"
+    finishDate: Date
     "User note or review"
     note: String
 }

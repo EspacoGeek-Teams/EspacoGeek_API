@@ -1,6 +1,7 @@
 package com.espacogeek.geek.repositories;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -54,6 +55,11 @@ public interface UserMediaListRepository extends JpaRepository<UserMediaListMode
             @Param("mediaId") Integer mediaId,
             @Param("mediaName") String mediaName,
             @Param("altTitle") String altTitle);
+
+    /**
+     * Returns the entry for the given user and media, if present.
+     */
+    Optional<UserMediaListModel> findByUserIdAndMediaId(Integer userId, Integer mediaId);
 
     /**
      * Returns {@code true} if an entry already exists for the given user and media.
