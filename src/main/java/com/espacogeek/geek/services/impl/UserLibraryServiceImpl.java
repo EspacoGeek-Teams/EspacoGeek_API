@@ -64,11 +64,7 @@ public class UserLibraryServiceImpl implements UserLibraryService {
     @Override
     @Transactional
     public boolean removeMedia(Integer userId, Integer mediaId) {
-        Optional<UserLibraryModel> entry = userLibraryRepository.findByUserIdAndMediaId(userId, mediaId);
-        if (entry.isEmpty()) {
-            return false;
-        }
-        userLibraryRepository.deleteByUserIdAndMediaId(userId, mediaId);
-        return true;
+        long deletedCount = userLibraryRepository.deleteByUserIdAndMediaId(userId, mediaId);
+        return deletedCount > 0;
     }
 }
