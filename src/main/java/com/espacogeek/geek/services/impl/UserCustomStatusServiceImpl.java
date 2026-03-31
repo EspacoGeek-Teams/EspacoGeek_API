@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.espacogeek.geek.exception.InputValidationException;
 import com.espacogeek.geek.exception.NotFoundException;
 import com.espacogeek.geek.models.UserCustomStatusModel;
 import com.espacogeek.geek.models.UserModel;
@@ -42,12 +43,14 @@ public class UserCustomStatusServiceImpl implements UserCustomStatusService {
     @Override
     @Transactional
     public UserCustomStatusModel create(Integer userId, String name) {
+        String trimmedName = validateStatusName(name);
+
         UserModel user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
         UserCustomStatusModel status = new UserCustomStatusModel();
         status.setUser(user);
-        status.setName(name.trim());
+        status.setName(trimmedName);
         return userCustomStatusRepository.save(status);
     }
 
@@ -57,11 +60,24 @@ public class UserCustomStatusServiceImpl implements UserCustomStatusService {
     @Override
     @Transactional
     public UserCustomStatusModel update(Integer userId, Integer statusId, String name) {
+        String trimmedName = validateStatusName(name);
+
         UserCustomStatusModel status = userCustomStatusRepository.findByIdAndUserId(statusId, userId)
                 .orElseThrow(() -> new NotFoundException("Status not found"));
 
-        status.setName(name.trim());
+        status.setName(trimmedName);
         return userCustomStatusRepository.save(status);
+    }
+
+    private String validateStatusName(String name) {
+        String trimmedName = name == null ? "" : name.trim();
+        if (trimmedName.isEmpty()) {
+            throw new InputValidationException("Status name must not be blank");
+        }
+        if (trimmedName.length() > 100) {
+            throw new InputValidationException("Status name must not exceed 100 characters");
+        }
+        return trimmedName;
     }
 
     /**

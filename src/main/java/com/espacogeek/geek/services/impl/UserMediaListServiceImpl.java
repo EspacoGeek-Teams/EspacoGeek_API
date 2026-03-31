@@ -7,7 +7,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.espacogeek.geek.exception.GenericException;
+import com.espacogeek.geek.exception.InputValidationException;
 import com.espacogeek.geek.exception.MediaAlreadyInLibraryException;
 import com.espacogeek.geek.exception.NotFoundException;
 import com.espacogeek.geek.models.CategoryType;
@@ -92,7 +92,7 @@ public class UserMediaListServiceImpl implements UserMediaListService {
     @Transactional
     public UserMediaListModel userMediaProgress(Integer userId, UpdateUserMediaInput input) {
         if (input.getMediaId() == null) {
-            throw new GenericException("mediaId is required");
+            throw new InputValidationException("mediaId is required");
         }
 
         if (input.getStatus() != null) {
@@ -142,7 +142,7 @@ public class UserMediaListServiceImpl implements UserMediaListService {
                 }
                 allowedValues.append(value.name());
             }
-            throw new IllegalArgumentException("Invalid status: " + status
+            throw new InputValidationException("Invalid status: " + status
                     + ". Allowed values: " + allowedValues);
         }
     }
