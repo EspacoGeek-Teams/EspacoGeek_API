@@ -42,17 +42,17 @@ class UserStatusMutationTest {
         return status;
     }
 
-    // ---- createUserStatus tests ----
+    // ---- createUserCustomStatus tests ----
 
     @Test
     @WithMockUser(authorities = {"ROLE_user", "ID_1"})
-    void createUserStatus_Success_ShouldReturnNewStatus() {
+    void createUserCustomStatus_Success_ShouldReturnNewStatus() {
         UserCustomStatusModel created = stubStatus(1, "Re-watching");
         when(userCustomStatusService.create(eq(1), eq("Re-watching"))).thenReturn(created);
 
         graphQlTester.document("""
                 mutation {
-                    createUserStatus(name: "Re-watching") {
+                    createUserCustomStatus(name: "Re-watching") {
                         id
                         name
                     }
@@ -60,17 +60,17 @@ class UserStatusMutationTest {
                 """)
                 .execute()
                 .errors().verify()
-                .path("createUserStatus.name").entity(String.class).isEqualTo("Re-watching")
-                .path("createUserStatus.id").hasValue();
+                .path("createUserCustomStatus.name").entity(String.class).isEqualTo("Re-watching")
+                .path("createUserCustomStatus.id").hasValue();
 
         verify(userCustomStatusService).create(1, "Re-watching");
     }
 
     @Test
-    void createUserStatus_Unauthenticated_ShouldReturnError() {
+    void createUserCustomStatus_Unauthenticated_ShouldReturnError() {
         graphQlTester.document("""
                 mutation {
-                    createUserStatus(name: "Re-watching") {
+                    createUserCustomStatus(name: "Re-watching") {
                         id
                         name
                     }
@@ -81,17 +81,17 @@ class UserStatusMutationTest {
                 .satisfy(errors -> assertThat(errors).isNotEmpty());
     }
 
-    // ---- updateUserStatus tests ----
+    // ---- updateUserCustomStatus tests ----
 
     @Test
     @WithMockUser(authorities = {"ROLE_user", "ID_1"})
-    void updateUserStatus_Success_ShouldReturnUpdatedStatus() {
+    void updateUserCustomStatus_Success_ShouldReturnUpdatedStatus() {
         UserCustomStatusModel updated = stubStatus(1, "Collecting");
         when(userCustomStatusService.update(eq(1), eq(1), eq("Collecting"))).thenReturn(updated);
 
         graphQlTester.document("""
                 mutation {
-                    updateUserStatus(id: 1, name: "Collecting") {
+                    updateUserCustomStatus(id: 1, name: "Collecting") {
                         id
                         name
                     }
@@ -99,20 +99,20 @@ class UserStatusMutationTest {
                 """)
                 .execute()
                 .errors().verify()
-                .path("updateUserStatus.name").entity(String.class).isEqualTo("Collecting");
+                .path("updateUserCustomStatus.name").entity(String.class).isEqualTo("Collecting");
 
         verify(userCustomStatusService).update(1, 1, "Collecting");
     }
 
     @Test
     @WithMockUser(authorities = {"ROLE_user", "ID_1"})
-    void updateUserStatus_NotFound_ShouldReturnError() {
+    void updateUserCustomStatus_NotFound_ShouldReturnError() {
         when(userCustomStatusService.update(anyInt(), anyInt(), anyString()))
                 .thenThrow(new NotFoundException("Status not found"));
 
         graphQlTester.document("""
                 mutation {
-                    updateUserStatus(id: 999, name: "Collecting") {
+                    updateUserCustomStatus(id: 999, name: "Collecting") {
                         id
                         name
                     }
@@ -127,10 +127,10 @@ class UserStatusMutationTest {
     }
 
     @Test
-    void updateUserStatus_Unauthenticated_ShouldReturnError() {
+    void updateUserCustomStatus_Unauthenticated_ShouldReturnError() {
         graphQlTester.document("""
                 mutation {
-                    updateUserStatus(id: 1, name: "Collecting") {
+                    updateUserCustomStatus(id: 1, name: "Collecting") {
                         id
                     }
                 }
@@ -140,45 +140,45 @@ class UserStatusMutationTest {
                 .satisfy(errors -> assertThat(errors).isNotEmpty());
     }
 
-    // ---- deleteUserStatus tests ----
+    // ---- deleteUserCustomStatus tests ----
 
     @Test
     @WithMockUser(authorities = {"ROLE_user", "ID_1"})
-    void deleteUserStatus_Existing_ShouldReturnTrue() {
+    void deleteUserCustomStatus_Existing_ShouldReturnTrue() {
         when(userCustomStatusService.delete(eq(1), eq(1))).thenReturn(true);
 
         graphQlTester.document("""
                 mutation {
-                    deleteUserStatus(id: 1)
+                    deleteUserCustomStatus(id: 1)
                 }
                 """)
                 .execute()
                 .errors().verify()
-                .path("deleteUserStatus").entity(Boolean.class).isEqualTo(true);
+                .path("deleteUserCustomStatus").entity(Boolean.class).isEqualTo(true);
 
         verify(userCustomStatusService).delete(1, 1);
     }
 
     @Test
     @WithMockUser(authorities = {"ROLE_user", "ID_1"})
-    void deleteUserStatus_NotFound_ShouldReturnFalse() {
+    void deleteUserCustomStatus_NotFound_ShouldReturnFalse() {
         when(userCustomStatusService.delete(anyInt(), anyInt())).thenReturn(false);
 
         graphQlTester.document("""
                 mutation {
-                    deleteUserStatus(id: 999)
+                    deleteUserCustomStatus(id: 999)
                 }
                 """)
                 .execute()
                 .errors().verify()
-                .path("deleteUserStatus").entity(Boolean.class).isEqualTo(false);
+                .path("deleteUserCustomStatus").entity(Boolean.class).isEqualTo(false);
     }
 
     @Test
-    void deleteUserStatus_Unauthenticated_ShouldReturnError() {
+    void deleteUserCustomStatus_Unauthenticated_ShouldReturnError() {
         graphQlTester.document("""
                 mutation {
-                    deleteUserStatus(id: 1)
+                    deleteUserCustomStatus(id: 1)
                 }
                 """)
                 .execute()

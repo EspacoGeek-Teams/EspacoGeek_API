@@ -124,13 +124,13 @@ public class UserMediaListController {
      * @param authentication the currently authenticated user
      * @return the persisted (created or updated) library entry
      */
-    @MutationMapping(name = "userMediaProgress")
+    @MutationMapping(name = "upsertUserMedia")
     @PreAuthorize("hasRole('user')")
-    public UserMediaListModel userMediaProgress(
+    public UserMediaListModel upsertUserMedia(
             @Argument(name = "input") UpdateUserMediaInput input,
             Authentication authentication) {
         Integer userId = UserUtils.getUserID(authentication);
-        return userMediaListService.userMediaProgress(userId, input);
+        return userMediaListService.upsertUserMedia(userId, input);
     }
 
     /**

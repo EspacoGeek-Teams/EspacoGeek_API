@@ -43,14 +43,14 @@ class UserStatusQueryTest {
 
     @Test
     @WithMockUser(authorities = {"ROLE_user", "ID_1"})
-    void getUserStatuses_ShouldReturnAllUserStatuses() {
+    void getUserCustomStatuses_ShouldReturnAllUserStatuses() {
         UserCustomStatusModel s1 = stubStatus(1, "Re-watching");
         UserCustomStatusModel s2 = stubStatus(2, "Collecting");
         when(userCustomStatusService.findByUserId(eq(1))).thenReturn(List.of(s1, s2));
 
         graphQlTester.document("""
                 query {
-                    getUserStatuses {
+                    getUserCustomStatuses {
                         id
                         name
                     }
@@ -58,7 +58,7 @@ class UserStatusQueryTest {
                 """)
                 .execute()
                 .errors().verify()
-                .path("getUserStatuses").entityList(UserCustomStatusModel.class)
+                .path("getUserCustomStatuses").entityList(UserCustomStatusModel.class)
                 .satisfies(results -> {
                     assertThat(results).hasSize(2);
                     assertThat(results).extracting("name").containsExactlyInAnyOrder("Re-watching", "Collecting");
@@ -69,12 +69,12 @@ class UserStatusQueryTest {
 
     @Test
     @WithMockUser(authorities = {"ROLE_user", "ID_1"})
-    void getUserStatuses_WhenEmpty_ShouldReturnEmptyList() {
+    void getUserCustomStatuses_WhenEmpty_ShouldReturnEmptyList() {
         when(userCustomStatusService.findByUserId(eq(1))).thenReturn(List.of());
 
         graphQlTester.document("""
                 query {
-                    getUserStatuses {
+                    getUserCustomStatuses {
                         id
                         name
                     }
@@ -82,17 +82,17 @@ class UserStatusQueryTest {
                 """)
                 .execute()
                 .errors().verify()
-                .path("getUserStatuses").entityList(UserCustomStatusModel.class)
+                .path("getUserCustomStatuses").entityList(UserCustomStatusModel.class)
                 .satisfies(results -> assertThat(results).isEmpty());
 
         verify(userCustomStatusService).findByUserId(1);
     }
 
     @Test
-    void getUserStatuses_Unauthenticated_ShouldReturnError() {
+    void getUserCustomStatuses_Unauthenticated_ShouldReturnError() {
         graphQlTester.document("""
                 query {
-                    getUserStatuses {
+                    getUserCustomStatuses {
                         id
                         name
                     }

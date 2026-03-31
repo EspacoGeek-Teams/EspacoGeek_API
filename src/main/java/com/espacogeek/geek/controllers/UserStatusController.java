@@ -27,9 +27,9 @@ public class UserStatusController {
      * @param authentication the currently authenticated user
      * @return list of the user's custom status labels
      */
-    @QueryMapping(name = "getUserStatuses")
+    @QueryMapping(name = "getUserCustomStatuses")
     @PreAuthorize("hasRole('user')")
-    public List<UserCustomStatusModel> getUserStatuses(Authentication authentication) {
+    public List<UserCustomStatusModel> getUserCustomStatuses(Authentication authentication) {
         Integer userId = UserUtils.getUserID(authentication);
         return userCustomStatusService.findByUserId(userId);
     }
@@ -41,9 +41,9 @@ public class UserStatusController {
      * @param authentication the currently authenticated user
      * @return the newly created custom status
      */
-    @MutationMapping(name = "createUserStatus")
+    @MutationMapping(name = "createUserCustomStatus")
     @PreAuthorize("hasRole('user')")
-    public UserCustomStatusModel createUserStatus(
+    public UserCustomStatusModel createUserCustomStatus(
             @Argument(name = "name") String name,
             Authentication authentication) {
         Integer userId = UserUtils.getUserID(authentication);
@@ -58,9 +58,9 @@ public class UserStatusController {
      * @param authentication the currently authenticated user
      * @return the updated custom status
      */
-    @MutationMapping(name = "updateUserStatus")
+    @MutationMapping(name = "updateUserCustomStatus")
     @PreAuthorize("hasRole('user')")
-    public UserCustomStatusModel updateUserStatus(
+    public UserCustomStatusModel updateUserCustomStatus(
             @Argument(name = "id") Integer id,
             @Argument(name = "name") String name,
             Authentication authentication) {
@@ -75,9 +75,9 @@ public class UserStatusController {
      * @param authentication the currently authenticated user
      * @return {@code true} if deleted, {@code false} if not found
      */
-    @MutationMapping(name = "deleteUserStatus")
+    @MutationMapping(name = "deleteUserCustomStatus")
     @PreAuthorize("hasRole('user')")
-    public Boolean deleteUserStatus(
+    public Boolean deleteUserCustomStatus(
             @Argument(name = "id") Integer id,
             Authentication authentication) {
         Integer userId = UserUtils.getUserID(authentication);

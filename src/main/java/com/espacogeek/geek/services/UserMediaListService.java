@@ -65,7 +65,7 @@ public interface UserMediaListService {
      * @param input  the input data for the create-or-update operation
      * @return the persisted (created or updated) {@link UserMediaListModel} entry
      */
-    UserMediaListModel userMediaProgress(Integer userId, UpdateUserMediaInput input);
+    UserMediaListModel upsertUserMedia(Integer userId, UpdateUserMediaInput input);
 
     /**
      * Removes a media item from the user's library.

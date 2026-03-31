@@ -16,7 +16,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import com.espacogeek.geek.controllers.UserMediaListController;
-import com.espacogeek.geek.exception.InputValidationException;
 import com.espacogeek.geek.exception.MediaAlreadyInLibraryException;
 import com.espacogeek.geek.exception.NotFoundException;
 import com.espacogeek.geek.models.MediaCategoryModel;
@@ -192,19 +191,19 @@ class UserMediaListMutationTest {
                 .satisfy(errors -> assertThat(errors).isNotEmpty());
     }
 
-    // ---- userMediaProgress tests ----
+    // ---- upsertUserMedia tests ----
 
     @Test
     @WithMockUser(authorities = {"ROLE_user", "ID_1"})
-    void userMediaProgress_Create_ShouldReturnNewEntry() {
+    void upsertUserMedia_Create_ShouldReturnNewEntry() {
         UserMediaListModel entry = stubEntry(1, 10);
         entry.setStatus(StatusType.IN_PROGRESS.name());
         entry.setProgress(5);
-        when(userMediaListService.userMediaProgress(eq(1), any(UpdateUserMediaInput.class))).thenReturn(entry);
+        when(userMediaListService.upsertUserMedia(eq(1), any(UpdateUserMediaInput.class))).thenReturn(entry);
 
         graphQlTester.document("""
                 mutation {
-                    userMediaProgress(input: { mediaId: 10, status: "IN_PROGRESS", progress: 5 }) {
+                    upsertUserMedia(input: { mediaId: 10, status: IN_PROGRESS, progress: 5 }) {
                         status
                         progress
                         media { id name }
@@ -213,23 +212,23 @@ class UserMediaListMutationTest {
                 """)
                 .execute()
                 .errors().verify()
-                .path("userMediaProgress.status").entity(String.class).isEqualTo("IN_PROGRESS")
-                .path("userMediaProgress.progress").entity(Integer.class).isEqualTo(5);
+                .path("upsertUserMedia.status").entity(String.class).isEqualTo("IN_PROGRESS")
+                .path("upsertUserMedia.progress").entity(Integer.class).isEqualTo(5);
 
-        verify(userMediaListService).userMediaProgress(eq(1), any(UpdateUserMediaInput.class));
+        verify(userMediaListService).upsertUserMedia(eq(1), any(UpdateUserMediaInput.class));
     }
 
     @Test
     @WithMockUser(authorities = {"ROLE_user", "ID_1"})
-    void userMediaProgress_Update_ShouldReturnUpdatedEntry() {
+    void upsertUserMedia_Update_ShouldReturnUpdatedEntry() {
         UserMediaListModel entry = stubEntry(1, 10);
         entry.setStatus(StatusType.COMPLETED.name());
         entry.setProgress(24);
-        when(userMediaListService.userMediaProgress(eq(1), any(UpdateUserMediaInput.class))).thenReturn(entry);
+        when(userMediaListService.upsertUserMedia(eq(1), any(UpdateUserMediaInput.class))).thenReturn(entry);
 
         graphQlTester.document("""
                 mutation {
-                    userMediaProgress(input: { mediaId: 10, status: "COMPLETED", progress: 24 }) {
+                    upsertUserMedia(input: { mediaId: 10, status: COMPLETED, progress: 24 }) {
                         status
                         progress
                     }
@@ -237,40 +236,36 @@ class UserMediaListMutationTest {
                 """)
                 .execute()
                 .errors().verify()
-                .path("userMediaProgress.status").entity(String.class).isEqualTo("COMPLETED")
-                .path("userMediaProgress.progress").entity(Integer.class).isEqualTo(24);
+                .path("upsertUserMedia.status").entity(String.class).isEqualTo("COMPLETED")
+                .path("upsertUserMedia.progress").entity(Integer.class).isEqualTo(24);
     }
 
     @Test
     @WithMockUser(authorities = {"ROLE_user", "ID_1"})
-    void userMediaProgress_InvalidStatus_ShouldReturnError() {
-        when(userMediaListService.userMediaProgress(anyInt(), any(UpdateUserMediaInput.class)))
-                .thenThrow(new InputValidationException("Invalid status: INVALID_STATUS. Allowed values: PLANNING, IN_PROGRESS, COMPLETED, DROPPED, PAUSED"));
-
+    void upsertUserMedia_WithInvalidStatus_ShouldReturnValidationError() {
+        // The GraphQL schema enforces enum validity — an invalid enum value is
+        // rejected by the engine before the resolver runs.
         graphQlTester.document("""
                 mutation {
-                    userMediaProgress(input: { mediaId: 10, status: "INVALID_STATUS" }) {
+                    upsertUserMedia(input: { mediaId: 10, status: INVALID_STATUS }) {
                         status
                     }
                 }
                 """)
                 .execute()
                 .errors()
-                .satisfy(errors -> {
-                    assertThat(errors).isNotEmpty();
-                    assertThat(errors.get(0).getExtensions().get("errorCode")).isEqualTo(2004);
-                });
+                .satisfy(errors -> assertThat(errors).isNotEmpty());
     }
 
     @Test
     @WithMockUser(authorities = {"ROLE_user", "ID_1"})
-    void userMediaProgress_NonExistentMedia_ShouldReturnNotFoundError() {
-        when(userMediaListService.userMediaProgress(anyInt(), any(UpdateUserMediaInput.class)))
+    void upsertUserMedia_NonExistentMedia_ShouldReturnNotFoundError() {
+        when(userMediaListService.upsertUserMedia(anyInt(), any(UpdateUserMediaInput.class)))
                 .thenThrow(new NotFoundException("Media not found"));
 
         graphQlTester.document("""
                 mutation {
-                    userMediaProgress(input: { mediaId: 999 }) {
+                    upsertUserMedia(input: { mediaId: 999 }) {
                         status
                     }
                 }
@@ -284,10 +279,10 @@ class UserMediaListMutationTest {
     }
 
     @Test
-    void userMediaProgress_Unauthenticated_ShouldReturnError() {
+    void upsertUserMedia_Unauthenticated_ShouldReturnError() {
         graphQlTester.document("""
                 mutation {
-                    userMediaProgress(input: { mediaId: 10 }) {
+                    upsertUserMedia(input: { mediaId: 10 }) {
                         status
                     }
                 }
@@ -299,15 +294,15 @@ class UserMediaListMutationTest {
 
     @Test
     @WithMockUser(authorities = {"ROLE_user", "ID_1"})
-    void userMediaProgress_PlanningStatus_ShouldReturnEntryWithDatePlanned() {
+    void upsertUserMedia_PlanningStatus_ShouldReturnEntryWithDatePlanned() {
         UserMediaListModel entry = stubEntry(1, 10);
         entry.setStatus(StatusType.PLANNING.name());
         entry.setDatePlanned(new java.util.Date());
-        when(userMediaListService.userMediaProgress(eq(1), any(UpdateUserMediaInput.class))).thenReturn(entry);
+        when(userMediaListService.upsertUserMedia(eq(1), any(UpdateUserMediaInput.class))).thenReturn(entry);
 
         graphQlTester.document("""
                 mutation {
-                    userMediaProgress(input: { mediaId: 10, status: "PLANNING" }) {
+                    upsertUserMedia(input: { mediaId: 10, status: PLANNING }) {
                         status
                         datePlanned
                     }
@@ -315,13 +310,13 @@ class UserMediaListMutationTest {
                 """)
                 .execute()
                 .errors().verify()
-                .path("userMediaProgress.status").entity(String.class).isEqualTo("PLANNING")
-                .path("userMediaProgress.datePlanned").hasValue();
+                .path("upsertUserMedia.status").entity(String.class).isEqualTo("PLANNING")
+                .path("upsertUserMedia.datePlanned").hasValue();
     }
 
     @Test
     @WithMockUser(authorities = {"ROLE_user", "ID_1"})
-    void userMediaProgress_WithCustomStatus_ShouldReturnEntryWithCustomStatus() {
+    void upsertUserMedia_WithCustomStatus_ShouldReturnEntryWithCustomStatus() {
         UserModel user = new UserModel();
         user.setId(1);
         user.setUsername("testuser");
@@ -335,11 +330,11 @@ class UserMediaListMutationTest {
         entry.setStatus(StatusType.IN_PROGRESS.name());
         entry.setCustomStatus(customStatus);
 
-        when(userMediaListService.userMediaProgress(eq(1), any(UpdateUserMediaInput.class))).thenReturn(entry);
+        when(userMediaListService.upsertUserMedia(eq(1), any(UpdateUserMediaInput.class))).thenReturn(entry);
 
         graphQlTester.document("""
                 mutation {
-                    userMediaProgress(input: { mediaId: 10, status: "IN_PROGRESS", customStatusId: 2 }) {
+                    upsertUserMedia(input: { mediaId: 10, status: IN_PROGRESS, customStatusId: 2 }) {
                         status
                         customStatus {
                             id
@@ -350,22 +345,22 @@ class UserMediaListMutationTest {
                 """)
                 .execute()
                 .errors().verify()
-                .path("userMediaProgress.status").entity(String.class).isEqualTo("IN_PROGRESS")
-                .path("userMediaProgress.customStatus.id").hasValue()
-                .path("userMediaProgress.customStatus.name").entity(String.class).isEqualTo("Re-watching");
+                .path("upsertUserMedia.status").entity(String.class).isEqualTo("IN_PROGRESS")
+                .path("upsertUserMedia.customStatus.id").hasValue()
+                .path("upsertUserMedia.customStatus.name").entity(String.class).isEqualTo("Re-watching");
 
-        verify(userMediaListService).userMediaProgress(eq(1), any(UpdateUserMediaInput.class));
+        verify(userMediaListService).upsertUserMedia(eq(1), any(UpdateUserMediaInput.class));
     }
 
     @Test
     @WithMockUser(authorities = {"ROLE_user", "ID_1"})
-    void userMediaProgress_WithInvalidCustomStatusId_ShouldReturnNotFoundError() {
-        when(userMediaListService.userMediaProgress(anyInt(), any(UpdateUserMediaInput.class)))
+    void upsertUserMedia_WithInvalidCustomStatusId_ShouldReturnNotFoundError() {
+        when(userMediaListService.upsertUserMedia(anyInt(), any(UpdateUserMediaInput.class)))
                 .thenThrow(new NotFoundException("Custom status not found"));
 
         graphQlTester.document("""
                 mutation {
-                    userMediaProgress(input: { mediaId: 10, customStatusId: 999 }) {
+                    upsertUserMedia(input: { mediaId: 10, customStatusId: 999 }) {
                         status
                     }
                 }
@@ -376,5 +371,35 @@ class UserMediaListMutationTest {
                     assertThat(errors).isNotEmpty();
                     assertThat(errors.get(0).getExtensions().get("errorCode")).isEqualTo(3404);
                 });
+    }
+
+    @Test
+    @WithMockUser(authorities = {"ROLE_user", "ID_1"})
+    void upsertUserMedia_WithNewFields_ShouldReturnEntryWithNewFields() {
+        UserMediaListModel entry = stubEntry(1, 10);
+        entry.setStatus(StatusType.IN_PROGRESS.name());
+        entry.setRewatchCount(2);
+        entry.setIsPrivate(true);
+        entry.setPersonalNotes("my notes");
+        when(userMediaListService.upsertUserMedia(eq(1), any(UpdateUserMediaInput.class))).thenReturn(entry);
+
+        graphQlTester.document("""
+                mutation {
+                    upsertUserMedia(input: { mediaId: 10, status: IN_PROGRESS, rewatchCount: 2, isPrivate: true, personalNotes: "my notes" }) {
+                        status
+                        rewatchCount
+                        isPrivate
+                        personalNotes
+                    }
+                }
+                """)
+                .execute()
+                .errors().verify()
+                .path("upsertUserMedia.status").entity(String.class).isEqualTo("IN_PROGRESS")
+                .path("upsertUserMedia.rewatchCount").entity(Integer.class).isEqualTo(2)
+                .path("upsertUserMedia.isPrivate").entity(Boolean.class).isEqualTo(true)
+                .path("upsertUserMedia.personalNotes").entity(String.class).isEqualTo("my notes");
+
+        verify(userMediaListService).upsertUserMedia(eq(1), any(UpdateUserMediaInput.class));
     }
 }

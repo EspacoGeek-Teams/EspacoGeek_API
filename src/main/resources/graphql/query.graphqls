@@ -88,7 +88,7 @@ type Query {
 
     """
     Get all custom tracking status labels created by the authenticated user.
-    Requires authentication. Example: getUserStatuses { id name }
+    Requires authentication. Example: getUserCustomStatuses { id name }
     """
-    getUserStatuses: [UserStatus]
+    getUserCustomStatuses: [UserStatus]
 }

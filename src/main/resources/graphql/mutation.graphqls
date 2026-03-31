@@ -92,10 +92,10 @@ type Mutation {
     if not, a new entry is created (status defaults to PLANNING when not provided).
     When the status is PLANNING, datePlanned is automatically set.
     Optionally assign the entry to a user-defined custom status list via customStatusId.
-    Example: userMediaProgress(input: { mediaId: 42, status: "IN_PROGRESS", progress: 13, customStatusId: 2 })
+    Example: upsertUserMedia(input: { mediaId: 42, status: IN_PROGRESS, progress: 13, customStatusId: 2 })
     Returns: The created or updated UserMediaList entry.
     """
-    userMediaProgress(input: UpdateUserMediaInput!): UserMediaList
+    upsertUserMedia(input: UpdateUserMediaInput!): UserMediaList
 
     """
     Remove a media item from the authenticated user's library. Requires authentication.
@@ -106,22 +106,22 @@ type Mutation {
 
     """
     Create a new custom tracking status label for the authenticated user's profile.
-    Requires authentication. Example: createUserStatus(name: "Re-watching")
+    Requires authentication. Example: createUserCustomStatus(name: "Re-watching")
     Returns: The newly created UserStatus.
     """
-    createUserStatus(name: String!): UserStatus
+    createUserCustomStatus(name: String!): UserStatus
 
     """
     Update an existing custom tracking status label owned by the authenticated user.
-    Requires authentication. Example: updateUserStatus(id: 1, name: "Collecting")
+    Requires authentication. Example: updateUserCustomStatus(id: 1, name: "Collecting")
     Returns: The updated UserStatus.
     """
-    updateUserStatus(id: Int!, name: String!): UserStatus
+    updateUserCustomStatus(id: Int!, name: String!): UserStatus
 
     """
     Delete a custom tracking status label owned by the authenticated user.
-    Requires authentication. Example: deleteUserStatus(id: 1)
+    Requires authentication. Example: deleteUserCustomStatus(id: 1)
     Returns: true if deleted, false if not found.
     """
-    deleteUserStatus(id: Int!): Boolean
+    deleteUserCustomStatus(id: Int!): Boolean
 }

@@ -24,6 +24,12 @@ type UserMediaList {
     datePlanned: Date
     "The user-defined custom status list this entry belongs to (optional)"
     customStatus: UserStatus
+    "Number of times the user has rewatched/replayed this media (default 0)"
+    rewatchCount: Int
+    "Whether this library entry is private (default false)"
+    isPrivate: Boolean
+    "Personal notes separate from the main review note"
+    personalNotes: String
 }
 
 """
@@ -34,7 +40,7 @@ input UpdateUserMediaInput {
     "ID of the media to add or update in the user's library (required)"
     mediaId: Int!
     "Tracking status: PLANNING, IN_PROGRESS, COMPLETED, DROPPED, or PAUSED"
-    status: String
+    status: StatusType
     "Current progress (e.g. episode or chapter number)"
     progress: Int
     "User score (0.0 – 10.0)"
@@ -47,4 +53,10 @@ input UpdateUserMediaInput {
     note: String
     "ID of the user's custom status list to assign this media to (optional)"
     customStatusId: Int
+    "Number of times rewatched/replayed"
+    rewatchCount: Int
+    "Whether this entry should be private"
+    isPrivate: Boolean
+    "Personal notes for this entry"
+    personalNotes: String
 }

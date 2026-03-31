@@ -75,4 +75,13 @@ public class UserMediaListModel implements Serializable {
     @ManyToOne
     @JoinColumn(name = "custom_status_id")
     private UserCustomStatusModel customStatus;
+
+    @Column(name = "rewatch_count", columnDefinition = "INT DEFAULT 0")
+    private Integer rewatchCount;
+
+    @Column(name = "is_private", columnDefinition = "TINYINT(1) DEFAULT 0")
+    private Boolean isPrivate;
+
+    @Column(name = "personal_notes", length = 2000)
+    private String personalNotes;
 }

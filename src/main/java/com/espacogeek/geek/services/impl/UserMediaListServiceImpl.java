@@ -91,17 +91,13 @@ public class UserMediaListServiceImpl implements UserMediaListService {
     }
 
     /**
-     * @see UserMediaListService#userMediaProgress(Integer, UpdateUserMediaInput)
+     * @see UserMediaListService#upsertUserMedia(Integer, UpdateUserMediaInput)
      */
     @Override
     @Transactional
-    public UserMediaListModel userMediaProgress(Integer userId, UpdateUserMediaInput input) {
+    public UserMediaListModel upsertUserMedia(Integer userId, UpdateUserMediaInput input) {
         if (input.getMediaId() == null) {
             throw new InputValidationException("mediaId is required");
-        }
-
-        if (input.getStatus() != null) {
-            validateStatus(input.getStatus());
         }
 
         UserCustomStatusModel customStatus = null;
@@ -142,25 +138,10 @@ public class UserMediaListServiceImpl implements UserMediaListService {
         return deleted > 0;
     }
 
-    private void validateStatus(String status) {
-        try {
-            StatusType.valueOf(status.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            StringBuilder allowedValues = new StringBuilder();
-            for (StatusType value : StatusType.values()) {
-                if (allowedValues.length() > 0) {
-                    allowedValues.append(", ");
-                }
-                allowedValues.append(value.name());
-            }
-            throw new InputValidationException("Invalid status: " + status
-                    + ". Allowed values: " + allowedValues);
-        }
-    }
 
     private void applyUpdates(UserMediaListModel entry, UpdateUserMediaInput input, UserCustomStatusModel customStatus) {
         if (input.getStatus() != null) {
-            String normalizedStatus = input.getStatus().toUpperCase();
+            String normalizedStatus = input.getStatus().name();
             String previousStatus = entry.getStatus();
             entry.setStatus(normalizedStatus);
             if (StatusType.PLANNING.name().equals(normalizedStatus)
@@ -193,6 +174,19 @@ public class UserMediaListServiceImpl implements UserMediaListService {
         }
         if (customStatus != null) {
             entry.setCustomStatus(customStatus);
+        }
+        if (input.getRewatchCount() != null) {
+            entry.setRewatchCount(input.getRewatchCount());
+        } else if (entry.getId() == null) {
+            entry.setRewatchCount(0);
+        }
+        if (input.getIsPrivate() != null) {
+            entry.setIsPrivate(input.getIsPrivate());
+        } else if (entry.getId() == null) {
+            entry.setIsPrivate(false);
+        }
+        if (input.getPersonalNotes() != null) {
+            entry.setPersonalNotes(input.getPersonalNotes());
         }
     }
 }
