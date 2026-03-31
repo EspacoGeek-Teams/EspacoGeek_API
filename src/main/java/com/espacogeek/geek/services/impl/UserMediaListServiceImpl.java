@@ -86,6 +86,8 @@ public class UserMediaListServiceImpl implements UserMediaListService {
         entry.setStatus(StatusType.PLANNING.name());
         entry.setProgress(0);
         entry.setDatePlanned(new Date());
+        entry.setRewatchCount(0);
+        entry.setIsPrivate(false);
 
         return userMediaListRepository.save(entry);
     }
