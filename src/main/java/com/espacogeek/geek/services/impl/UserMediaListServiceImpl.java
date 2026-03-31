@@ -157,6 +157,9 @@ public class UserMediaListServiceImpl implements UserMediaListService {
 
         if (input.getProgress() != null) {
             entry.setProgress(input.getProgress());
+        } else if (entry.getId() == null) {
+            // For new entries, default progress to 0 if not provided, to match addMedia() behavior.
+            entry.setProgress(0);
         }
         if (input.getScore() != null) {
             entry.setScore(input.getScore().floatValue());
