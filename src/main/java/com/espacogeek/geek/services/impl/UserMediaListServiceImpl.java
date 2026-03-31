@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.espacogeek.geek.models.CategoryType;
 import com.espacogeek.geek.models.UserMediaListModel;
 import com.espacogeek.geek.repositories.UserMediaListRepository;
 import com.espacogeek.geek.services.UserMediaListService;
@@ -19,7 +20,7 @@ public class UserMediaListServiceImpl implements UserMediaListService {
     private UserMediaListRepository userMediaListRepository;
 
     /**
-     * @see UserMediaListService#findByUserIdWithFilters(Integer, String, Integer, Integer, String, Integer, String, Integer, String, String)
+     * @see UserMediaListService#findByUserIdWithFilters(Integer, String, Integer, Integer, CategoryType, Integer, String, Integer, String, String)
      */
     @Override
     public List<UserMediaListModel> findByUserIdWithFilters(
@@ -27,7 +28,7 @@ public class UserMediaListServiceImpl implements UserMediaListService {
             String status,
             Integer statusId,
             Integer categoryId,
-            String categoryName,
+            CategoryType categoryName,
             Integer genreId,
             String genreName,
             Integer mediaId,

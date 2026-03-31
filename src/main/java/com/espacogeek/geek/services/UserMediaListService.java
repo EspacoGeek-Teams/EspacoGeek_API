@@ -2,6 +2,7 @@ package com.espacogeek.geek.services;
 
 import java.util.List;
 
+import com.espacogeek.geek.models.CategoryType;
 import com.espacogeek.geek.models.UserMediaListModel;
 
 /**
@@ -17,7 +18,7 @@ public interface UserMediaListService {
      * @param status       optional user tracking status string filter (e.g. "watching", "completed")
      * @param statusId     optional media production status ID filter (MediaStatusModel.id)
      * @param categoryId   optional media category ID filter
-     * @param categoryName optional media category name filter (e.g. "ANIME", "MOVIE")
+     * @param categoryName optional media category name filter (e.g. {@link CategoryType#ANIME})
      * @param genreId      optional genre ID filter
      * @param genreName    optional genre name filter
      * @param mediaId      optional media ID filter
@@ -30,7 +31,7 @@ public interface UserMediaListService {
             String status,
             Integer statusId,
             Integer categoryId,
-            String categoryName,
+            CategoryType categoryName,
             Integer genreId,
             String genreName,
             Integer mediaId,

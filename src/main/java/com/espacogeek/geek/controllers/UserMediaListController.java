@@ -9,6 +9,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 
 import com.espacogeek.geek.exception.GenericException;
+import com.espacogeek.geek.models.CategoryType;
 import com.espacogeek.geek.models.UserMediaListModel;
 import com.espacogeek.geek.services.UserMediaListService;
 import com.espacogeek.geek.services.UserService;
@@ -54,7 +55,20 @@ public class UserMediaListController {
             Authentication authentication) {
         var user = userService.findUserByEmail(authentication.getName())
                 .orElseThrow(() -> new GenericException("User not found"));
+        status = status == null ? null : status.trim();
+        genreName = genreName == null ? null : genreName.trim();
+        mediaName = mediaName == null ? null : mediaName.trim();
+        altTitle = altTitle == null ? null : altTitle.trim();
+        String categoryNameTrimmed = categoryName == null ? null : categoryName.trim();
+        CategoryType categoryType = null;
+        if (categoryNameTrimmed != null) {
+            try {
+                categoryType = CategoryType.valueOf(categoryNameTrimmed.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                throw new GenericException("Invalid categoryName: " + categoryNameTrimmed);
+            }
+        }
         return userMediaListService.findByUserIdWithFilters(
-                user.getId(), status, statusId, categoryId, categoryName, genreId, genreName, mediaId, mediaName, altTitle);
+                user.getId(), status, statusId, categoryId, categoryType, genreId, genreName, mediaId, mediaName, altTitle);
     }
 }

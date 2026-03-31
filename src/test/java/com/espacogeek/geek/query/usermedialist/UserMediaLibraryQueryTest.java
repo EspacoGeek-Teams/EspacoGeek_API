@@ -197,7 +197,7 @@ class UserMediaLibraryQueryTest {
 
         when(userService.findUserByEmail("user@example.com")).thenReturn(Optional.of(user));
         when(userMediaListService.findByUserIdWithFilters(
-                eq(1), isNull(), isNull(), isNull(), eq("ANIME"), isNull(), isNull(), isNull(), isNull(), isNull()))
+                eq(1), isNull(), isNull(), isNull(), eq(CategoryType.ANIME), isNull(), isNull(), isNull(), isNull(), isNull()))
                 .thenReturn(List.of(entry));
 
         graphQlTester.document("""
@@ -213,7 +213,7 @@ class UserMediaLibraryQueryTest {
                 .path("findUserMediaLibrary[0].media.name").entity(String.class).isEqualTo("Dragon Ball");
 
         verify(userMediaListService).findByUserIdWithFilters(
-                1, null, null, null, "ANIME", null, null, null, null, null);
+                1, null, null, null, CategoryType.ANIME, null, null, null, null, null);
     }
 
     @Test
@@ -363,7 +363,7 @@ class UserMediaLibraryQueryTest {
 
         when(userService.findUserByEmail("user@example.com")).thenReturn(Optional.of(user));
         when(userMediaListService.findByUserIdWithFilters(
-                eq(1), eq("watching"), eq(3), eq(1), eq("ANIME"), eq(5), eq("Action"), eq(99), eq("Naruto"), eq("Shippuden")))
+                eq(1), eq("watching"), eq(3), eq(1), eq(CategoryType.ANIME), eq(5), eq("Action"), eq(99), eq("Naruto"), eq("Shippuden")))
                 .thenReturn(List.of());
 
         graphQlTester.document("""
@@ -390,7 +390,7 @@ class UserMediaLibraryQueryTest {
                 .satisfies(results -> assertThat(results).isEmpty());
 
         verify(userMediaListService).findByUserIdWithFilters(
-                1, "watching", 3, 1, "ANIME", 5, "Action", 99, "Naruto", "Shippuden");
+                1, "watching", 3, 1, CategoryType.ANIME, 5, "Action", 99, "Naruto", "Shippuden");
     }
 
     @Test

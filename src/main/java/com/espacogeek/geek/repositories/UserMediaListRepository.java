@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import com.espacogeek.geek.models.CategoryType;
 import com.espacogeek.geek.models.UserMediaListModel;
 
 public interface UserMediaListRepository extends JpaRepository<UserMediaListModel, UUID> {
@@ -20,7 +21,7 @@ public interface UserMediaListRepository extends JpaRepository<UserMediaListMode
      * @param status       optional user tracking status string filter (case-insensitive exact match)
      * @param statusId     optional media production status ID filter (MediaStatusModel.id, Integer)
      * @param categoryId   optional media category ID filter
-     * @param categoryName optional media category name filter (case-insensitive exact match)
+     * @param categoryName optional media category name filter (enum exact match)
      * @param genreId      optional genre ID filter
      * @param genreName    optional genre name filter (case-insensitive exact match)
      * @param mediaId      optional media ID filter
@@ -34,7 +35,7 @@ public interface UserMediaListRepository extends JpaRepository<UserMediaListMode
            "AND (:status IS NULL OR LOWER(u.status) = LOWER(:status)) " +
            "AND (:statusId IS NULL OR (m.mediaStatus IS NOT NULL AND m.mediaStatus.id = :statusId)) " +
            "AND (:categoryId IS NULL OR m.mediaCategory.id = :categoryId) " +
-           "AND (:categoryName IS NULL OR LOWER(CAST(m.mediaCategory.name AS string)) = LOWER(:categoryName)) " +
+           "AND (:categoryName IS NULL OR m.mediaCategory.name = :categoryName) " +
            "AND (:genreId IS NULL OR EXISTS (SELECT 1 FROM GenreModel g WHERE g MEMBER OF m.genre AND g.id = :genreId)) " +
            "AND (:genreName IS NULL OR EXISTS (SELECT 1 FROM GenreModel g WHERE g MEMBER OF m.genre AND LOWER(g.name) = LOWER(:genreName))) " +
            "AND (:mediaId IS NULL OR m.id = :mediaId) " +
@@ -45,7 +46,7 @@ public interface UserMediaListRepository extends JpaRepository<UserMediaListMode
             @Param("status") String status,
             @Param("statusId") Integer statusId,
             @Param("categoryId") Integer categoryId,
-            @Param("categoryName") String categoryName,
+            @Param("categoryName") CategoryType categoryName,
             @Param("genreId") Integer genreId,
             @Param("genreName") String genreName,
             @Param("mediaId") Integer mediaId,
