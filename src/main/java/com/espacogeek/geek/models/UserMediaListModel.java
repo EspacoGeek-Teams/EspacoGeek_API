@@ -79,7 +79,7 @@ public class UserMediaListModel implements Serializable {
     @Column(name = "rewatch_count", columnDefinition = "INT DEFAULT 0")
     private Integer rewatchCount;
 
-    @Column(name = "is_private", columnDefinition = "TINYINT(1) DEFAULT 0")
+    @Column(name = "is_private", columnDefinition = "BOOLEAN DEFAULT FALSE")
     private Boolean isPrivate;
 
     @Column(name = "personal_notes", length = 2000)
