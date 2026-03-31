@@ -38,7 +38,7 @@ public class UserMediaListController {
      * returns results if the target user's library is not marked as private.
      *
      * @param userId       optional target user ID; defaults to the authenticated user
-     * @param status       optional user tracking status string filter (e.g. "WATCHING")
+     * @param status       optional user tracking status string filter (e.g. "IN_PROGRESS")
      * @param statusId     optional media production status ID filter (MediaStatusModel.id)
      * @param categoryId   optional media category ID filter
      * @param categoryName optional media category name filter (e.g. "ANIME")
