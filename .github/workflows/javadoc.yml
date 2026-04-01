@@ -1,0 +1,21 @@
+name: Deploy Javadoc 📚
+
+on:
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: write # Vital para o bot conseguir dar o push na nova branch
+
+jobs:
+  publish-javadoc:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🚀 Deploy JavaDoc 
+        uses: MathieuSoysal/Javadoc-publisher.yml@v3.0.2
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          java-version: '21'
+          project: gradle
+          javadoc-branch: gh-pages
