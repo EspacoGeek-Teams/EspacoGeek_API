@@ -1,0 +1,17 @@
+com.espacogeek.geek
+com.espacogeek.geek.batch
+com.espacogeek.geek.config
+com.espacogeek.geek.controllers
+com.espacogeek.geek.data
+com.espacogeek.geek.data.api
+com.espacogeek.geek.data.api.impl
+com.espacogeek.geek.data.impl
+com.espacogeek.geek.exception
+com.espacogeek.geek.exception.resolver
+com.espacogeek.geek.metrics
+com.espacogeek.geek.models
+com.espacogeek.geek.repositories
+com.espacogeek.geek.services
+com.espacogeek.geek.services.impl
+com.espacogeek.geek.types
+com.espacogeek.geek.utils
