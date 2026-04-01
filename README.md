@@ -6,6 +6,10 @@
   </a>
 </div>
 
+## Deployed on
+- API: https://api.espacogeek.com
+- WEB: https://espacogeek.com
+
 ## Error Handling
 
 The API uses a standardized error format via the `GenericExceptionResolver`. Every GraphQL error response includes an `errorCode` field inside the `extensions` block identifying the error type.
