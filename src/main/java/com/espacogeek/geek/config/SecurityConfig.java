@@ -21,6 +21,7 @@ import org.springframework.web.cors.CorsConfiguration;
 
 import com.espacogeek.geek.services.impl.UserDetailsServiceImpl;
 
+import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.List;
 
@@ -44,6 +45,9 @@ public class SecurityConfig {
 
     @Value("${security.jwt.expiration-ms:604800000}")
     private long expirationMs;
+
+    @Value("${app.monitoring.prometheus-token:}")
+    private String prometheusToken;
 
     @PostConstruct
     public void logCorsConfig() {
@@ -80,7 +84,14 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> {
                     auth.requestMatchers("/", "/graphql", "/graphiql", "/graphiql/**", "/favicon.ico").permitAll();
-                    auth.requestMatchers("/actuator/**").permitAll();
+                    auth.requestMatchers(request -> {
+                        String header = request.getHeader("X-Prometheus-Token");
+                        return request.getServletPath().startsWith("/actuator") &&
+                               !prometheusToken.isBlank() &&
+                               header != null &&
+                               MessageDigest.isEqual(prometheusToken.getBytes(), header.getBytes());
+                    }).permitAll();
+                    auth.requestMatchers("/actuator/**").denyAll();
                     auth.requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll();
                     auth.anyRequest().authenticated();
                 })
