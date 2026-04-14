@@ -21,7 +21,6 @@ import org.springframework.web.cors.CorsConfiguration;
 
 import com.espacogeek.geek.services.impl.UserDetailsServiceImpl;
 
-import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.List;
 
@@ -45,9 +44,6 @@ public class SecurityConfig {
 
     @Value("${security.jwt.expiration-ms:604800000}")
     private long expirationMs;
-
-    @Value("${app.monitoring.prometheus-token:}")
-    private String prometheusToken;
 
     @PostConstruct
     public void logCorsConfig() {
@@ -84,14 +80,13 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> {
                     auth.requestMatchers("/", "/graphql", "/graphiql", "/graphiql/**", "/favicon.ico").permitAll();
-                    auth.requestMatchers(request -> {
-                        String header = request.getHeader("X-Prometheus-Token");
-                        return request.getServletPath().startsWith("/actuator") &&
-                               !prometheusToken.isBlank() &&
-                               header != null &&
-                               MessageDigest.isEqual(prometheusToken.getBytes(), header.getBytes());
-                    }).permitAll();
-                    auth.requestMatchers("/actuator/**").denyAll();
+                    // Actuator is served exclusively on the dedicated management port 8081
+                    // (see management.server.port in application.properties), so this rule on
+                    // the main port (8080) security chain is effectively a no-op. It is kept
+                    // here for clarity: if /actuator paths ever reach this chain they are
+                    // permitted, as security is handled via Docker network isolation
+                    // (infra_network) rather than token-based authentication.
+                    auth.requestMatchers("/actuator/**").permitAll();
                     auth.requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll();
                     auth.anyRequest().authenticated();
                 })

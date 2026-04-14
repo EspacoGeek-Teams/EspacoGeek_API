@@ -51,27 +51,23 @@ The API uses a standardized error format via the `GenericExceptionResolver`. Eve
 - **Business exceptions** (`1xxx`–`2xxx`) return only `message` + `errorCode`; the stack trace is never sent to the client.
 - **Internal errors** (`5xxx`) are logged at `ERROR` level on the server; unmapped exceptions return `errorCode: 5000` with the generic message `"Unexpected server error"`.
 
-## Monitoring Security
+## Monitoring
 
-The `/actuator/**` endpoints (including the Prometheus metrics endpoint at `/actuator/prometheus`) are protected by a shared secret token.
+The Spring Boot Actuator runs on a **dedicated internal management port (`8081`)**, completely separate from the main API port (`8080`).
 
-Every Prometheus scrape request **must** include the `X-Prometheus-Token` header matching the value configured in the `PROMETHEUS_SCRAPE_TOKEN` environment variable:
+Port `8081` is **never exposed to the host machine** in the Docker configuration. It is only reachable by other containers on the same `infra_network`, so network-level isolation replaces token-based authentication for Prometheus scraping.
 
 ```yaml
-# prometheus.yml scrape config example
+# prometheus.yml scrape config example (internal Docker network)
 scrape_configs:
   - job_name: 'espacogeek'
     static_configs:
-      - targets: ['api.espacogeek.com']
-    scheme: https
+      - targets: ['espacogeek-jvm:8081']
     metrics_path: /actuator/prometheus
     scrape_interval: 15s
-    http_headers:
-      X-Prometheus-Token: your_prometheus_scrape_token_here
 ```
 
-If the header is absent or incorrect the request will receive a `403 Forbidden` response.  
-If `PROMETHEUS_SCRAPE_TOKEN` is not set (blank), all actuator requests are denied.
+No authentication header is required. Access from outside the Docker network is blocked at the network layer.
 
 ## Usage
  See the GraphQL guide: [GraphQL Guide](graphql_guide.md)
@@ -349,9 +345,6 @@ MAIL_HOST=smtp.gmail.com
 MAIL_PORT=587
 MAIL_USERNAME=your-email@gmail.com
 MAIL_PASSWORD=your-app-password
-
-# Monitoring
-PROMETHEUS_SCRAPE_TOKEN=your_prometheus_scrape_token_here
 ```
 
 Notes:
