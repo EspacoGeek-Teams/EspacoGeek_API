@@ -51,6 +51,28 @@ The API uses a standardized error format via the `GenericExceptionResolver`. Eve
 - **Business exceptions** (`1xxx`–`2xxx`) return only `message` + `errorCode`; the stack trace is never sent to the client.
 - **Internal errors** (`5xxx`) are logged at `ERROR` level on the server; unmapped exceptions return `errorCode: 5000` with the generic message `"Unexpected server error"`.
 
+## Monitoring Security
+
+The `/actuator/**` endpoints (including the Prometheus metrics endpoint at `/actuator/prometheus`) are protected by a shared secret token.
+
+Every Prometheus scrape request **must** include the `X-Prometheus-Token` header matching the value configured in the `PROMETHEUS_SCRAPE_TOKEN` environment variable:
+
+```yaml
+# prometheus.yml scrape config example
+scrape_configs:
+  - job_name: 'espacogeek'
+    static_configs:
+      - targets: ['api.espacogeek.com']
+    scheme: https
+    metrics_path: /actuator/prometheus
+    scrape_interval: 15s
+    http_headers:
+      X-Prometheus-Token: your_prometheus_scrape_token_here
+```
+
+If the header is absent or incorrect the request will receive a `403 Forbidden` response.  
+If `PROMETHEUS_SCRAPE_TOKEN` is not set (blank), all actuator requests are denied.
+
 ## Usage
  See the GraphQL guide: [GraphQL Guide](graphql_guide.md)
  See the license: [Licenses](LICENSE.txt)
@@ -327,6 +349,9 @@ MAIL_HOST=smtp.gmail.com
 MAIL_PORT=587
 MAIL_USERNAME=your-email@gmail.com
 MAIL_PASSWORD=your-app-password
+
+# Monitoring
+PROMETHEUS_SCRAPE_TOKEN=your_prometheus_scrape_token_here
 ```
 
 Notes:
