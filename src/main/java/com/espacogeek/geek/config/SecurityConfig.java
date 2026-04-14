@@ -80,9 +80,12 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> {
                     auth.requestMatchers("/", "/graphql", "/graphiql", "/graphiql/**", "/favicon.ico").permitAll();
-                    // Actuator runs on a dedicated management port (8081) that is never exposed
-                    // to the host in Docker. Network-level isolation via infra_network replaces
-                    // token-based authentication for Prometheus scraping.
+                    // Actuator is served exclusively on the dedicated management port 8081
+                    // (see management.server.port in application.properties), so this rule on
+                    // the main port (8080) security chain is effectively a no-op. It is kept
+                    // here for clarity: if /actuator paths ever reach this chain they are
+                    // permitted, as security is handled via Docker network isolation
+                    // (infra_network) rather than token-based authentication.
                     auth.requestMatchers("/actuator/**").permitAll();
                     auth.requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll();
                     auth.anyRequest().authenticated();
