@@ -554,9 +554,9 @@ jobs:
             -e "SPRING_DATASOURCE_USERNAME=testuser" \
             -e "SPRING_DATASOURCE_PASSWORD=testpass" \
             -e "SPRING_MVC_CORS_ALLOWED_ORIGINS=http://localhost:3000" \
-            # SPRING_AUTO_DDL maps to spring.jpa.hibernate.ddl-auto (see application.properties)
             -e "SPRING_AUTO_DDL=none" \
             native-validation:ci
+          # SPRING_AUTO_DDL maps to spring.jpa.hibernate.ddl-auto (see application.properties)
 
       # Poll the Spring Boot Actuator health endpoint (management port 8081).
       # The pipeline fails if the container does not become healthy within 180 s.
