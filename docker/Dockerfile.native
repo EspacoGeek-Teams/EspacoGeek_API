@@ -1,7 +1,9 @@
-# Native image build using GraalVM native builder image
-# This expects the project to be already configured with org.graalvm.buildtools.native
+# Multi-stage native image build using GraalVM
+# Stage 1 compiles the native executable; Stage 2 produces a minimal runtime image.
+# Requires: org.graalvm.buildtools.native plugin in build.gradle
 
-FROM ghcr.io/graalvm/native-image-community:21 AS native-build
+# ── Stage 1: Native-image builder ────────────────────────────────────────────
+FROM ghcr.io/graalvm/native-image-community:21 AS builder
 WORKDIR /workspace
 SHELL ["/bin/bash", "-c"]
 # Install missing tooling (findutils provides xargs). Try common package managers gracefully.
@@ -10,13 +12,35 @@ RUN (command -v xargs >/dev/null 2>&1 || \
       (command -v apt-get && apt-get update && apt-get install -y findutils git) || \
       (command -v apk && apk add --no-cache findutils git) )) || true
 COPY . .
-# Build native image (skip tests to speed up, adjust if you want tests)
+# Skip tests to speed up the native image compilation
 RUN ./gradlew clean nativeCompile -x test --no-daemon
 
-FROM gcr.io/distroless/base-debian12:nonroot
+# ── Stage 2: Minimal runtime image ───────────────────────────────────────────
+FROM debian:12-slim AS runner
 WORKDIR /app
+
+# Install curl (for HEALTHCHECK) and ca-certificates (for HTTPS calls at runtime)
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends curl ca-certificates \
+ && rm -rf /var/lib/apt/lists/*
+
+# Allow the timezone to be overridden at build time (e.g. --build-arg TZ=UTC)
+ARG TZ=America/Sao_Paulo
+ENV TZ=${TZ}
+
 # Copy the native binary produced by Gradle
-COPY --from=native-build /workspace/build/native/nativeCompile/espaco-geek /app/espaco-geek
-EXPOSE 8080
-USER nonroot
+COPY --from=builder /workspace/build/native/nativeCompile/espaco-geek /app/espaco-geek
+RUN chmod +x /app/espaco-geek
+
+# Expose app port and actuator management port
+EXPOSE 8080 8081
+
+# Health check hits the Spring Boot Actuator endpoint on the management port (8081)
+HEALTHCHECK --interval=15s --timeout=5s --retries=5 --start-period=60s \
+    CMD curl -f http://localhost:8081/actuator/health || exit 1
+
+# Run as a non-root user for security
+RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
+USER appuser
+
 ENTRYPOINT ["/app/espaco-geek"]
