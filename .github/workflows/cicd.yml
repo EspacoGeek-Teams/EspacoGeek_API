@@ -529,7 +529,8 @@ jobs:
           RUN apt-get update \
            && apt-get install -y --no-install-recommends curl ca-certificates \
            && rm -rf /var/lib/apt/lists/*
-          ENV TZ=America/Sao_Paulo
+          ARG TZ=America/Sao_Paulo
+          ENV TZ=${TZ}
           COPY build/native/nativeCompile/espaco-geek /app/espaco-geek
           RUN chmod +x /app/espaco-geek
           EXPOSE 8080 8081
@@ -553,6 +554,7 @@ jobs:
             -e "SPRING_DATASOURCE_USERNAME=testuser" \
             -e "SPRING_DATASOURCE_PASSWORD=testpass" \
             -e "SPRING_MVC_CORS_ALLOWED_ORIGINS=http://localhost:3000" \
+            # SPRING_AUTO_DDL maps to spring.jpa.hibernate.ddl-auto (see application.properties)
             -e "SPRING_AUTO_DDL=none" \
             native-validation:ci
 

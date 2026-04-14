@@ -24,7 +24,9 @@ RUN apt-get update \
  && apt-get install -y --no-install-recommends curl ca-certificates \
  && rm -rf /var/lib/apt/lists/*
 
-ENV TZ=America/Sao_Paulo
+# Allow the timezone to be overridden at build time (e.g. --build-arg TZ=UTC)
+ARG TZ=America/Sao_Paulo
+ENV TZ=${TZ}
 
 # Copy the native binary produced by Gradle
 COPY --from=builder /workspace/build/native/nativeCompile/espaco-geek /app/espaco-geek
