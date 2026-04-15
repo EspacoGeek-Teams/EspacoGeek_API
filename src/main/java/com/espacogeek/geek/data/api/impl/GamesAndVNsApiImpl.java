@@ -26,7 +26,6 @@ import com.espacogeek.geek.models.MediaModel;
 import com.espacogeek.geek.models.TypeReferenceModel;
 import com.espacogeek.geek.services.ApiKeyService;
 import com.espacogeek.geek.services.GenreService;
-import com.espacogeek.geek.services.MediaCategoryService;
 import com.espacogeek.geek.services.TypeReferenceService;
 
 import jakarta.annotation.PostConstruct;
@@ -42,8 +41,6 @@ public class GamesAndVNsApiImpl implements MediaApi {
     private IGDBWrapper wrapper;
     private TypeReferenceModel typeReference;
     private final TypeReferenceService typeReferenceService;
-    private final MediaCategoryService mediaCategoryService;
-    private MediaCategoryModel category;
     private final static String VN_ID_IGDB = "34"; // VN Genre ID in IGDB
     private final GenreService genreService;
 
@@ -72,7 +69,6 @@ public class GamesAndVNsApiImpl implements MediaApi {
         wrapper.setCredentials(clientId, tokenId.getKey());
 
         typeReference = typeReferenceService.findById(MediaDataController.ExternalReferenceType.IGDB.getId()).orElseThrow();
-        category = mediaCategoryService.findById(MediaDataController.MediaType.GAME.getId()).orElseThrow();
     }
 
     @Override
