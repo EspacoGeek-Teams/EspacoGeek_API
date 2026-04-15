@@ -54,7 +54,7 @@ on_error() {
 # Arguments
 GHCR_OWNER_LC="${1:-}"
 APP_NAME="${2:-}"
-IMAGE_TAG="${3:-latest}"
+IMAGE_TAG="${3:-native}"
 ENV_FILE="${4:-.env.espacogeek}"
 CONTAINER_NAME="espacogeek-api"
 BACKUP_DIR="${HOME}/espacogeek-api-backups"
