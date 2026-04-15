@@ -36,6 +36,10 @@ public class MediaCategoryModel implements Serializable {
     @Column(name = "type_category")
     private CategoryType name;
 
+    public String getTypeCategory() {
+        return name != null ? name.name() : null;
+    }
+
     @OneToMany(mappedBy = "mediaCategory")
     @Transient
     private List<MediaModel> medias;
