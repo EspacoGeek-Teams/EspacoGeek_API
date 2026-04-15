@@ -37,7 +37,7 @@ jobs:
 
       # Set up Gradle cache automatically
       - name: Setup Gradle (with caching)
-        uses: gradle/actions/setup-gradle@v3
+        uses: gradle/actions/setup-gradle@v4
 
       # Ensure wrapper has execute permission
       - name: Make Gradle wrapper executable
@@ -94,7 +94,7 @@ jobs:
 
       # Set up Gradle cache for builds
       - name: Setup Gradle (with caching)
-        uses: gradle/actions/setup-gradle@v3
+        uses: gradle/actions/setup-gradle@v4
 
       # Ensure wrapper has execute permission (Linux runners)
       - name: Make Gradle wrapper executable
@@ -472,7 +472,7 @@ jobs:
 
       # Set up Gradle with aggressive dependency and build-output caching
       - name: Setup Gradle (with caching)
-        uses: gradle/actions/setup-gradle@v3
+        uses: gradle/actions/setup-gradle@v4
         with:
           gradle-home-cache-cleanup: true
 
