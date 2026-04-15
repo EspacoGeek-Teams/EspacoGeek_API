@@ -430,7 +430,7 @@ jobs:
         image: mariadb:11.4
         env:
           MYSQL_ROOT_PASSWORD: ci_root_pw
-          MYSQL_DATABASE: testdb
+          MYSQL_DATABASE: espacogeekdb
           MYSQL_USER: testuser
           MYSQL_PASSWORD: testpass
         ports:
@@ -543,14 +543,14 @@ jobs:
 
       # Start the native container using the MariaDB service (host network so that
       # the container can reach the MariaDB service on 127.0.0.1:3306).
-      # Flyway will run all pending migrations against the fresh testdb schema.
+      # Flyway will run all pending migrations against the fresh espacogeekdb schema.
       - name: Start native container for pipeline validation
         shell: bash
         run: |
           docker run -d \
             --name native-validation \
             --network host \
-            -e "SPRING_DATASOURCE_URL=jdbc:mysql://127.0.0.1:3306/testdb" \
+            -e "SPRING_DATASOURCE_URL=jdbc:mysql://127.0.0.1:3306/espacogeekdb" \
             -e "SPRING_DATASOURCE_USERNAME=testuser" \
             -e "SPRING_DATASOURCE_PASSWORD=testpass" \
             -e "SPRING_MVC_CORS_ALLOWED_ORIGINS=http://localhost:3000" \
