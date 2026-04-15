@@ -7,6 +7,7 @@ import java.io.InputStream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONArray;
+import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
@@ -41,6 +42,33 @@ import jakarta.annotation.PostConstruct;
 
 import static com.espacogeek.geek.data.api.MediaApi.ApiKey.TMDB_API_KEY_ID;
 
+@RegisterReflectionForBinding({
+    info.movito.themoviedbapi.model.movies.MovieDb.class,
+    info.movito.themoviedbapi.model.movies.ExternalIds.class,
+    info.movito.themoviedbapi.model.movies.Images.class,
+    info.movito.themoviedbapi.model.movies.AlternativeTitles.class,
+    info.movito.themoviedbapi.model.core.AlternativeTitle.class,
+    info.movito.themoviedbapi.model.core.Genre.class,
+    info.movito.themoviedbapi.model.core.Movie.class,
+    info.movito.themoviedbapi.model.core.MovieResultsPage.class,
+    info.movito.themoviedbapi.model.movies.KeywordResults.class,
+    info.movito.themoviedbapi.model.keywords.Keyword.class,
+    info.movito.themoviedbapi.model.core.video.Video.class,
+    info.movito.themoviedbapi.model.core.video.VideoResults.class,
+    info.movito.themoviedbapi.model.core.image.Artwork.class,
+    info.movito.themoviedbapi.model.core.image.Image.class,
+    info.movito.themoviedbapi.model.core.image.ImageResults.class,
+    info.movito.themoviedbapi.model.movies.BelongsToCollection.class,
+    info.movito.themoviedbapi.model.core.ProductionCompany.class,
+    info.movito.themoviedbapi.model.core.ProductionCountry.class,
+    info.movito.themoviedbapi.model.core.Language.class,
+    info.movito.themoviedbapi.model.core.AbstractJsonMapping.class,
+    info.movito.themoviedbapi.model.core.IdElement.class,
+    info.movito.themoviedbapi.model.core.NamedElement.class,
+    info.movito.themoviedbapi.model.core.NamedIdElement.class,
+    info.movito.themoviedbapi.model.core.Results.class,
+    info.movito.themoviedbapi.model.core.ResultsPage.class,
+})
 @SuppressWarnings("OptionalGetWithoutIsPresent")
 @Component("movieAPI")
 @Slf4j
