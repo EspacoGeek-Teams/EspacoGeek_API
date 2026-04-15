@@ -1,22 +1,19 @@
 services:
-  app-jvm:
-    build:
-      context: ..
-      dockerfile: docker/Dockerfile.jvm
-    image: espacogeek-jvm:latest
-    container_name: espacogeek-jvm
+  springapi:
+    #image: espacogeek-jvm:latest
+    image: espacogeek-api:native
+    container_name: espacogeek-api
     environment:
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
-      JAVA_OPTS: "-XX:InitialRAMPercentage=75.0 -XX:MaxRAMPercentage=75.0 -XX:+UseSerialGC"
+      #JAVA_OPTS: "-XX:InitialRAMPercentage=75.0 -XX:MaxRAMPercentage=75.0 -XX:+UseSerialGC"
       SPRING_MVC_CORS_ALLOWED_ORIGINS: ${SPRING_MVC_CORS_ALLOWED_ORIGINS:http://localhost:3000}
       SECURITY_JWT_EXPIRATION_MS: ${SECURITY_JWT_EXPIRATION_MS:604800000}
     networks:
       - infra_network
     ports:
       - "8080:8080"
-      - "5005:5005"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
       interval: 10s
@@ -27,12 +24,13 @@ services:
       resources:
         limits:
           cpus: '0.8'
-          memory: '3500M'
+          memory: '512M'
         reservations:
-          memory: 2000M
+          memory: 256M
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
 
-infra_network:
+networks:
+  infra_network:
     external: true
