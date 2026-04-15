@@ -7,5 +7,5 @@ ALTER SEQUENCE seq_medias RESTART WITH 458830;
 ALTER SEQUENCE seq_externals_references RESTART WITH 201324;
 ALTER SEQUENCE seq_alternative_titles RESTART WITH 122752;
 
-ALTER TABLE medias DROP INDEX idx_title;
+ALTER TABLE alternative_titles DROP INDEX idx_title;
 ALTER TABLE medias DROP INDEX idx_name;
