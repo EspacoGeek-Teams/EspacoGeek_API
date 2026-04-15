@@ -8,9 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import org.springframework.context.annotation.ImportRuntimeHints;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
@@ -29,7 +27,6 @@ import jakarta.servlet.http.HttpServletRequest;
  * JWT configuration and helper methods for token generation and validation.
  */
 @Component
-@ImportRuntimeHints(JwtRuntimeHints.class)
 public class JwtConfig {
 
     @Value("${security.jwt.secret:ZmFrZS1zZWNyZXQtZmFrZS1zZWNyZXQtZmFrZS1zZWNyZXQtMTIzNDU2}")
