@@ -7,7 +7,12 @@
       {"pattern": "\\QMETA-INF/services/io.jsonwebtoken.JwtBuilder\\E"},
       {"pattern": "\\QMETA-INF/services/io.jsonwebtoken.JwtParserBuilder\\E"},
       {"pattern": "\\QMETA-INF/services/io.jsonwebtoken.JwtHeaderBuilder\\E"},
-      {"pattern": "\\QMETA-INF/services/io.jsonwebtoken.impl.lang.Services$ServiceLoaderTemplate\\E"}
+      {"pattern": "\\QMETA-INF/services/io.jsonwebtoken.ClaimsBuilder\\E"},
+      {"pattern": "\\QMETA-INF/services/io.jsonwebtoken.impl.lang.Services$ServiceLoaderTemplate\\E"},
+      {"pattern": "\\QMETA-INF/services/io.jsonwebtoken.security.SignatureAlgorithm\\E"},
+      {"pattern": "\\QMETA-INF/services/io.jsonwebtoken.security.MacAlgorithm\\E"},
+      {"pattern": "\\QMETA-INF/services/io.jsonwebtoken.security.KeyAlgorithm\\E"},
+      {"pattern": "\\QMETA-INF/services/io.jsonwebtoken.security.AeadAlgorithm\\E"}
     ]
   }
 }
