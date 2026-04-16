@@ -30,6 +30,8 @@ import com.espacogeek.geek.utils.MediaUtils;
 import com.espacogeek.geek.utils.MediaLazyLoader;
 import jakarta.transaction.Transactional;
 import org.hibernate.Hibernate;
+import org.hibernate.LazyInitializationException;
+import org.hibernate.collection.spi.PersistentCollection;
 
 /**
  * A Implementation class of MediaService @see MediaService
@@ -95,9 +97,7 @@ public class MediaServiceImpl implements MediaService {
     @Override
     @Transactional
     public MediaModel save(MediaModel media) {
-        boolean hasInMemoryRefs = media.getExternalReference() != null
-                && Hibernate.isInitialized(media.getExternalReference())
-                && !media.getExternalReference().isEmpty();
+        boolean hasInMemoryRefs = hasInMemoryExternalReferences(media);
         boolean hasDbRefs = media.getId() != null && externalsRepo.existsByMediaId(media.getId());
         if (!hasInMemoryRefs && !hasDbRefs) {
             throw new ValidationException("Referência externa obrigatória");
@@ -114,9 +114,7 @@ public class MediaServiceImpl implements MediaService {
     public List<MediaModel> saveAll(List<MediaModel> medias) {
         List<MediaModel> validToSave = new ArrayList<>();
         for (MediaModel media : medias) {
-            boolean hasInMemoryRefs = media.getExternalReference() != null
-                    && Hibernate.isInitialized(media.getExternalReference())
-                    && !media.getExternalReference().isEmpty();
+            boolean hasInMemoryRefs = hasInMemoryExternalReferences(media);
             boolean hasDbRefs = media.getId() != null && externalsRepo.existsByMediaId(media.getId());
             if (!hasInMemoryRefs && !hasDbRefs) {
                 log.warn("Skipping media '{}' - missing external reference (Referência externa obrigatória)", media.getName());
@@ -128,6 +126,35 @@ public class MediaServiceImpl implements MediaService {
             return List.of();
         }
         return this.mediaRepository.saveAll(validToSave);
+    }
+
+    private boolean hasInMemoryExternalReferences(MediaModel media) {
+        var references = safeExternalReferences(media);
+        if (references == null) {
+            return false;
+        }
+
+        if (references instanceof PersistentCollection<?> persistentCollection && !persistentCollection.wasInitialized()) {
+            return false;
+        }
+
+        if (!Hibernate.isInitialized(references)) {
+            return false;
+        }
+
+        try {
+            return !references.isEmpty();
+        } catch (LazyInitializationException ex) {
+            return false;
+        }
+    }
+
+    private java.util.Set<ExternalReferenceModel> safeExternalReferences(MediaModel media) {
+        try {
+            return media.getExternalReference();
+        } catch (LazyInitializationException ex) {
+            return null;
+        }
     }
 
     /**

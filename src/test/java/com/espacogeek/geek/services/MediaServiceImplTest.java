@@ -25,6 +25,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import com.espacogeek.geek.data.MediaDataController;
 import com.espacogeek.geek.models.ExternalReferenceModel;
@@ -164,7 +165,7 @@ class MediaServiceImplTest {
         MediaModel media = new MediaModel();
         media.setId(42);
         media.setName("Detached Media");
-        media.setExternalReference(new PersistentSet<>(null));
+        ReflectionTestUtils.setField(media, "externalReference", new PersistentSet<>(null));
 
         when(externalsRepo.existsByMediaId(42)).thenReturn(true);
         when(mediaRepository.save(media)).thenReturn(media);
@@ -183,7 +184,7 @@ class MediaServiceImplTest {
         MediaModel media = new MediaModel();
         media.setId(77);
         media.setName("Detached Series");
-        media.setExternalReference(new PersistentSet<>(null));
+        ReflectionTestUtils.setField(media, "externalReference", new PersistentSet<>(null));
 
         when(externalsRepo.existsByMediaId(77)).thenReturn(true);
         when(mediaRepository.saveAll(any())).thenReturn(List.of(media));
