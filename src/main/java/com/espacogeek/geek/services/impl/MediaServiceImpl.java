@@ -199,11 +199,18 @@ public class MediaServiceImpl implements MediaService {
     @Override
     @Transactional
     public Optional<MediaModel> findByIdEager(Integer id) {
-        MediaModel media = (MediaModel) mediaRepository.findById(id).orElse(null);
+        // Use the specialized query that eagerly fetches externalReference in a single JOIN FETCH.
+        // This avoids a lazy-load of externalReference later in the update flow, where the
+        // Hibernate session may no longer be active (e.g. virtual-thread context switches).
+        MediaModel media = (MediaModel) mediaRepository.findByIdWithExternalReferences(id).orElse(null);
 
         if (media == null)
             return Optional.empty();
 
+        // Initialize the remaining lazy collections (alternativeTitles, genre, season) via
+        // separate targeted queries. externalReference is already loaded by the query above,
+        // so MediaLazyLoader skips it. Each collection is fetched in its own query to avoid
+        // a Cartesian-product JOIN across multiple collection tables.
         mediaLazyLoader.initializeCollections(media);
 
         media = update(media);

@@ -117,4 +117,21 @@ public interface MediaRepository extends JpaRepository<MediaModel, Integer> {
      */
     @Query("SELECT DISTINCT m FROM MediaModel m LEFT JOIN FETCH m.people WHERE m IN :medias")
     List<MediaModel> findAllWithPeopleByMediaIn(@Param("medias") Collection<MediaModel> medias);
+
+    /**
+     * Loads a single MediaModel by ID with its {@code externalReference} collection eagerly fetched.
+     *
+     * <p>Use this query for flows that immediately need the external API reference identifiers
+     * (e.g., the update/detail flow in {@code MediaServiceImpl#findByIdEager}). Fetching only
+     * {@code externalReference} via a single JOIN FETCH avoids loading all six lazy collections
+     * and prevents accidental Cartesian products. The remaining collections
+     * ({@code alternativeTitles}, {@code genre}, {@code season}) are loaded on demand by
+     * {@link com.espacogeek.geek.utils.MediaLazyLoader} when needed.
+     *
+     * @param id the primary key of the media entity.
+     * @return an Optional containing the MediaModel with its externalReference collection
+     *         initialized, or empty if no entity with the given ID exists.
+     */
+    @Query("SELECT DISTINCT m FROM MediaModel m LEFT JOIN FETCH m.externalReference WHERE m.id = :id")
+    Optional<MediaModel> findByIdWithExternalReferences(@Param("id") Integer id);
 }
