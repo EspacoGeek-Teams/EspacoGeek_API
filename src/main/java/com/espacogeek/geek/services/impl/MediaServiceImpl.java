@@ -332,6 +332,7 @@ public class MediaServiceImpl implements MediaService {
         return findTmdbMediaByIdOrName(id, name, pageable, MediaDataController.MediaType.MOVIE, movieAPI);
     }
 
+    @Transactional
     private MediaModel update(MediaModel media) {
         return switch (media.getMediaCategory().getId()) {
             case 1 -> MediaUtils.updateMedia(List.of(media), serieController).getFirst();
