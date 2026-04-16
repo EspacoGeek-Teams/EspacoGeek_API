@@ -87,7 +87,9 @@ dependencies {
     implementation 'io.micrometer:micrometer-registry-prometheus'
     implementation 'org.springframework.boot:spring-boot-starter-graphql'
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation('org.springframework.boot:spring-boot-starter-data-jpa') {
+        exclude group: 'net.bytebuddy', module: 'byte-buddy'
+    }
 
     // Spring Batch for job management (start/stop/abandon)
     implementation 'org.springframework.boot:spring-boot-starter-batch'
@@ -161,21 +163,6 @@ tasks.named('bootJar') {
 
 tasks.named('bootWar') {
     enabled = true
-}
-
-// ByteBuddy cannot generate bytecode at native-image runtime.
-// Hibernate 6.6 calls loadJavaServices(BytecodeProvider.class) unconditionally
-// (before honouring hibernate.bytecode.provider=none), so the provider is
-// instantiated and fails.  Build-time Hibernate enhancement (see 'hibernate {}'
-// block below) replaces every runtime enhancement, making ByteBuddy unnecessary
-// in the native image.  Tests are not affected because they run on the JVM with
-// their own classpath that still resolves byte-buddy through Mockito.
-tasks.named('nativeCompile') {
-    doFirst {
-        classpath.setFrom(
-            classpath.get().filter { !it.name.startsWith('byte-buddy-') }
-        )
-    }
 }
 
 bootRun {
