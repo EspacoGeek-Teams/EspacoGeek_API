@@ -1,4 +1,4 @@
-[
+﻿[
 {
   "name":"[B"
 },
@@ -4457,6 +4457,7 @@
 },
 {
   "name":"org.hibernate.bytecode.internal.bytebuddy.BytecodeProviderImpl",
+  "queryAllPublicConstructors":true,
   "queryAllPublicMethods":true
 },
 {
