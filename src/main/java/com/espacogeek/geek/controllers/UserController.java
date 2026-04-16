@@ -139,8 +139,11 @@ public class UserController {
         UserModel user = userService.findUserByEmail(email)
                 .orElseThrow(() -> new TokenExpiredException());
 
-        // Token rotation: invalidate the used refresh token and issue a new one
-        jwtTokenService.deleteToken(refreshTokenCookie);
+        // Token rotation: atomically invalidate the used refresh token.
+        // If a concurrent request already consumed it, deleteToken returns false → reject.
+        if (!jwtTokenService.deleteToken(refreshTokenCookie)) {
+            throw new TokenExpiredException();
+        }
         String newRefreshToken = jwtConfig.generateRefreshToken(user);
         jwtTokenService.saveToken(newRefreshToken, user, null);
         queueRefreshTokenCookie(environment, newRefreshToken);

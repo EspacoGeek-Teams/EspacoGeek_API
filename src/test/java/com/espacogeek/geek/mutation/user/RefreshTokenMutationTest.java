@@ -104,6 +104,7 @@ class RefreshTokenMutationTest {
         String existingRefreshToken = jwtConfig.generateRefreshToken(user);
 
         when(jwtTokenService.isTokenValid(existingRefreshToken)).thenReturn(true);
+        when(jwtTokenService.deleteToken(existingRefreshToken)).thenReturn(true);
         when(userService.findUserByEmail(user.getEmail())).thenReturn(Optional.of(user));
         when(jwtTokenService.saveToken(any(), any(UserModel.class), any())).thenReturn(null);
 

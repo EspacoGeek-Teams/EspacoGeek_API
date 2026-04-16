@@ -13,14 +13,14 @@ import com.espacogeek.geek.models.JwtTokenModel;
 
 @Repository
 public interface JwtTokenRepository extends JpaRepository<JwtTokenModel, Integer> {
-    
+
     /**
      * Find a token by its value.
      * @param token the JWT token string
      * @return Optional containing the token model if found
      */
     Optional<JwtTokenModel> findByToken(String token);
-    
+
     /**
      * Find all tokens for a specific user.
      * @param userId the user ID
@@ -28,7 +28,7 @@ public interface JwtTokenRepository extends JpaRepository<JwtTokenModel, Integer
      */
     @Query("SELECT t FROM JwtTokenModel t WHERE t.user.id = ?1")
     List<JwtTokenModel> findByUserId(Integer userId);
-    
+
     /**
      * Delete expired tokens.
      * @param now current timestamp
@@ -37,7 +37,16 @@ public interface JwtTokenRepository extends JpaRepository<JwtTokenModel, Integer
     @Modifying
     @Query("DELETE FROM JwtTokenModel t WHERE t.expiresAt < ?1")
     int deleteExpiredTokens(LocalDateTime now);
-    
+
+    /**
+     * Delete a specific token by value.
+     * @param token the JWT token string
+     * @return number of deleted rows (0 if already gone, 1 if deleted)
+     */
+    @Modifying
+    @Query("DELETE FROM JwtTokenModel t WHERE t.token = ?1")
+    int deleteByToken(String token);
+
     /**
      * Delete all tokens for a specific user.
      * @param userId the user ID

@@ -1,6 +1,7 @@
 package com.espacogeek.geek;
 
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
+import org.springframework.boot.actuate.autoconfigure.endpoint.jmx.JmxEndpointAutoConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.freemarker.FreeMarkerAutoConfiguration;
@@ -35,6 +36,7 @@ import com.espacogeek.geek.types.QuoteArtwork;
 import com.espacogeek.geek.types.UpdateUserMediaInput;
 
 @SpringBootApplication(exclude = {
+		JmxEndpointAutoConfiguration.class,
 		JmxAutoConfiguration.class,
 		FreeMarkerAutoConfiguration.class,
 		ThymeleafAutoConfiguration.class,

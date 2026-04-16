@@ -75,6 +75,9 @@ jobs:
       - name: Make Gradle wrapper executable
         run: chmod +x gradlew
 
+      - name: Create reports output directory
+        run: mkdir -p build/reports
+
       # Run OWASP Dependency-Check via the official CLI wrapper (no Maven required)
       # Note: dependency-check/Dependency-Check_Action does not publish versioned tags;
       # @main is the only supported reference per upstream documentation.
@@ -117,7 +120,10 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      # Build the JVM image locally (no push) so Trivy can scan it
+      # Build the JVM image locally (no push) so Trivy can scan it.
+      # load: true is required to make the image available in the local Docker
+      # daemon; without it, BuildKit only stores it in the build cache and
+      # image-ref 'espacogeek-api:scan' would not be found by Trivy.
       - name: Build JVM Docker image (for scanning)
         uses: docker/build-push-action@v6
         with:
@@ -125,6 +131,7 @@ jobs:
           file: docker/Dockerfile.jvm
           platforms: linux/amd64
           push: false
+          load: true
           tags: espacogeek-api:scan
           cache-from: type=gha
           cache-to: type=gha,mode=max

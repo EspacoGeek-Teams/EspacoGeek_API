@@ -462,6 +462,18 @@
     "allDeclaredFields": true
   },
   {
+    "name": "io.jsonwebtoken.impl.DefaultJwtHeaderBuilder",
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "io.jsonwebtoken.impl.DefaultJwtHeaderBuilder$Supplier",
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredFields": true
+  },
+  {
     "name": "io.jsonwebtoken.impl.DefaultJwtBuilder",
     "allDeclaredConstructors": true,
     "allDeclaredMethods": true,

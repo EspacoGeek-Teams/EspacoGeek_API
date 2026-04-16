@@ -89,8 +89,8 @@ public class JwtTokenServiceImpl implements JwtTokenService {
 
     @Override
     @Transactional
-    public void deleteToken(String token) {
-        jwtTokenRepository.findByToken(token).ifPresent(jwtTokenRepository::delete);
+    public boolean deleteToken(String token) {
+        return jwtTokenRepository.deleteByToken(token) > 0;
     }
 
     @Override

@@ -20,11 +20,12 @@ import org.springframework.batch.core.launch.JobOperator;
 import org.springframework.batch.core.launch.NoSuchJobExecutionException;
 import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Profile;
 import org.springframework.graphql.execution.RuntimeWiringConfigurer;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -64,7 +65,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @TestPropertySource(properties = "spring.batch.jdbc.initialize-schema=embedded")
 class BatchControllerTest {
 
-    @SpringBootApplication
+    @EnableAutoConfiguration
+    @Profile("test")
     @Import({
         BatchController.class,
         SecurityConfig.class,
@@ -83,9 +85,11 @@ class BatchControllerTest {
         /** Provides a named Job bean so {@code ctx.getBean("testBatchJob", Job.class)} succeeds. */
         @Bean(name = "testBatchJob")
         public Job testBatchJob() {
-            Job job = Mockito.mock(Job.class);
-            Mockito.when(job.getName()).thenReturn("testBatchJob");
-            return job;
+            return new org.springframework.batch.core.job.builder.JobBuilder("testBatchJob", new org.springframework.batch.core.repository.support.ResourcelessJobRepository())
+                .start(new org.springframework.batch.core.step.builder.StepBuilder("noopTestStep", new org.springframework.batch.core.repository.support.ResourcelessJobRepository())
+                    .tasklet((contribution, chunkContext) -> org.springframework.batch.repeat.RepeatStatus.FINISHED, new org.springframework.batch.support.transaction.ResourcelessTransactionManager())
+                    .build())
+                .build();
         }
     }
 

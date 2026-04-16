@@ -5,6 +5,7 @@
       {"pattern": "\\QMETA-INF/services/io.jsonwebtoken.io.Deserializer\\E"},
       {"pattern": "\\QMETA-INF/services/io.jsonwebtoken.JwtBuilder\\E"},
       {"pattern": "\\QMETA-INF/services/io.jsonwebtoken.JwtParserBuilder\\E"},
+      {"pattern": "\\QMETA-INF/services/io.jsonwebtoken.JwtHeaderBuilder\\E"},
       {"pattern": "\\QMETA-INF/services/io.jsonwebtoken.impl.lang.Services$ServiceLoaderTemplate\\E"}
     ]
   }

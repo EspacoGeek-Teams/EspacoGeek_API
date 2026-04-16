@@ -133,9 +133,9 @@ tasks.withType(Test) {
 }
 
 tasks.withType(Javadoc).configureEach {
-    options.encoding = 'UTF-8' 
-    failOnError = false 
-    options.addStringOption('Xdoclint:none', '-quiet') 
+    options.encoding = 'UTF-8'
+    failOnError = false
+    options.addStringOption('Xdoclint:none', '-quiet')
 }
 
 tasks.withType(JavaCompile).configureEach {
@@ -153,4 +153,11 @@ tasks.named('bootJar') {
 
 tasks.named('bootWar') {
     enabled = true
+}
+
+bootRun {
+    if ((System.getenv('NATIVE_IMAGE_AGENT') ?: 'false').toBoolean()) {
+        def hintsDir = System.getenv('NATIVE_IMAGE_HINTS_DIR') ?: 'build/native-image-hints'
+        jvmArgs("-agentlib:native-image-agent=config-output-dir=${hintsDir}")
+    }
 }

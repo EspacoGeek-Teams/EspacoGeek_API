@@ -4,8 +4,6 @@ import java.time.LocalDateTime;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.ArrayList;
-import java.util.List;
 
 import com.espacogeek.geek.services.*;
 import com.espacogeek.geek.utils.MediaLazyLoader;
@@ -27,6 +25,7 @@ import jakarta.annotation.PostConstruct;
 @Qualifier("serieController")
 @Slf4j
 public class SerieControllerImpl extends GenericMediaDataControllerImpl {
+    @Qualifier("tvSeriesApi")
     private final MediaApi tvSeriesApi;
     private final MediaCategoryService mediaCategoryService;
     private final ExternalReferenceService externalReferenceService;
@@ -34,7 +33,7 @@ public class SerieControllerImpl extends GenericMediaDataControllerImpl {
 
     private TypeReferenceModel typeReference;
 
-    public SerieControllerImpl(MediaService mediaService, GenreService genreService, AlternativeTitlesService alternativeTitlesService, ExternalReferenceService externalReferenceService, SeasonService seasonService, MediaApi tvSeriesApi, MediaCategoryService mediaCategoryService, ExternalReferenceService externalReferenceService1, TypeReferenceService typeReferenceService, MediaLazyLoader mediaLazyLoader) {
+    public SerieControllerImpl(MediaService mediaService, GenreService genreService, AlternativeTitlesService alternativeTitlesService, ExternalReferenceService externalReferenceService, SeasonService seasonService, @Qualifier("tvSeriesApi") MediaApi tvSeriesApi, MediaCategoryService mediaCategoryService, ExternalReferenceService externalReferenceService1, TypeReferenceService typeReferenceService, MediaLazyLoader mediaLazyLoader) {
         super(mediaService, genreService, alternativeTitlesService, externalReferenceService, seasonService, mediaLazyLoader);
         this.tvSeriesApi = tvSeriesApi;
         this.mediaCategoryService = mediaCategoryService;

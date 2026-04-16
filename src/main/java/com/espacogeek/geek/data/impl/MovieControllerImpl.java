@@ -1,8 +1,6 @@
 package com.espacogeek.geek.data.impl;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -11,7 +9,6 @@ import org.json.simple.JSONObject;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.item.ExecutionContext;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
@@ -36,6 +33,7 @@ import jakarta.annotation.PostConstruct;
 @Qualifier("movieController")
 @Slf4j
 public class MovieControllerImpl extends GenericMediaDataControllerImpl {
+    @Qualifier("movieAPI")
     private final MediaApi movieAPI;
     private final MediaCategoryService mediaCategoryService;
     private final ExternalReferenceService externalReferenceService;
@@ -44,7 +42,7 @@ public class MovieControllerImpl extends GenericMediaDataControllerImpl {
     private TypeReferenceModel typeReference;
 
     public MovieControllerImpl(
-            MediaApi movieAPI,
+            @Qualifier("movieAPI") MediaApi movieAPI,
             MediaCategoryService mediaCategoryService,
             ExternalReferenceService externalReferenceService,
             TypeReferenceService typeReferenceService,
