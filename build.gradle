@@ -29,6 +29,8 @@ graalvmNative {
                 //'--initialize-at-run-time=... (para classes pesadas)',
                 '--report-unsupported-elements-at-runtime'
             ])
+
+            classpath.setFrom(sourceSets.main.runtimeClasspath.filter { !it.name.contains('byte-buddy') })
         }
     }
 }
