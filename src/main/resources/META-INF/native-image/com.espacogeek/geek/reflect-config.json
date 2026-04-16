@@ -4457,7 +4457,7 @@
 },
 {
   "name":"org.hibernate.bytecode.internal.bytebuddy.BytecodeProviderImpl",
-  "queryAllPublicConstructors":true,
+  "allPublicConstructors":true,
   "queryAllPublicMethods":true
 },
 {
