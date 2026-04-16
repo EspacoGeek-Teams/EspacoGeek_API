@@ -91,8 +91,6 @@
   }, {
     "pattern":"\\QMETA-INF/services/org.hibernate.boot.spi.SessionFactoryBuilderFactory\\E"
   }, {
-    "pattern":"\\QMETA-INF/services/org.hibernate.bytecode.spi.BytecodeProvider\\E"
-  }, {
     "pattern":"\\QMETA-INF/services/org.hibernate.engine.jdbc.dialect.spi.DialectResolver\\E"
   }, {
     "pattern":"\\QMETA-INF/services/org.hibernate.event.spi.EventEngineContributor\\E"
@@ -312,30 +310,6 @@
     "pattern":"\\Qorg/apache/catalina/util/ServerInfo.properties\\E"
   }, {
     "pattern":"\\Qorg/flywaydb/core/internal/version.txt\\E"
-  }, {
-    "pattern":"\\Qorg/hibernate/bytecode/enhance/internal/bytebuddy/CodeTemplates$AreFieldsDirty.class\\E"
-  }, {
-    "pattern":"\\Qorg/hibernate/bytecode/enhance/internal/bytebuddy/CodeTemplates$AreFieldsDirtyWithoutCollections.class\\E"
-  }, {
-    "pattern":"\\Qorg/hibernate/bytecode/enhance/internal/bytebuddy/CodeTemplates$ClearDirtyAttributes.class\\E"
-  }, {
-    "pattern":"\\Qorg/hibernate/bytecode/enhance/internal/bytebuddy/CodeTemplates$ClearDirtyAttributesWithoutCollections.class\\E"
-  }, {
-    "pattern":"\\Qorg/hibernate/bytecode/enhance/internal/bytebuddy/CodeTemplates$ClearOwner.class\\E"
-  }, {
-    "pattern":"\\Qorg/hibernate/bytecode/enhance/internal/bytebuddy/CodeTemplates$GetCollectionTrackerWithoutCollections.class\\E"
-  }, {
-    "pattern":"\\Qorg/hibernate/bytecode/enhance/internal/bytebuddy/CodeTemplates$GetDirtyAttributes.class\\E"
-  }, {
-    "pattern":"\\Qorg/hibernate/bytecode/enhance/internal/bytebuddy/CodeTemplates$GetDirtyAttributesWithoutCollections.class\\E"
-  }, {
-    "pattern":"\\Qorg/hibernate/bytecode/enhance/internal/bytebuddy/CodeTemplates$InitializeLazyAttributeLoadingInterceptor.class\\E"
-  }, {
-    "pattern":"\\Qorg/hibernate/bytecode/enhance/internal/bytebuddy/CodeTemplates$SetOwner.class\\E"
-  }, {
-    "pattern":"\\Qorg/hibernate/bytecode/enhance/internal/bytebuddy/CodeTemplates$SuspendDirtyTracking.class\\E"
-  }, {
-    "pattern":"\\Qorg/hibernate/bytecode/enhance/internal/bytebuddy/CodeTemplates$TrackChange.class\\E"
   }, {
     "pattern":"\\Qorg/hibernate/hibernate-configuration-3.0.dtd\\E"
   }, {
