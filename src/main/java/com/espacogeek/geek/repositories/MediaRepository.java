@@ -123,10 +123,12 @@ public interface MediaRepository extends JpaRepository<MediaModel, Integer> {
      *
      * <p>Use this query for flows that immediately need the external API reference identifiers
      * (e.g., the update/detail flow in {@code MediaServiceImpl#findByIdEager}). Fetching only
-     * {@code externalReference} via a single JOIN FETCH avoids loading all six lazy collections
-     * and prevents accidental Cartesian products. The remaining collections
-     * ({@code alternativeTitles}, {@code genre}, {@code season}) are loaded on demand by
-     * {@link com.espacogeek.geek.utils.MediaLazyLoader} when needed.
+     * {@code externalReference} via a single JOIN FETCH avoids eagerly loading the other lazy
+     * collections and helps prevent accidental Cartesian products. This query initializes only
+     * {@code externalReference}; {@code alternativeTitles}, {@code genre}, and {@code season}
+     * may still be initialized on demand by
+     * {@link com.espacogeek.geek.utils.MediaLazyLoader}, while {@code company} and
+     * {@code people} are left to other resolvers such as GraphQL {@code @BatchMapping}.
      *
      * @param id the primary key of the media entity.
      * @return an Optional containing the MediaModel with its externalReference collection
