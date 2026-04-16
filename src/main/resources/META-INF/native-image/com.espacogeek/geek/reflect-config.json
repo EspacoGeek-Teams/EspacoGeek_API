@@ -12510,6 +12510,11 @@
   "name":"org.zeroturnaround.javarebel.ReloaderFactory"
 },
 {
+  "name": "proto.GameResult",
+  "allDeclaredMethods": true,
+  "allDeclaredConstructors": true
+}
+{
   "name":"proto.Genre"
 },
 {
