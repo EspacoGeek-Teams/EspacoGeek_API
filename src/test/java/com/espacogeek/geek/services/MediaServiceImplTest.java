@@ -13,6 +13,7 @@ import static org.mockito.Mockito.when;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 
 import org.hibernate.collection.spi.PersistentSet;
 
@@ -339,5 +340,52 @@ class MediaServiceImplTest {
         assertThat(result.getContent().getFirst().getName()).isEqualTo("Refreshed VN");
         verify(genericMediaDataController).updateAllInformation(staleVisualNovel, null, igdbReference, gamesAndVNsAPI);
         verify(genericMediaDataController, never()).searchMedia(any(), any(), any(), any());
+    }
+
+    @Test
+    void findByIdEager_WhenMediaExists_ShouldUseSpecializedQueryAndCallLazyLoader() {
+        MediaCategoryModel category = new MediaCategoryModel();
+        category.setId(MediaDataController.MediaType.GAME.getId());
+
+        TypeReferenceModel igdbReference = new TypeReferenceModel();
+        igdbReference.setId(MediaDataController.ExternalReferenceType.IGDB.getId());
+
+        ExternalReferenceModel ref = new ExternalReferenceModel();
+        ref.setReference("999");
+        ref.setTypeReference(igdbReference);
+
+        MediaModel media = new MediaModel();
+        media.setId(10);
+        media.setName("Test Game");
+        media.setMediaCategory(category);
+        media.setExternalReference(new HashSet<>(List.of(ref)));
+
+        when(mediaRepository.findByIdWithExternalReferences(10)).thenReturn(Optional.of(media));
+        when(typeReferenceService.findById(MediaDataController.ExternalReferenceType.IGDB.getId()))
+                .thenReturn(Optional.of(igdbReference));
+        when(genericMediaDataController.updateAllInformation(eq(media), isNull(), eq(igdbReference), eq(gamesAndVNsAPI)))
+                .thenReturn(media);
+
+        Optional<MediaModel> result = mediaService.findByIdEager(10);
+
+        assertThat(result).isPresent();
+        assertThat(result.get().getName()).isEqualTo("Test Game");
+        // Must use the specialized JOIN FETCH query, not the plain findById
+        verify(mediaRepository).findByIdWithExternalReferences(10);
+        verify(mediaRepository, never()).findById(any());
+        // LazyLoader must be called to initialize remaining collections
+        verify(mediaLazyLoader).initializeCollections(media);
+    }
+
+    @Test
+    void findByIdEager_WhenMediaNotFound_ShouldReturnEmpty() {
+        when(mediaRepository.findByIdWithExternalReferences(999)).thenReturn(Optional.empty());
+
+        Optional<MediaModel> result = mediaService.findByIdEager(999);
+
+        assertThat(result).isEmpty();
+        verify(mediaRepository).findByIdWithExternalReferences(999);
+        verify(mediaRepository, never()).findById(any());
+        verify(mediaLazyLoader, never()).initializeCollections(any());
     }
 }
