@@ -12513,7 +12513,7 @@
   "name": "proto.GameResult",
   "allDeclaredMethods": true,
   "allDeclaredConstructors": true
-}
+},
 {
   "name":"proto.Genre"
 },
