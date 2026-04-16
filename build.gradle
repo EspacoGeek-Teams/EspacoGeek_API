@@ -172,8 +172,8 @@ tasks.named('bootWar') {
 // their own classpath that still resolves byte-buddy through Mockito.
 tasks.named('nativeCompile') {
     doFirst {
-        options.classpath.setFrom(
-            options.classpath.filter { !it.name.startsWith('byte-buddy-') }
+        classpath.setFrom(
+            classpath.get().filter { !it.name.startsWith('byte-buddy-') }
         )
     }
 }
