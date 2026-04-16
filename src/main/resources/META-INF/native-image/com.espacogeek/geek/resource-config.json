@@ -1,6 +1,7 @@
 {
   "resources": {
     "includes": [
+      {"pattern": "\\QMETA-INF/services/io.jsonwebtoken.CompressionCodec\\E"},
       {"pattern": "\\QMETA-INF/services/io.jsonwebtoken.io.Serializer\\E"},
       {"pattern": "\\QMETA-INF/services/io.jsonwebtoken.io.Deserializer\\E"},
       {"pattern": "\\QMETA-INF/services/io.jsonwebtoken.JwtBuilder\\E"},

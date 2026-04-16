@@ -1,662 +1,2624 @@
-[
-  {
-    "name": "proto.GameResult",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "proto.GameResult$Builder",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "proto.Game",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "proto.Game$Builder",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "proto.AlternativeName",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "proto.AlternativeName$Builder",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "proto.Cover",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "proto.Cover$Builder",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "proto.Artwork",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "proto.Artwork$Builder",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "proto.Genre",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "proto.Genre$Builder",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "proto.Screenshot",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "proto.Screenshot$Builder",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "proto.Website",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "proto.Website$Builder",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "proto.Platform",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "proto.Platform$Builder",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "proto.ReleaseDate",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "proto.ReleaseDate$Builder",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "proto.InvolvedCompany",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "proto.InvolvedCompany$Builder",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "proto.GameMode",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "proto.GameMode$Builder",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "proto.Theme",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "proto.Theme$Builder",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "proto.Franchise",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "proto.Franchise$Builder",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "proto.Collection",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "proto.Collection$Builder",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "proto.GameVideo",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "proto.GameVideo$Builder",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "proto.PlayerPerspective",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "proto.PlayerPerspective$Builder",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "proto.Keyword",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "proto.Keyword$Builder",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "proto.ExternalGame",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "proto.ExternalGame$Builder",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "proto.MultiplayerMode",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "proto.MultiplayerMode$Builder",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "proto.GameEngine",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "proto.GameEngine$Builder",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "info.movito.themoviedbapi.model.movies.MovieDb",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "info.movito.themoviedbapi.model.movies.ExternalIds",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "info.movito.themoviedbapi.model.movies.Images",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "info.movito.themoviedbapi.model.movies.AlternativeTitles",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "info.movito.themoviedbapi.model.movies.KeywordResults",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "info.movito.themoviedbapi.model.movies.BelongsToCollection",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "info.movito.themoviedbapi.model.tv.series.TvSeriesDb",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "info.movito.themoviedbapi.model.tv.core.TvSeason",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "info.movito.themoviedbapi.model.tv.series.ExternalIds",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "info.movito.themoviedbapi.model.tv.series.Images",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "info.movito.themoviedbapi.model.tv.series.AlternativeTitleResults",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "info.movito.themoviedbapi.model.tv.core.Network",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "info.movito.themoviedbapi.model.tv.series.CreatedBy",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "info.movito.themoviedbapi.model.core.AlternativeTitle",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "info.movito.themoviedbapi.model.core.Genre",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "info.movito.themoviedbapi.model.core.Movie",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "info.movito.themoviedbapi.model.core.MovieResultsPage",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "info.movito.themoviedbapi.model.core.TvSeries",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "info.movito.themoviedbapi.model.core.TvSeriesResultsPage",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "info.movito.themoviedbapi.model.core.TvKeywords",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "info.movito.themoviedbapi.model.keywords.Keyword",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "info.movito.themoviedbapi.model.core.video.Video",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "info.movito.themoviedbapi.model.core.video.VideoResults",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "info.movito.themoviedbapi.model.core.image.Artwork",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "info.movito.themoviedbapi.model.core.image.Image",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "info.movito.themoviedbapi.model.core.image.ImageResults",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "info.movito.themoviedbapi.model.core.Language",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "info.movito.themoviedbapi.model.core.ProductionCompany",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "info.movito.themoviedbapi.model.core.ProductionCountry",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "info.movito.themoviedbapi.model.core.AbstractJsonMapping",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "info.movito.themoviedbapi.model.core.IdElement",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "info.movito.themoviedbapi.model.core.NamedElement",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "info.movito.themoviedbapi.model.core.NamedIdElement",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "info.movito.themoviedbapi.model.core.Results",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "info.movito.themoviedbapi.model.core.ResultsPage",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "io.jsonwebtoken.impl.DefaultJwtHeaderBuilder",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "io.jsonwebtoken.impl.DefaultJwtHeaderBuilder$Supplier",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "io.jsonwebtoken.impl.DefaultJwtBuilder",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "io.jsonwebtoken.impl.DefaultJwtBuilder$Supplier",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "io.jsonwebtoken.impl.DefaultJwtParserBuilder",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "io.jsonwebtoken.impl.DefaultJwtParserBuilder$Supplier",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "io.jsonwebtoken.impl.DefaultJwtParser",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "io.jsonwebtoken.impl.DefaultClaimsBuilder",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "io.jsonwebtoken.impl.DefaultClaimsBuilder$Supplier",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "io.jsonwebtoken.impl.DefaultClaims",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "io.jsonwebtoken.impl.DefaultHeader",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "io.jsonwebtoken.impl.DefaultJws",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "io.jsonwebtoken.impl.DefaultJwt",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "io.jsonwebtoken.impl.DefaultJwe",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "io.jsonwebtoken.impl.DefaultUnprotectedHeader",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "io.jsonwebtoken.impl.DefaultJweHeader",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "io.jsonwebtoken.impl.DefaultJwsHeader",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "io.jsonwebtoken.impl.DefaultMutableJweHeader",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "io.jsonwebtoken.impl.compression.DeflateCompressionAlgorithm",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "io.jsonwebtoken.impl.compression.GzipCompressionAlgorithm",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "io.jsonwebtoken.impl.lang.Services",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "io.jsonwebtoken.impl.security.DefaultAeadAlgorithm",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "io.jsonwebtoken.impl.security.DefaultHashAlgorithm",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "io.jsonwebtoken.impl.security.DefaultKeyAlgorithm",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "io.jsonwebtoken.impl.security.DefaultRsaKeyAlgorithm",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "io.jsonwebtoken.impl.security.DefaultSignatureAlgorithm",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "io.jsonwebtoken.impl.security.EcSignatureAlgorithm",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "io.jsonwebtoken.impl.security.HmacAesAesKwAlgorithm",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "io.jsonwebtoken.impl.security.DefaultEllipticCurve",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "io.jsonwebtoken.jackson.io.JacksonSerializer",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "io.jsonwebtoken.jackson.io.JacksonSerializer$Supplier",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "io.jsonwebtoken.jackson.io.JacksonDeserializer",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "io.jsonwebtoken.jackson.io.JacksonDeserializer$Supplier",
-    "allDeclaredConstructors": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  }
+﻿[
+    {
+        "name":  "proto.GameResult",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "proto.GameResult$Builder",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "proto.Game",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "proto.Game$Builder",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "proto.AlternativeName",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "proto.AlternativeName$Builder",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "proto.Cover",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "proto.Cover$Builder",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "proto.Artwork",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "proto.Artwork$Builder",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "proto.Genre",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "proto.Genre$Builder",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "proto.Screenshot",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "proto.Screenshot$Builder",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "proto.Website",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "proto.Website$Builder",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "proto.Platform",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "proto.Platform$Builder",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "proto.ReleaseDate",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "proto.ReleaseDate$Builder",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "proto.InvolvedCompany",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "proto.InvolvedCompany$Builder",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "proto.GameMode",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "proto.GameMode$Builder",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "proto.Theme",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "proto.Theme$Builder",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "proto.Franchise",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "proto.Franchise$Builder",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "proto.Collection",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "proto.Collection$Builder",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "proto.GameVideo",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "proto.GameVideo$Builder",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "proto.PlayerPerspective",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "proto.PlayerPerspective$Builder",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "proto.Keyword",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "proto.Keyword$Builder",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "proto.ExternalGame",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "proto.ExternalGame$Builder",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "proto.MultiplayerMode",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "proto.MultiplayerMode$Builder",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "proto.GameEngine",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "proto.GameEngine$Builder",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "info.movito.themoviedbapi.model.movies.MovieDb",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "info.movito.themoviedbapi.model.movies.ExternalIds",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "info.movito.themoviedbapi.model.movies.Images",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "info.movito.themoviedbapi.model.movies.AlternativeTitles",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "info.movito.themoviedbapi.model.movies.KeywordResults",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "info.movito.themoviedbapi.model.movies.BelongsToCollection",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "info.movito.themoviedbapi.model.tv.series.TvSeriesDb",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "info.movito.themoviedbapi.model.tv.core.TvSeason",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "info.movito.themoviedbapi.model.tv.series.ExternalIds",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "info.movito.themoviedbapi.model.tv.series.Images",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "info.movito.themoviedbapi.model.tv.series.AlternativeTitleResults",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "info.movito.themoviedbapi.model.tv.core.Network",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "info.movito.themoviedbapi.model.tv.series.CreatedBy",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "info.movito.themoviedbapi.model.core.AlternativeTitle",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "info.movito.themoviedbapi.model.core.Genre",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "info.movito.themoviedbapi.model.core.Movie",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "info.movito.themoviedbapi.model.core.MovieResultsPage",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "info.movito.themoviedbapi.model.core.TvSeries",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "info.movito.themoviedbapi.model.core.TvSeriesResultsPage",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "info.movito.themoviedbapi.model.core.TvKeywords",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "info.movito.themoviedbapi.model.keywords.Keyword",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "info.movito.themoviedbapi.model.core.video.Video",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "info.movito.themoviedbapi.model.core.video.VideoResults",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "info.movito.themoviedbapi.model.core.image.Artwork",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "info.movito.themoviedbapi.model.core.image.Image",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "info.movito.themoviedbapi.model.core.image.ImageResults",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "info.movito.themoviedbapi.model.core.Language",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "info.movito.themoviedbapi.model.core.ProductionCompany",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "info.movito.themoviedbapi.model.core.ProductionCountry",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "info.movito.themoviedbapi.model.core.AbstractJsonMapping",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "info.movito.themoviedbapi.model.core.IdElement",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "info.movito.themoviedbapi.model.core.NamedElement",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "info.movito.themoviedbapi.model.core.NamedIdElement",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "info.movito.themoviedbapi.model.core.Results",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "info.movito.themoviedbapi.model.core.ResultsPage",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.DefaultJwtHeaderBuilder",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.DefaultJwtHeaderBuilder$Supplier",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.DefaultJwtBuilder",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.DefaultJwtBuilder$Supplier",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.DefaultJwtParserBuilder",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.DefaultJwtParserBuilder$Supplier",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.DefaultJwtParser",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.DefaultClaimsBuilder",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.DefaultClaimsBuilder$Supplier",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.DefaultClaims",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.DefaultHeader",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.DefaultJws",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.DefaultJwt",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.DefaultJwe",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.DefaultUnprotectedHeader",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.DefaultJweHeader",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.DefaultJwsHeader",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.DefaultMutableJweHeader",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.compression.DeflateCompressionAlgorithm",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.compression.GzipCompressionAlgorithm",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.lang.Services",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.DefaultAeadAlgorithm",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.DefaultHashAlgorithm",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.DefaultKeyAlgorithm",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.DefaultRsaKeyAlgorithm",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.DefaultSignatureAlgorithm",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.StandardSecureDigestAlgorithms",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.StandardCurves",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.StandardEncryptionAlgorithms",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.StandardKeyOperations",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.StandardKeyAlgorithms",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.StandardHashAlgorithms",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.EcSignatureAlgorithm",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.HmacAesAesKwAlgorithm",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.DefaultEllipticCurve",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.jackson.io.JacksonSerializer",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.jackson.io.JacksonSerializer$Supplier",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.jackson.io.JacksonDeserializer",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.jackson.io.JacksonDeserializer$Supplier",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.AbstractAudienceCollection",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.AbstractTextCodec",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.AbstractX509Context",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.AndroidBase64Codec",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.Base64Codec",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.Base64UrlCodec",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.compression.AbstractCompressionAlgorithm",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.compression.AbstractCompressionAlgorithm$1",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.compression.AbstractCompressionAlgorithm$2",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.compression.AbstractCompressionAlgorithm$3",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.compression.AbstractCompressionAlgorithm$4",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.CompressionCodecLocator",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.DefaultClock",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.DefaultJweHeaderBuilder",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.DefaultJweHeaderMutator",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.DefaultJweHeaderMutator$1",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.DefaultJwtBuilder$1",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.DefaultJwtBuilder$2",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.DefaultJwtBuilder$3",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.DefaultJwtBuilder$DefaultBuilderClaims",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.DefaultJwtBuilder$DefaultBuilderHeader",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.DefaultJwtParserBuilder$1",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.DefaultJwtParserBuilder$2",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.DefaultJwtParserBuilder$3",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.DefaultJwtParserBuilder$4",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.DefaultJwtParserBuilder$5",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.DefaultProtectedHeader",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.DefaultProtectedJwt",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.DefaultTokenizedJwe",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.DefaultTokenizedJwt",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.DelegateAudienceCollection",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.DelegatingClaimsMutator",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.DelegatingClaimsMutator$1",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.FixedClock",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.IdLocator",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.io.AbstractParser",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.io.AbstractParserBuilder",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.io.Base64Codec",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.io.Base64InputStream",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.io.Base64OutputStream",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.io.Base64UrlStreamEncoder",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.io.BaseNCodec",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.io.BaseNCodec$Context",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.io.BaseNCodecInputStream",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.io.BaseNCodecOutputStream",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.io.ByteBase64UrlStreamEncoder",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.io.ByteBase64UrlStreamEncoder$TranslatingOutputStream",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.io.BytesInputStream",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.io.CharSequenceReader",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.io.ClosedInputStream",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.io.Codec",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.io.CodecPolicy",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.io.ConvertingParser",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.io.CountingInputStream",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.io.DecodingInputStream",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.io.DelegateStringDecoder",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.io.EncodingOutputStream",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.io.FilteredInputStream",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.io.FilteredOutputStream",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.io.JsonObjectDeserializer",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.io.NamedSerializer",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.io.StandardCompressionAlgorithms",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.io.Streams",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.io.Streams$1",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.io.Streams$2",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.io.Streams$3",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.io.TeeOutputStream",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.io.UncloseableInputStream",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.JwtTokenizer",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.lang.BiConsumer",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.lang.BigIntegerUBytesConverter",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.lang.Bytes",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.lang.CheckedFunction",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.lang.CheckedSupplier",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.lang.CollectionConverter",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.lang.CollectionConverter$1",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.lang.CollectionConverter$CreateListFunction",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.lang.CollectionConverter$CreateSetFunction",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.lang.CompactMediaTypeIdConverter",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.lang.CompoundConverter",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.lang.ConstantFunction",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.lang.Converter",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.lang.Converters",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.lang.DefaultCollectionMutator",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.lang.DefaultNestedCollection",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.lang.DefaultParameter",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.lang.DefaultParameterBuilder",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.lang.DefaultRegistry",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.lang.DelegatingCheckedFunction",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.lang.DelegatingMap",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.lang.DelegatingMapMutator",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.lang.EncodedObjectConverter",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.lang.FormattedStringFunction",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.lang.FormattedStringSupplier",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.lang.Function",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.lang.Functions",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.lang.Functions$1",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.lang.Functions$2",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.lang.Functions$3",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.lang.IdRegistry",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.lang.IdRegistry$1",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.lang.JwtDateConverter",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.lang.LocatorFunction",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.lang.Nameable",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.lang.NestedIdentifiableCollection",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.lang.NullSafeConverter",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.lang.OptionalMethodInvoker",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.lang.Parameter",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.lang.ParameterBuilder",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.lang.ParameterReadable",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.lang.Parameters",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.lang.PositiveIntegerConverter",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.lang.PropagatingExceptionFunction",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.lang.PropagatingExceptionFunction$1",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.lang.RedactedSupplier",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.lang.RedactedValueConverter",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.lang.ReflectionFunction",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.lang.RequiredBitLengthConverter",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.lang.RequiredParameterReader",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.lang.RequiredTypeConverter",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.lang.Services$1",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.lang.Services$2",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.lang.Services$3",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.lang.Services$ClassLoaderAccessor",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.lang.StringRegistry",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.lang.StringRegistry$CaseInsensitiveFunction",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.lang.UnavailableImplementationException",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.lang.UriStringConverter",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.ParameterMap",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.ParameterMap$1",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.ParameterMap$EntryIterator",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.ParameterMap$EntrySet",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.ParameterMap$KeyIterator",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.ParameterMap$KeySet",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.ParameterMap$ParameterMapIterator",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.ParameterMap$ParameterMapSet",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.ParameterMap$ValueIterator",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.ParameterMap$ValueSet",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.Payload",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.AbstractAsymmetricJwk",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.AbstractAsymmetricJwkBuilder",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.AbstractAsymmetricJwkBuilder$DefaultEcPrivateJwkBuilder",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.AbstractAsymmetricJwkBuilder$DefaultEcPublicJwkBuilder",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.AbstractAsymmetricJwkBuilder$DefaultOctetPrivateJwkBuilder",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.AbstractAsymmetricJwkBuilder$DefaultOctetPublicJwkBuilder",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.AbstractAsymmetricJwkBuilder$DefaultPrivateJwkBuilder",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.AbstractAsymmetricJwkBuilder$DefaultPublicJwkBuilder",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.AbstractAsymmetricJwkBuilder$DefaultRsaPrivateJwkBuilder",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.AbstractAsymmetricJwkBuilder$DefaultRsaPublicJwkBuilder",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.AbstractCurve",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.AbstractEcJwkFactory",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.AbstractFamilyJwkFactory",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.AbstractFamilyJwkFactory$1",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.AbstractJwk",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.AbstractJwkBuilder",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.AbstractJwkBuilder$1",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.AbstractJwkBuilder$DefaultSecretJwkBuilder",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.AbstractJwkParserBuilder",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.AbstractPrivateJwk",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.AbstractPublicJwk",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.AbstractSecureDigestAlgorithm",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.AbstractSecurityBuilder",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.AbstractSignatureAlgorithm",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.AbstractSignatureAlgorithm$1",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.AbstractSignatureAlgorithm$2",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.AesAlgorithm",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.AesGcmKeyAlgorithm",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.AesGcmKeyAlgorithm$1",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.AesGcmKeyAlgorithm$2",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.AesWrapKeyAlgorithm",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.AesWrapKeyAlgorithm$1",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.AesWrapKeyAlgorithm$2",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.AsymmetricJwkFactory",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.ConcatKDF",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.ConcatKDF$1",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.ConcatKDF$2",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.ConcatKDF$ClearableByteArrayOutputStream",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.ConstantKeyLocator",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.CryptoAlgorithm",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.DefaultAeadRequest",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.DefaultAeadResult",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.DefaultDecryptAeadRequest",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.DefaultDecryptionKeyRequest",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.DefaultDynamicJwkBuilder",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.DefaultDynamicJwkBuilder$Supplier",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.DefaultEcPrivateJwk",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.DefaultEcPublicJwk",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.DefaultHashAlgorithm$1",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.DefaultJwkContext",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.DefaultJwkParserBuilder",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.DefaultJwkParserBuilder$Supplier",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.DefaultJwkSet",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.DefaultJwkSetBuilder",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.DefaultJwkSetBuilder$Supplier",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.DefaultJwkSetParserBuilder",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.DefaultJwkSetParserBuilder$Supplier",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.DefaultJwkThumbprint",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.DefaultKeyOperation",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.DefaultKeyOperationBuilder",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.DefaultKeyOperationBuilder$Supplier",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.DefaultKeyOperationPolicy",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.DefaultKeyOperationPolicyBuilder",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.DefaultKeyOperationPolicyBuilder$Supplier",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.DefaultKeyPair",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.DefaultKeyPairBuilder",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.DefaultKeyRequest",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.DefaultKeyResult",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.DefaultKeyUseStrategy",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.DefaultMacAlgorithm",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.DefaultMacAlgorithm$1",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.DefaultMessage",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.DefaultOctetPrivateJwk",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.DefaultOctetPublicJwk",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.DefaultRequest",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.DefaultRsaKeyAlgorithm$1",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.DefaultRsaKeyAlgorithm$2",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.DefaultRsaPrivateJwk",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.DefaultRsaPublicJwk",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.DefaultSecretJwk",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.DefaultSecretKeyBuilder",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.DefaultSecureRequest",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.DefaultVerifyDigestRequest",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.DefaultVerifySecureDigestRequest",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.DirectKeyAlgorithm",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.DispatchingJwkFactory",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.ECCurve",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.ECCurve$1",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.EcdhKeyAlgorithm",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.EcdhKeyAlgorithm$1",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.EcPrivateJwkFactory",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.EcPrivateJwkFactory$1",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.EcPrivateJwkFactory$2",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.EcPublicJwkFactory",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.EcPublicJwkFactory$1",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.EcSignatureAlgorithm$1",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.EcSignatureAlgorithm$2",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.EdSignatureAlgorithm",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.EdwardsCurve",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.EdwardsPublicKeyDeriver",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.EdwardsPublicKeyDeriver$ConstantRandom",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.FamilyJwkFactory",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.FieldElementConverter",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.GcmAesAeadAlgorithm",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.GcmAesAeadAlgorithm$1",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.GcmAesAeadAlgorithm$2",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.HmacAesAeadAlgorithm",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.HmacAesAeadAlgorithm$1",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.HmacAesAeadAlgorithm$2",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.JcaTemplate",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.JcaTemplate$1",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.JcaTemplate$10",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.JcaTemplate$2",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.JcaTemplate$3",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.JcaTemplate$4",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.JcaTemplate$5",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.JcaTemplate$6",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.JcaTemplate$7",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.JcaTemplate$8",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.JcaTemplate$9",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.JcaTemplate$AlgorithmParametersFactory",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.JcaTemplate$CertificateFactoryFactory",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.JcaTemplate$CipherFactory",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.JcaTemplate$InstanceFactory",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.JcaTemplate$JcaInstanceFactory",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.JcaTemplate$KeyAgreementFactory",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.JcaTemplate$KeyFactoryFactory",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.JcaTemplate$KeyGeneratorFactory",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.JcaTemplate$KeyPairGeneratorFactory",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.JcaTemplate$MacFactory",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.JcaTemplate$MessageDigestFactory",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.JcaTemplate$SecretKeyFactoryFactory",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.JcaTemplate$SignatureFactory",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.JwkBuilderSupplier",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.JwkContext",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.JwkConverter",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.JwkDeserializer",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.JwkFactory",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.JwksBridge",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.JwkSetConverter",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.JwkSetDeserializer",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.JwtX509StringConverter",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.KeyOperationConverter",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.KeyPairs",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.KeysBridge",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.KeyUsage",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.KeyUseStrategy",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.LocatingKeyResolver",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.NamedParameterSpecValueFinder",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.NoneSignatureAlgorithm",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.OctetJwkFactory",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.OctetPrivateJwkFactory",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.OctetPublicJwkFactory",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.PasswordSpec",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.Pbes2HsAkwAlgorithm",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.Pbes2HsAkwAlgorithm$1",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.PrivateECKey",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.ProvidedKeyBuilder",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.ProvidedPrivateKeyBuilder",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.ProvidedSecretKeyBuilder",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.ProviderKey",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.ProviderPrivateKey",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.Providers",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.ProviderSecretKey",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.Randoms",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.RandomSecretKeyBuilder",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.RSAOtherPrimeInfoConverter",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.RsaPrivateJwkFactory",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.RsaPrivateJwkFactory$1",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.RsaPrivateJwkFactory$2",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.RsaPublicJwkFactory",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.RsaPublicJwkFactory$1",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.RsaSignatureAlgorithm",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.RsaSignatureAlgorithm$1",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.RsaSignatureAlgorithm$2",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.SecretJwkFactory",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.X509BuilderSupport",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.security.X509BuilderSupport$1",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.TextCodec",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.TokenizedJwe",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.TokenizedJwt",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    },
+    {
+        "name":  "io.jsonwebtoken.impl.X509Context",
+        "allDeclaredConstructors":  true,
+        "allDeclaredMethods":  true,
+        "allDeclaredFields":  true
+    }
 ]
