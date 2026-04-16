@@ -131,7 +131,7 @@ implements <a href="../JwtTokenService.html" title="interface in com.espacogeek.
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Clean up expired tokens.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#deleteToken(java.lang.String)" class="member-name-link">deleteToken</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;token)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Delete a specific token.</div>
@@ -267,7 +267,7 @@ implements <a href="../JwtTokenService.html" title="interface in com.espacogeek.
 <section class="detail" id="deleteToken(java.lang.String)">
 <h3>deleteToken</h3>
 <div class="member-signature"><span class="annotations">@Transactional
-</span><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">deleteToken</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;token)</span></div>
+</span><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">deleteToken</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;token)</span></div>
 <div class="block"><span class="description-from-type-label">Description copied from interface:&nbsp;<code><a href="../JwtTokenService.html#deleteToken(java.lang.String)">JwtTokenService</a></code></span></div>
 <div class="block">Delete a specific token.</div>
 <dl class="notes">
@@ -275,6 +275,8 @@ implements <a href="../JwtTokenService.html" title="interface in com.espacogeek.
 <dd><code><a href="../JwtTokenService.html#deleteToken(java.lang.String)">deleteToken</a></code>&nbsp;in interface&nbsp;<code><a href="../JwtTokenService.html" title="interface in com.espacogeek.geek.services">JwtTokenService</a></code></dd>
 <dt>Parameters:</dt>
 <dd><code>token</code> - the JWT token string</dd>
+<dt>Returns:</dt>
+<dd>true if the token was deleted, false if it did not exist (already consumed)</dd>
 </dl>
 </section>
 </li>
