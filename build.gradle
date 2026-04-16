@@ -43,8 +43,7 @@ tasks.matching { it.name == 'generateResourcesConfigFile' }.configureEach {
 sourceSets {
     main {
         resources {
-            srcDir 'graal-config'
-            srcDirs = ['src/main/resources']
+            srcDirs = ['src/main/resources', 'graal-config']
         }
         java {
             srcDirs = ['src/main/java']
@@ -126,7 +125,7 @@ dependencies {
     // ========= Files ==========
     implementation platform('software.amazon.awssdk:bom:2.25.10')
     implementation 'software.amazon.awssdk:s3'
-    implementation 'software.amazon.awssdk:netty-nio-client'
+    implementation 'software.amazon.awssdk:url-connection-client'
 }
 
 hibernate {
