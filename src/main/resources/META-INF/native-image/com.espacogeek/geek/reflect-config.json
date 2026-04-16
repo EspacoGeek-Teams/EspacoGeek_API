@@ -504,6 +504,18 @@
     "allDeclaredFields": true
   },
   {
+    "name": "io.jsonwebtoken.impl.DefaultClaimsBuilder",
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "io.jsonwebtoken.impl.DefaultClaimsBuilder$Supplier",
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredFields": true
+  },
+  {
     "name": "io.jsonwebtoken.impl.DefaultClaims",
     "allDeclaredConstructors": true,
     "allDeclaredMethods": true,
